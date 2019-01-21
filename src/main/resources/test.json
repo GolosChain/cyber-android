@@ -1,0 +1,25 @@
+{
+  "actions": [
+    {
+      "account": "gls.publish",
+      "authorization": [
+        {
+          "actor": "yuri-vlad-second",
+          "permission": "active"
+        }
+      ],
+      "data": "a83048266ee0aef62434663466353563312d393430642d343234392d393762362d6636343635306137376331390000000000000000000000000000000000000114686561646572203135343732303130343435373029626f64792031366361643834352d636564302d346361312d393237362d3034303931353566323733360272750108636f6d2f7465737400",
+      "name": "createmssg"
+    }
+  ],
+  "context_free_actions": [],
+  "context_free_data": [],
+  "delay_sec": 0,
+  "expiration": "2019-01-11T10:02:33",
+  "max_cpu_usage_ms": 0,
+  "max_net_usage_words": 0,
+  "ref_block_num": 860294,
+  "ref_block_prefix": 491452981,
+  "signatures": [],
+  "transaction_extensions": []
+}
