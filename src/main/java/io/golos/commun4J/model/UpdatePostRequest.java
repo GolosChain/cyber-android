@@ -35,8 +35,14 @@ package io.golos.commun4J.model;
 //        ]
 //        }
 
+import com.memtrip.eos.abi.writer.Abi;
+import com.memtrip.eos.abi.writer.CollectionCompress;
+import com.memtrip.eos.abi.writer.NameCompress;
+import com.memtrip.eos.abi.writer.StringCompress;
+
 import java.util.List;
 
+@Abi
 public class UpdatePostRequest {
     private CommunName postAuthor;
     private String permlink;
@@ -56,30 +62,37 @@ public class UpdatePostRequest {
         this.jsonmetadata = jsonmetadata;
     }
 
-    public CommunName getPostAuthor() {
-        return postAuthor;
+    @NameCompress
+    public String getPostAuthor() {
+        return postAuthor.getName();
     }
 
+    @StringCompress
     public String getPermlink() {
         return permlink;
     }
 
+    @StringCompress
     public String getTitle() {
         return title;
     }
 
+    @StringCompress
     public String getBody() {
         return body;
     }
 
+    @StringCompress
     public String getLanguage() {
         return language;
     }
 
+    @CollectionCompress
     public List<Tag> getTags() {
         return tags;
     }
 
+    @StringCompress
     public String getJsonmetadata() {
         return jsonmetadata;
     }

@@ -33,14 +33,14 @@ public class CreatePostRequest {
     private boolean vestpayment = true;
     private String headermssg;
     private String bodymssg;
-    private final String languagemssg = "ru";
+    private String languagemssg = "ru";
     private List<Tag> tags;
-    private final String jsonmetadata = "";
+    private String jsonmetadata = "";
 
     public CreatePostRequest(String account, String permlink, String parentacc,
                              String parentprmlnk, List<Beneficiary> beneficiaries,
                              long tokenprop, boolean vestpayment, String headermssg,
-                             String bodymssg, List<Tag> tags) {
+                             String bodymssg, List<Tag> tags, String language, String jsonMetadata) {
         this.account = account;
         this.permlink = permlink;
         this.parentacc = parentacc;
@@ -51,6 +51,8 @@ public class CreatePostRequest {
         this.headermssg = headermssg;
         this.bodymssg = bodymssg;
         this.tags = tags;
+        this.languagemssg = language;
+        this.jsonmetadata = jsonMetadata;
     }
 
     @Override

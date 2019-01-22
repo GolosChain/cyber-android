@@ -8,10 +8,7 @@ import com.memtrip.eos.http.rpc.ChainApi
 import com.memtrip.eos.http.rpc.model.signing.PushTransaction
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
-import io.golos.commun4J.model.MyActionAbi
-import io.golos.commun4J.model.MySignedTransactionAbi
-import io.golos.commun4J.model.MyTransactionAbi
-import io.golos.commun4J.model.TransactionSuccessful
+import io.golos.commun4J.model.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -44,7 +41,7 @@ class GolosEosTransactionPusher(private val chainApi: ChainApi,
 
         val signature = PrivateKeySigning()
                 .sign(
-                        io.golos.commun4J.model.AbiBinaryGenRomo(CompressionType.NONE).squishMySignedTransactionAbi(
+                        AbiBinaryGenCommun4J(CompressionType.NONE).squishMySignedTransactionAbi(
                                 signedTransaction
                         ).toBytes(),
                         key
@@ -56,7 +53,7 @@ class GolosEosTransactionPusher(private val chainApi: ChainApi,
                         listOf(signature),
                         "none",
                         "",
-                        io.golos.commun4J.model.AbiBinaryGenRomo(CompressionType.NONE).squishMyTransactionAbi(transaction).toHex()
+                        AbiBinaryGenCommun4J(CompressionType.NONE).squishMyTransactionAbi(transaction).toHex()
                 )
         ).blockingGet()
         return if (result.isSuccessful) {

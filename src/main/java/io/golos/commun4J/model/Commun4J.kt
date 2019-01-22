@@ -1,6 +1,6 @@
-package io.golos.commun4J
+package io.golos.commun4J.model
 
 import com.memtrip.eos.abi.writer.AbiWriter
 
 @AbiWriter
-interface Stub
+interface Commun4J

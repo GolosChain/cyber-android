@@ -1,5 +1,10 @@
 package io.golos.commun4J.model;
 
+import com.memtrip.eos.abi.writer.Abi;
+import com.memtrip.eos.abi.writer.IntCompress;
+import com.memtrip.eos.abi.writer.NameCompress;
+import com.memtrip.eos.abi.writer.StringCompress;
+
 // {
 //    "name": "vote",
 //    "base": "",
@@ -22,6 +27,7 @@ package io.golos.commun4J.model;
 //      }
 //    ]
 //  },
+@Abi
 public class VoteRequest {
     private CommunName name;
     private CommunName author;
@@ -35,37 +41,26 @@ public class VoteRequest {
         this.weight = weight;
     }
 
-    public CommunName getName() {
-        return name;
+    @NameCompress
+    public String getName() {
+        return name.getName();
     }
 
-    public void setName(CommunName name) {
-        this.name = name;
+    @NameCompress
+    public String getAuthor() {
+        return author.getName();
     }
 
-    public CommunName getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(CommunName author) {
-        this.author = author;
-    }
-
+    @StringCompress
     public String getPermlink() {
         return permlink;
     }
 
-    public void setPermlink(String permlink) {
-        this.permlink = permlink;
-    }
-
+    @IntCompress
     public short getWeight() {
         return weight;
     }
 
-    public void setWeight(short weight) {
-        this.weight = weight;
-    }
 
     @Override
     public String toString() {

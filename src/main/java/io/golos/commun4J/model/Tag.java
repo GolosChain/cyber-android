@@ -16,10 +16,6 @@ public class Tag {
         return tag;
     }
 
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
     @Override
     public String toString() {
         return "Tag{" +

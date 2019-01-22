@@ -137,11 +137,13 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
                     vestPayment,
                     title,
                     body,
-                    tags)
+                    tags,
+                    "ru",
+                    "")
 
             print("post ${moshi.adapter<io.golos.commun4J.model.CreatePostRequest>(io.golos.commun4J.model.CreatePostRequest::class.java).toJson(createPostRequest)}")
 
-            val result = io.golos.commun4J.model.AbiBinaryGenRomo(CompressionType.NONE).squishCreatePostRequest(createPostRequest)
+            val result = AbiBinaryGenCommun4J(CompressionType.NONE).squishCreatePostRequest(createPostRequest)
             pushTransaction(CommuntContract.PUBLICATION, CommunActions.CREATE_MESSAGE, MyTransactionAuthorizationAbi(fromAccount.name), result.toHex(), userActiveKey)
         }
 
@@ -202,7 +204,7 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
             print("updateRequest = ${moshi.adapter(UpdatePostRequest::class.java).toJson(updateRequest)}")
             pushTransaction(CommuntContract.PUBLICATION,
                     CommunActions.UPDATE_MESSAGE,
-                    MyTransactionAuthorizationAbi(postAuthor.name), AbiBinaryGenRomo(CompressionType.NONE).squishUpdatePost(updateRequest).toHex(), userActiveKey)
+                    MyTransactionAuthorizationAbi(postAuthor.name), AbiBinaryGenCommun4J(CompressionType.NONE).squishUpdatePostRequest(updateRequest).toHex(), userActiveKey)
         }
         return callTilTimeoutExceptionVanishes(callable)
     }
@@ -213,10 +215,8 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
                    newPermlink: String,
                    newTitle: String,
                    newBody: String,
-                   newLanguage: String,
-                   newTags: List<Tag>,
-                   newJsonMetadata: String): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
-        return updatePostOrComment(postAuthor, userActiveKey, newPostAuthor, newPermlink, newTitle, newBody, newLanguage, newTags, newJsonMetadata)
+                   newTags: List<Tag>): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
+        return updatePostOrComment(postAuthor, userActiveKey, newPostAuthor, newPermlink, newTitle, newBody, "ru", newTags, "")
     }
 
     fun updateComment(postAuthor: CommunName,
@@ -224,39 +224,33 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
                       newPostAuthor: CommunName,
                       newPermlink: String,
                       newBody: String,
-                      newLanguage: String,
-                      newCategory: Tag,
-                      newJsonMetadata: String): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
+                      newCategory: Tag): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
 
-        return updatePostOrComment(postAuthor, userActiveKey, newPostAuthor, newPermlink, "", newBody, newLanguage, listOf(newCategory), newJsonMetadata)
+        return updatePostOrComment(postAuthor, userActiveKey, newPostAuthor, newPermlink, "", newBody, "ru", listOf(newCategory), "")
     }
 
     fun updatePost(newPostAuthor: CommunName,
                    newPermlink: String,
                    newTitle: String,
                    newBody: String,
-                   newLanguage: String,
-                   newTags: List<Tag>,
-                   newJsonMetadata: String): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
+                   newTags: List<Tag>): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
         val activeAccountName = io.golos.commun4J.CommunKeyStorage.getActiveAccount()
         val activeAccountKey = io.golos.commun4J.CommunKeyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
-        return updatePostOrComment(activeAccountName, activeAccountKey, newPostAuthor, newPermlink, newTitle, newBody, newLanguage, newTags, newJsonMetadata)
+        return updatePostOrComment(activeAccountName, activeAccountKey, newPostAuthor, newPermlink, newTitle, newBody, "ru", newTags, "")
     }
 
     fun updateComment(newPostAuthor: CommunName,
                       newPermlink: String,
                       newBody: String,
-                      newLanguage: String,
-                      newCategory: Tag,
-                      newJsonMetadata: String): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
+                      newCategory: Tag): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
 
         val activeAccountName = io.golos.commun4J.CommunKeyStorage.getActiveAccount()
         val activeAccountKey = io.golos.commun4J.CommunKeyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
-        return updatePostOrComment(activeAccountName, activeAccountKey, newPostAuthor, newPermlink, "", newBody, newLanguage, listOf(newCategory), newJsonMetadata)
+        return updatePostOrComment(activeAccountName, activeAccountKey, newPostAuthor, newPermlink, "", newBody, "ru", listOf(newCategory), "")
     }
 
     //vote strength -10000 _+10000
@@ -277,10 +271,10 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
              postPermlink: String,
              voteStrength: Short): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
         val callable = Callable {
-            val squisher = io.golos.commun4J.model.AbiBinaryGenRomo(CompressionType.NONE)
+            val squisher = AbiBinaryGenCommun4J(CompressionType.NONE)
 
-            val operationHex = if (voteStrength == 0.toShort()) squisher.squishUnVote(io.golos.commun4J.model.UnVoteRequest(fromAccount, postAuthor, postPermlink)).toHex()
-            else squisher.squishVote(io.golos.commun4J.model.VoteRequest(fromAccount, postAuthor, postPermlink,
+            val operationHex = if (voteStrength == 0.toShort()) squisher.squishUnVoteRequest(io.golos.commun4J.model.UnVoteRequest(fromAccount, postAuthor, postPermlink)).toHex()
+            else squisher.squishVoteRequest(io.golos.commun4J.model.VoteRequest(fromAccount, postAuthor, postPermlink,
                     Math.abs(voteStrength.toInt()).toShort())).toHex()
 
             pushTransaction(CommuntContract.PUBLICATION,

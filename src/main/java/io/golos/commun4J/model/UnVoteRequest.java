@@ -1,27 +1,10 @@
 package io.golos.commun4J.model;
 
-// {
-//    "voter": "vote",
-//    "base": "",
-//    "fields": [
-//      {
-//        "voter": "voter",
-//        "type": "voter"
-//      },
-//      {
-//        "voter": "author",
-//        "type": "voter"
-//      },
-//      {
-//        "voter": "permlink",
-//        "type": "string"
-//      },
-//      {
-//        "voter": "weight",
-//        "type": "uint16"
-//      }
-//    ]
-//  },
+import com.memtrip.eos.abi.writer.Abi;
+import com.memtrip.eos.abi.writer.NameCompress;
+import com.memtrip.eos.abi.writer.StringCompress;
+
+@Abi
 public class UnVoteRequest {
     private CommunName voter;
     private CommunName author;
@@ -35,28 +18,20 @@ public class UnVoteRequest {
 
     }
 
-    public CommunName getVoter() {
-        return voter;
+    @NameCompress
+    public String getVoter() {
+        return voter.getName();
     }
 
-    public void setVoter(CommunName voter) {
-        this.voter = voter;
+
+    @NameCompress
+    public String getAuthor() {
+        return author.getName();
     }
 
-    public CommunName getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(CommunName author) {
-        this.author = author;
-    }
-
+    @StringCompress
     public String getPermlink() {
         return permlink;
-    }
-
-    public void setPermlink(String permlink) {
-        this.permlink = permlink;
     }
 
 

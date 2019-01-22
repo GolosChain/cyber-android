@@ -6,6 +6,7 @@ import io.golos.commun4J.model.Tag
 
 fun main(args: Array<String>) {
     val activeUserName = CommunName("destroyer2k")
+
     val eos = io.golos.commun4J.Commun4J()
     io.golos.commun4J.CommunKeyStorage.addAccountKeys(activeUserName, setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
     val createPostResult = eos.createPost("test title", "test body", listOf(io.golos.commun4J.model.Tag("test")))
@@ -13,6 +14,10 @@ fun main(args: Array<String>) {
     assert(createPostResult is io.golos.commun4J.Either.Success)
 
     val postPermlink = ((createPostResult as io.golos.commun4J.Either.Success).value.processed.action_traces.first().act.data as Map<String, String>)["permlink"]!!
+
+    println("updating post")
+    val updateResult = eos.updatePost(activeUserName, postPermlink, "changed title", "changed body", listOf(Tag("test")))
+    assert(updateResult is io.golos.commun4J.Either.Success)
 
     println("voting")
     var voteResult = eos.vote(activeUserName, postPermlink, 10_000)
