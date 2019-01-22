@@ -34,7 +34,6 @@ fun main(args: Array<String>) {
     assert(createCommentResult is io.golos.commun4J.Either.Success)
     val commentPermlink = ((createCommentResult as io.golos.commun4J.Either.Success).value.processed.action_traces.first().act.data as Map<String, String>)["permlink"]!!
 
-
     println("voting")
     val voteForCommentResult = eos.vote(activeUserName, commentPermlink, 10_000)
     print(voteResult)

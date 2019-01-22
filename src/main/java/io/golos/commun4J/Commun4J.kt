@@ -187,10 +187,76 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
                 parentAccount, listOf(category), beneficiaries, vestPayment, tokenProp)
     }
 
-    fun updatePostOrComment(postAuthor: CommunName) {
+    private fun updatePostOrComment(postAuthor: CommunName,
+                                    userActiveKey: String,
+                                    newPostAuthor: CommunName,
+                                    newPermlink: String,
+                                    newTitle: String,
+                                    newBody: String,
+                                    newLanguage: String,
+                                    newTags: List<Tag>,
+                                    newJsonMetadata: String): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
         val callable = Callable {
-
+            val updateRequest = UpdatePostRequest(newPostAuthor, newPermlink, newTitle, newBody,
+                    newLanguage, newTags, newJsonMetadata)
+            print("updateRequest = ${moshi.adapter(UpdatePostRequest::class.java).toJson(updateRequest)}")
+            pushTransaction(CommuntContract.PUBLICATION,
+                    CommunActions.UPDATE_MESSAGE,
+                    MyTransactionAuthorizationAbi(postAuthor.name), AbiBinaryGenRomo(CompressionType.NONE).squishUpdatePost(updateRequest).toHex(), userActiveKey)
         }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
+    fun updatePost(postAuthor: CommunName,
+                   userActiveKey: String,
+                   newPostAuthor: CommunName,
+                   newPermlink: String,
+                   newTitle: String,
+                   newBody: String,
+                   newLanguage: String,
+                   newTags: List<Tag>,
+                   newJsonMetadata: String): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
+        return updatePostOrComment(postAuthor, userActiveKey, newPostAuthor, newPermlink, newTitle, newBody, newLanguage, newTags, newJsonMetadata)
+    }
+
+    fun updateComment(postAuthor: CommunName,
+                      userActiveKey: String,
+                      newPostAuthor: CommunName,
+                      newPermlink: String,
+                      newBody: String,
+                      newLanguage: String,
+                      newCategory: Tag,
+                      newJsonMetadata: String): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
+
+        return updatePostOrComment(postAuthor, userActiveKey, newPostAuthor, newPermlink, "", newBody, newLanguage, listOf(newCategory), newJsonMetadata)
+    }
+
+    fun updatePost(newPostAuthor: CommunName,
+                   newPermlink: String,
+                   newTitle: String,
+                   newBody: String,
+                   newLanguage: String,
+                   newTags: List<Tag>,
+                   newJsonMetadata: String): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
+        val activeAccountName = io.golos.commun4J.CommunKeyStorage.getActiveAccount()
+        val activeAccountKey = io.golos.commun4J.CommunKeyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+
+        return updatePostOrComment(activeAccountName, activeAccountKey, newPostAuthor, newPermlink, newTitle, newBody, newLanguage, newTags, newJsonMetadata)
+    }
+
+    fun updateComment(newPostAuthor: CommunName,
+                      newPermlink: String,
+                      newBody: String,
+                      newLanguage: String,
+                      newCategory: Tag,
+                      newJsonMetadata: String): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
+
+        val activeAccountName = io.golos.commun4J.CommunKeyStorage.getActiveAccount()
+        val activeAccountKey = io.golos.commun4J.CommunKeyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+
+        return updatePostOrComment(activeAccountName, activeAccountKey, newPostAuthor, newPermlink, "", newBody, newLanguage, listOf(newCategory), newJsonMetadata)
     }
 
     //vote strength -10000 _+10000
