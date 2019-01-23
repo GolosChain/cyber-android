@@ -9,7 +9,7 @@ import net.gcardone.junidecode.Junidecode
 import java.util.concurrent.Callable
 
 private enum class CommunActions {
-    CREATE_MESSAGE, UPDATE_MESSAGE, UP_VOTE, DOWN_VOTE, UN_VOTE, ;
+    CREATE_MESSAGE, UPDATE_MESSAGE, DELETE_MESSAGE, UP_VOTE, DOWN_VOTE, UN_VOTE, ;
 
     override fun toString(): String {
         return when (this) {
@@ -18,6 +18,7 @@ private enum class CommunActions {
             UP_VOTE -> "upvote"
             DOWN_VOTE -> "downvote"
             UN_VOTE -> "unvote"
+            DELETE_MESSAGE -> "deletemssg"
         }
     }
 
@@ -251,6 +252,28 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
         return updatePostOrComment(activeAccountName, activeAccountKey, newPostAuthor, newPermlink, "", newBody, "ru", listOf(newCategory), "")
+    }
+
+    fun deletePostOrComment(postAuthor: CommunName,
+                            userActiveKey: String,
+                            permlink: String): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
+        val callable = Callable {
+            pushTransaction(CommuntContract.PUBLICATION,
+                    CommunActions.DELETE_MESSAGE,
+                    MyTransactionAuthorizationAbi(postAuthor),
+                    AbiBinaryGenCommun4J(CompressionType.NONE).squishDeleteMessageRequest(DeleteMessageRequest(postAuthor, permlink)).toHex(),
+                    userActiveKey)
+        }
+
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
+    fun deletePostOrComment(permlink: String): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
+        val activeAccountName = io.golos.commun4J.CommunKeyStorage.getActiveAccount()
+        val activeAccountKey = io.golos.commun4J.CommunKeyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+
+        return deletePostOrComment(activeAccountName, activeAccountKey, permlink)
     }
 
     //vote strength -10000 _+10000

@@ -21,4 +21,6 @@ data class MyTransactionAuthorizationAbi(
                 permission: AuthType) : this(actor, permission.toString())
 
     constructor(actor: String) : this(actor, AuthType.ACTIVE)
+
+    constructor(actor: CommunName) : this(actor.name, AuthType.ACTIVE)
 }

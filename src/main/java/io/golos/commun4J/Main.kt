@@ -54,6 +54,9 @@ fun main(args: Array<String>) {
     print(unvoteResult)
     assert(unvoteForCommentResult is io.golos.commun4J.Either.Success)
 
+    println("deleting post")
+
+    eos.deletePostOrComment(commentPermlink)
 }
 
 
