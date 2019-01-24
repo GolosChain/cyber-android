@@ -38,6 +38,7 @@ private enum class CommuntContract {
 
 class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Commun4JConfig(),
                chainApiProvider: io.golos.commun4J.ChainApiProvider? = null,
+               private val historyApiProvider: HistoryApiProvider = WebApi(),
                private val moshi: Moshi = Moshi
                        .Builder()
                        .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
@@ -310,5 +311,9 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
         return callTilTimeoutExceptionVanishes(callable)
 
     }
+
+    fun getStories() = historyApiProvider.getDisucssions()
+
+    fun getStory(author: CommunName, permlink: String) = historyApiProvider.getDiscussion(author, permlink)
 
 }
