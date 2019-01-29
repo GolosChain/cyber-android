@@ -6,15 +6,19 @@ import com.memtrip.eos.core.crypto.EosPrivateKey
 import com.memtrip.eos.core.crypto.signature.PrivateKeySigning
 import com.memtrip.eos.http.rpc.ChainApi
 import com.memtrip.eos.http.rpc.model.signing.PushTransaction
+import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
+import com.squareup.moshi.Types
 import io.golos.commun4J.model.*
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 interface TransactionPusher {
-    fun pushTransaction(action: List<MyActionAbi>,
-                        key: EosPrivateKey): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError>
+    fun <T> pushTransaction(action: List<MyActionAbi>,
+                            key: EosPrivateKey,
+                            traceType: Class<T>): io.golos.commun4J.Either<TransactionSuccessful<T>, io.golos.commun4J.model.GolosEosError>
 }
 
 class GolosEosTransactionPusher(private val chainApi: ChainApi,
@@ -26,8 +30,9 @@ class GolosEosTransactionPusher(private val chainApi: ChainApi,
     }
 
 
-    override fun pushTransaction(action: List<MyActionAbi>,
-                                 key: EosPrivateKey): io.golos.commun4J.Either<TransactionSuccessful, io.golos.commun4J.model.GolosEosError> {
+    override fun <T> pushTransaction(action: List<MyActionAbi>,
+                                     key: EosPrivateKey,
+                                     traceType: Class<T>): io.golos.commun4J.Either<TransactionSuccessful<T>, io.golos.commun4J.model.GolosEosError> {
 
         val info = chainApi.getInfo().blockingGet().body()!!
 
@@ -57,8 +62,17 @@ class GolosEosTransactionPusher(private val chainApi: ChainApi,
                 )
         ).blockingGet()
         return if (result.isSuccessful) {
-            val comitted = result.body()!!
-            io.golos.commun4J.Either.Success(TransactionSuccessful(comitted))
+
+            val response = result.body()!!
+            val responseString = moshi.adapter<TransactionCommitted>(TransactionCommitted::class.java).toJson(response)
+
+            val type = Types.newParameterizedType(TransactionSuccessful::class.java, traceType)
+            val jsonAdapter = moshi.adapter<TransactionSuccessful<T>>(type)
+            val value = jsonAdapter.fromJson(responseString)!!
+
+            return io.golos.commun4J.Either.Success(value)
+//            val comitted = result.body()!!
+//            io.golos.commun4J.Either.Success(TransactionSuccessful(comitted))
         } else {
             io.golos.commun4J.Either.Failure(moshi.adapter<io.golos.commun4J.model.GolosEosError>(io.golos.commun4J.model.GolosEosError::class.java).fromJson(result.errorBody()?.string().orEmpty())!!)
         }

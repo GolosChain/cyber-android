@@ -5,28 +5,6 @@ import com.memtrip.eos.abi.writer.IntCompress;
 import com.memtrip.eos.abi.writer.NameCompress;
 import com.memtrip.eos.abi.writer.StringCompress;
 
-// {
-//    "name": "vote",
-//    "base": "",
-//    "fields": [
-//      {
-//        "name": "voter",
-//        "type": "name"
-//      },
-//      {
-//        "name": "author",
-//        "type": "name"
-//      },
-//      {
-//        "name": "permlink",
-//        "type": "string"
-//      },
-//      {
-//        "name": "weight",
-//        "type": "uint16"
-//      }
-//    ]
-//  },
 @Abi
 public class VoteRequest {
     private CommunName name;
