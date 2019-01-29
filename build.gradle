@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 compileKotlin {
@@ -34,7 +34,7 @@ compileTestKotlin {
 }
 
 dependencies {
-    implementation 'com.squareup.okhttp3:logging-interceptor:+'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.12.1'
 
     implementation ("com.memtrip.eos-jvm:eos-abi-writer:1.0.0-alpha26") {
         exclude group: "com.lambdaworks", module: "scrypt"

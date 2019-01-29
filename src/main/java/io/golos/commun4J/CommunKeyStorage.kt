@@ -14,7 +14,7 @@ object CommunKeyStorage {
     private val accounts = Collections.synchronizedMap(HashMap<CommunName, Set<Pair<AuthType, String>>>())
 
     @Synchronized
-    fun getActiveAccountKeys(): Set<Pair<AuthType, String>> {
+    fun getActiveAccountKeys(): Set<io.golos.commun4J.Pair<AuthType, String>> {
         val activeAcc = io.golos.commun4J.CommunKeyStorage.activeAccount
                 ?: throw java.lang.IllegalStateException("active account not set")
         return io.golos.commun4J.CommunKeyStorage.accounts[activeAcc]!!
@@ -28,7 +28,7 @@ object CommunKeyStorage {
 
     fun getAccountKeys(accName: CommunName) = io.golos.commun4J.CommunKeyStorage.accounts[accName]
 
-    fun addAccountKeys(accName: CommunName, keys: Set<Pair<AuthType, String>>) {
+    fun addAccountKeys(accName: CommunName, keys: Set<io.golos.commun4J.Pair<AuthType, String>>) {
         keys.forEach {
             EosPrivateKey(it.second)
         }

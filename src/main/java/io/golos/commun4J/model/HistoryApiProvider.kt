@@ -4,6 +4,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.logging.HttpLoggingInterceptor
 
 
 interface HistoryApiProvider {
@@ -11,8 +12,8 @@ interface HistoryApiProvider {
     fun getDiscussion(author: CommunName, permlink: String): Comun4jDiscussion
 }
 
-class WebApi() : HistoryApiProvider {
-    private val httpClient = OkHttpClient()
+class WebApi : HistoryApiProvider {
+    private val httpClient = OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).build()
     private val postsUrl = "https://cyberway.golos.io/api/v1/posts/"
     private val moshi = Moshi.Builder().build()
     val listType = Types.newParameterizedType(List::class.java, Comun4jDiscussion::class.java)
@@ -20,6 +21,8 @@ class WebApi() : HistoryApiProvider {
 
     override fun getDisucssions(): List<Comun4jDiscussion> {
         val respString = httpClient.newCall(Request.Builder().url(postsUrl).get().build()).execute().body()!!.string()
+        println("postsUrl =$postsUrl")
+        println("response  =$respString")
         return moshi.adapter<List<Comun4jDiscussion>>(listType).fromJson(respString).orEmpty()
     }
 

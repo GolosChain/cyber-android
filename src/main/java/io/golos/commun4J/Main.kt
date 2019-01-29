@@ -8,8 +8,7 @@ fun main(args: Array<String>) {
     val activeUserName = CommunName("destroyer2k")
 
     val eos = io.golos.commun4J.Commun4J()
-    println(eos.getStory(CommunName("snowdn"), "zakatnoe-nebo"))
-    println(eos.getStories())
+
     io.golos.commun4J.CommunKeyStorage.addAccountKeys(activeUserName, setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
     val createPostResult = eos.createPost("test title", "test body", listOf(io.golos.commun4J.model.Tag("test")))
     println(createPostResult)

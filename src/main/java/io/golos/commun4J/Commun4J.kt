@@ -38,19 +38,19 @@ private enum class CommuntContract {
 
 class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Commun4JConfig(),
                chainApiProvider: io.golos.commun4J.ChainApiProvider? = null,
-               private val historyApiProvider: HistoryApiProvider = WebApi(),
-               private val moshi: Moshi = Moshi
-                       .Builder()
-                       .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
-                       .build()) {
+               private val historyApiProvider: HistoryApiProvider = WebApi()) {
     private val staleTransactionErrorCode = 3080006
 
     private val transactionPusher: io.golos.commun4J.TransactionPusher
     private val chainApi: ChainApi
+    private val moshi: Moshi = Moshi
+            .Builder()
+            .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
+            .build()
 
     init {
         if (chainApiProvider == null) {
-            chainApi = io.golos.commun4J.GolosEosConfiguratedApi(config, io.golos.commun4J.GolosEosConfiguratedApi.LogLevel.BODY).provide()
+            chainApi = io.golos.commun4J.GolosEosConfiguratedApi(config).provide()
             this.transactionPusher = io.golos.commun4J.GolosEosTransactionPusher(chainApi, config, moshi)
         } else {
             this.transactionPusher = io.golos.commun4J.GolosEosTransactionPusher(chainApiProvider.provide(), config, moshi)
