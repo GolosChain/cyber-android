@@ -6,8 +6,7 @@ import io.golos.commun4J.model.CommunName
 import java.util.*
 import kotlin.collections.HashMap
 
-object CommunKeyStorage {
-
+open class CommunKeyStorage {
 
     private var activeAccount: CommunName? = null
 
@@ -15,34 +14,34 @@ object CommunKeyStorage {
 
     @Synchronized
     fun getActiveAccountKeys(): Set<io.golos.commun4J.Pair<AuthType, String>> {
-        val activeAcc = io.golos.commun4J.CommunKeyStorage.activeAccount
+        val activeAcc = activeAccount
                 ?: throw java.lang.IllegalStateException("active account not set")
-        return io.golos.commun4J.CommunKeyStorage.accounts[activeAcc]!!
+        return accounts[activeAcc]!!
     }
 
     @Synchronized
     fun getActiveAccount(): CommunName {
-        return io.golos.commun4J.CommunKeyStorage.activeAccount
+        return activeAccount
                 ?: throw java.lang.IllegalStateException("active aacount not set")
     }
 
-    fun getAccountKeys(accName: CommunName) = io.golos.commun4J.CommunKeyStorage.accounts[accName]
+    fun getAccountKeys(accName: CommunName) = accounts[accName]
 
     fun addAccountKeys(accName: CommunName, keys: Set<io.golos.commun4J.Pair<AuthType, String>>) {
         keys.forEach {
             EosPrivateKey(it.second)
         }
         synchronized(this) {
-            if (io.golos.commun4J.CommunKeyStorage.activeAccount == null) io.golos.commun4J.CommunKeyStorage.activeAccount = accName
-            val oldKeys = io.golos.commun4J.CommunKeyStorage.accounts[accName]
+            if (activeAccount == null) activeAccount = accName
+            val oldKeys = accounts[accName]
             val resultingKeys = keys + oldKeys.orEmpty()
-            io.golos.commun4J.CommunKeyStorage.accounts[accName] = resultingKeys
+            accounts[accName] = resultingKeys
         }
     }
 
     @Synchronized
     fun setAccountActive(name: CommunName) {
-        io.golos.commun4J.CommunKeyStorage.accounts[name].takeIf { it == null }?.let { throw IllegalStateException("no keys for $name account name") }
-        io.golos.commun4J.CommunKeyStorage.activeAccount = name
+        accounts[name].takeIf { it == null }?.let { throw IllegalStateException("no keys for $name account name") }
+        activeAccount = name
     }
 }

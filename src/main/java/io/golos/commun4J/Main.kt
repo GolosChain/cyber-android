@@ -7,9 +7,13 @@ import io.golos.commun4J.model.Tag
 fun main(args: Array<String>) {
     val activeUserName = CommunName("destroyer2k")
 
-    val eos = io.golos.commun4J.Commun4J()
+    val storage = io.golos.commun4J
+            .CommunKeyStorage()
+            .apply { addAccountKeys(activeUserName, setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ"))) }
 
-    io.golos.commun4J.CommunKeyStorage.addAccountKeys(activeUserName, setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
+    val eos = io.golos.commun4J.Commun4J(keyStorage = storage)
+
+
     val createPostResult = eos.createPost("test title", "test body", listOf(io.golos.commun4J.model.Tag("test")))
     println(createPostResult)
     assert(createPostResult is io.golos.commun4J.Either.Success)

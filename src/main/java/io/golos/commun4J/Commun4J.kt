@@ -38,7 +38,8 @@ private enum class CommuntContract {
 
 class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Commun4JConfig(),
                chainApiProvider: io.golos.commun4J.ChainApiProvider? = null,
-               private val historyApiProvider: HistoryApiProvider = WebApi()) {
+               private val historyApiProvider: HistoryApiProvider = WebApi(),
+               val keyStorage: CommunKeyStorage = CommunKeyStorage()) {
     private val staleTransactionErrorCode = 3080006
 
     private val transactionPusher: io.golos.commun4J.TransactionPusher
@@ -68,8 +69,8 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
                    vestPayment: Boolean = true,
                    tokenProp: Long = 0L): io.golos.commun4J.Either<TransactionSuccessful<CreatePostResult>, io.golos.commun4J.model.GolosEosError> {
 
-        val activeAccountName = io.golos.commun4J.CommunKeyStorage.getActiveAccount()
-        val activeAccountKey = io.golos.commun4J.CommunKeyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
         return createPost(activeAccountName,
@@ -110,14 +111,16 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
         return result
     }
 
-    private fun <T> pushTransaction(contractAccount: CommuntContract,
-                                    actionName: CommunActions,
-                                    authorization: MyTransactionAuthorizationAbi,
-                                    data: String,
-                                    key: String,
-                                    type: Class<T>): Either<TransactionSuccessful<T>, GolosEosError> {
+    private inline fun <reified T> pushTransaction(contractAccount: CommuntContract,
+                                                   actionName: CommunActions,
+                                                   authorization: MyTransactionAuthorizationAbi,
+                                                   data: String,
+                                                   key: String): Either<TransactionSuccessful<T>, GolosEosError> {
 
-        return transactionPusher.pushTransaction(listOf(MyActionAbi(contractAccount.toString(), actionName.toString(), listOf(authorization), data)), EosPrivateKey(key), type)
+        return transactionPusher.pushTransaction(listOf(MyActionAbi(contractAccount.toString(),
+                actionName.toString(), listOf(authorization), data)),
+                EosPrivateKey(key),
+                T::class.java)
     }
 
     private fun createPostOrComment(fromAccount: CommunName,
@@ -152,7 +155,7 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
             val result = AbiBinaryGenCommun4J(CompressionType.NONE).squishCreatePostRequest(createPostRequest)
             pushTransaction<CreatePostResult>(CommuntContract.PUBLICATION, CommunActions.CREATE_MESSAGE,
                     MyTransactionAuthorizationAbi(fromAccount.name), result.toHex(),
-                    userActiveKey, CreatePostResult::class.java)
+                    userActiveKey)
         }
 
         return callTilTimeoutExceptionVanishes(callable)
@@ -166,8 +169,8 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
                       beneficiaries: List<io.golos.commun4J.model.Beneficiary> = emptyList(),
                       vestPayment: Boolean = true,
                       tokenProp: Long = 0L): io.golos.commun4J.Either<TransactionSuccessful<CreatePostResult>, io.golos.commun4J.model.GolosEosError> {
-        val activeAccountName = io.golos.commun4J.CommunKeyStorage.getActiveAccount()
-        val activeAccountKey = io.golos.commun4J.CommunKeyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
         return createComment(activeAccountName,
@@ -210,11 +213,11 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
             val updateRequest = UpdatePostRequest(newPostAuthor, newPermlink, newTitle, newBody,
                     newLanguage, newTags, newJsonMetadata)
             print("updateRequest = ${moshi.adapter(UpdatePostRequest::class.java).toJson(updateRequest)}")
-            pushTransaction(CommuntContract.PUBLICATION,
+            pushTransaction<UpdatePostResult>(CommuntContract.PUBLICATION,
                     CommunActions.UPDATE_MESSAGE,
                     MyTransactionAuthorizationAbi(postAuthor.name),
                     AbiBinaryGenCommun4J(CompressionType.NONE).squishUpdatePostRequest(updateRequest).toHex(),
-                    userActiveKey, UpdatePostResult::class.java)
+                    userActiveKey)
         }
         return callTilTimeoutExceptionVanishes(callable)
     }
@@ -244,8 +247,8 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
                    newTitle: String,
                    newBody: String,
                    newTags: List<Tag>): io.golos.commun4J.Either<TransactionSuccessful<UpdatePostResult>, io.golos.commun4J.model.GolosEosError> {
-        val activeAccountName = io.golos.commun4J.CommunKeyStorage.getActiveAccount()
-        val activeAccountKey = io.golos.commun4J.CommunKeyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
         return updatePostOrComment(activeAccountName, activeAccountKey, newPostAuthor, newPermlink, newTitle, newBody, "ru", newTags, "")
@@ -256,8 +259,8 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
                       newBody: String,
                       newCategory: Tag): io.golos.commun4J.Either<TransactionSuccessful<UpdatePostResult>, io.golos.commun4J.model.GolosEosError> {
 
-        val activeAccountName = io.golos.commun4J.CommunKeyStorage.getActiveAccount()
-        val activeAccountKey = io.golos.commun4J.CommunKeyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
         return updatePostOrComment(activeAccountName, activeAccountKey, newPostAuthor, newPermlink, "", newBody, "ru", listOf(newCategory), "")
@@ -267,20 +270,19 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
                             userActiveKey: String,
                             permlink: String): io.golos.commun4J.Either<TransactionSuccessful<DeleteResult>, io.golos.commun4J.model.GolosEosError> {
         val callable = Callable {
-            pushTransaction(CommuntContract.PUBLICATION,
+            pushTransaction<DeleteResult>(CommuntContract.PUBLICATION,
                     CommunActions.DELETE_MESSAGE,
                     MyTransactionAuthorizationAbi(postAuthor),
                     AbiBinaryGenCommun4J(CompressionType.NONE).squishDeleteMessageRequest(DeleteMessageRequest(postAuthor, permlink)).toHex(),
-                    userActiveKey,
-                    DeleteResult::class.java)
+                    userActiveKey)
         }
 
         return callTilTimeoutExceptionVanishes(callable)
     }
 
     fun deletePostOrComment(permlink: String): io.golos.commun4J.Either<TransactionSuccessful<DeleteResult>, io.golos.commun4J.model.GolosEosError> {
-        val activeAccountName = io.golos.commun4J.CommunKeyStorage.getActiveAccount()
-        val activeAccountKey = io.golos.commun4J.CommunKeyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
         return deletePostOrComment(activeAccountName, activeAccountKey, permlink)
@@ -290,8 +292,8 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
     fun vote(postAuthor: CommunName,
              postPermlink: String,
              voteStrength: Short): io.golos.commun4J.Either<TransactionSuccessful<VoteResult>, io.golos.commun4J.model.GolosEosError> {
-        val activeAccountName = io.golos.commun4J.CommunKeyStorage.getActiveAccount()
-        val activeAccountKey = io.golos.commun4J.CommunKeyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
         return vote(activeAccountName, activeAccountKey, postAuthor, postPermlink, voteStrength)
@@ -310,12 +312,11 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
             else squisher.squishVoteRequest(io.golos.commun4J.model.VoteRequest(fromAccount, postAuthor, postPermlink,
                     Math.abs(voteStrength.toInt()).toShort())).toHex()
 
-            pushTransaction(CommuntContract.PUBLICATION,
+            pushTransaction<VoteResult>(CommuntContract.PUBLICATION,
                     if (voteStrength == 0.toShort()) CommunActions.UN_VOTE else if (voteStrength > 0) CommunActions.UP_VOTE else CommunActions.DOWN_VOTE,
                     MyTransactionAuthorizationAbi(fromAccount.name),
                     operationHex,
-                    userActiveKey,
-                    VoteResult::class.java)
+                    userActiveKey)
 
         }
         return callTilTimeoutExceptionVanishes(callable)
