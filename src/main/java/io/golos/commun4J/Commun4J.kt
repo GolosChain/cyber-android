@@ -1,6 +1,11 @@
 package io.golos.commun4J
 
 import com.memtrip.eos.abi.writer.compression.CompressionType
+import com.memtrip.eos.chain.actions.transaction.AbiBinaryGenTransactionWriter
+import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.AccountKeyAbi
+import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.AccountRequiredAuthAbi
+import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewAccountArgs
+import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewAccountBody
 import com.memtrip.eos.core.crypto.EosPrivateKey
 import com.memtrip.eos.http.rpc.ChainApi
 import com.squareup.moshi.Moshi
@@ -9,7 +14,7 @@ import net.gcardone.junidecode.Junidecode
 import java.util.concurrent.Callable
 
 private enum class CommunActions {
-    CREATE_MESSAGE, UPDATE_MESSAGE, DELETE_MESSAGE, UP_VOTE, DOWN_VOTE, UN_VOTE, ;
+    CREATE_MESSAGE, UPDATE_MESSAGE, DELETE_MESSAGE, UP_VOTE, DOWN_VOTE, UN_VOTE, NEW_ACCOUNT, OPEN_VESTING;
 
     override fun toString(): String {
         return when (this) {
@@ -19,24 +24,28 @@ private enum class CommunActions {
             DOWN_VOTE -> "downvote"
             UN_VOTE -> "unvote"
             DELETE_MESSAGE -> "deletemssg"
+            NEW_ACCOUNT -> "newaccount"
+            OPEN_VESTING -> "open"
         }
     }
 
 }
 
 private enum class CommuntContract {
-    PUBLICATION;
+    PUBLICATION, EOSIO, VESTING;
 
     override fun toString(): String {
         return when (this) {
             PUBLICATION -> "gls.publish"
+            EOSIO -> "eosio"
+            VESTING -> "gls.vesting"
         }
     }
 
 
 }
 
-class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Commun4JConfig(),
+class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Commun4JConfig(),
                chainApiProvider: io.golos.commun4J.ChainApiProvider? = null,
                private val historyApiProvider: HistoryApiProvider = WebApi(),
                val keyStorage: CommunKeyStorage = CommunKeyStorage()) {
@@ -51,6 +60,7 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
             .build()
 
     init {
+
         if (chainApiProvider == null) {
             chainApi = io.golos.commun4J.GolosEosConfiguratedApi(config).provide()
             this.transactionPusher = io.golos.commun4J.GolosEosTransactionPusher(chainApi, config, moshi)
@@ -280,7 +290,8 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
         return callTilTimeoutExceptionVanishes(callable)
     }
 
-    fun deletePostOrComment(permlink: String): io.golos.commun4J.Either<TransactionSuccessful<DeleteResult>, io.golos.commun4J.model.GolosEosError> {
+    fun deletePostOrComment(permlink: String):
+            io.golos.commun4J.Either<TransactionSuccessful<DeleteResult>, io.golos.commun4J.model.GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
@@ -321,6 +332,61 @@ class Commun4J(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Comm
         }
         return callTilTimeoutExceptionVanishes(callable)
 
+    }
+
+    fun createAccount(newAccountName: String,
+                      newAccountMasterPassword: String,
+                      eosioCreateUserKey: String): Either<TransactionSuccessful<AccountCreationResult>, io.golos.commun4J.model.GolosEosError> {
+        CommunName(newAccountName)
+        val creatorAccountName = "eosio"
+        val keys = AuthUtils.generatePublicWiFs(newAccountName, newAccountMasterPassword, AuthType.values())
+
+        val callable = Callable {
+            val writer = AbiBinaryGenTransactionWriter(CompressionType.NONE)
+            val newAccArgs = NewAccountArgs(CommuntContract.EOSIO.toString(),
+                    newAccountName,
+                    AccountRequiredAuthAbi(1,
+                            listOf(AccountKeyAbi(keys[AuthType.OWNER]!!.replaceFirst("GLS", "EOS"), 1)),
+                            emptyList(), emptyList()),
+                    AccountRequiredAuthAbi(1,
+                            listOf(AccountKeyAbi(keys[AuthType.ACTIVE]!!.replaceFirst("GLS", "EOS"), 1)), emptyList(), emptyList()))
+            val newAccBody = NewAccountBody(newAccArgs)
+            val hex = writer.squishNewAccountBody(newAccBody).toHex()
+            pushTransaction<AccountCreationResult>(CommuntContract.EOSIO,
+                    CommunActions.NEW_ACCOUNT, MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
+                    hex,
+                    eosioCreateUserKey)
+        }
+        val createAnswer = callTilTimeoutExceptionVanishes(callable)
+
+        val result = startVesting(newAccountName, eosioCreateUserKey)
+
+        if (result is Either.Failure) throw IllegalStateException("error happened during inititalization of account," +
+                "vall startVesting(newAccountName, eosioCreateUserKey) to fully init new account $newAccountName")
+        return createAnswer
+    }
+
+    fun startVesting(newAccountName: String,
+                     eosioCreateUserKey: String): Either<TransactionSuccessful<Any>, io.golos.commun4J.model.GolosEosError> {
+        val creatorAccountName = "eosio"
+
+        val createVestingCallable = Callable {
+            val writer = AbiBinaryGenCommun4J(CompressionType.NONE)
+            val request = VestingStartRequest(CommunName(newAccountName))
+
+            val result = writer.squishVestingStartRequest(request)
+
+            val hex = result.toHex()
+
+            println(Moshi.Builder().build().adapter(VestingStartRequest::class.java).toJson(request))
+
+            pushTransaction<Any>(CommuntContract.VESTING,
+                    CommunActions.OPEN_VESTING, MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
+                    hex,
+                    eosioCreateUserKey)
+        }
+
+        return callTilTimeoutExceptionVanishes(createVestingCallable)
     }
 
     fun getStories() = historyApiProvider.getDisucssions()

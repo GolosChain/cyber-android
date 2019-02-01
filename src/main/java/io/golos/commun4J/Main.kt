@@ -6,6 +6,8 @@ import io.golos.commun4J.model.Tag
 
 fun main(args: Array<String>) {
     val activeUserName = CommunName("destroyer2k")
+    val accName = "freya5"
+    val pass = "aadgsd23523wtesgdsdt235rsdgtr1"
 
     val storage = io.golos.commun4J
             .CommunKeyStorage()
@@ -13,8 +15,13 @@ fun main(args: Array<String>) {
 
     val eos = io.golos.commun4J.Commun4J(keyStorage = storage)
 
+//    val result = eos.createAccount(accName,
+//            pass,
+//            (AuthUtils::class.java).getResource("/eoscreateacckey.txt").readText(Charset.defaultCharset()))
+//    println(result)
 
-    val createPostResult = eos.createPost("test title", "test body", listOf(io.golos.commun4J.model.Tag("test")))
+
+    val createPostResult = eos.createPost("test title", "тестовое тело поста", listOf(io.golos.commun4J.model.Tag("test")))
     println(createPostResult)
     assert(createPostResult is io.golos.commun4J.Either.Success)
 

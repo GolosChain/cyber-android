@@ -4,7 +4,7 @@ import kotlin.text.Regex;
 
 public class CommunName {
 
-    private static final Regex pattern = new Regex("[a-z1-5.]{0,12}");
+    private static final Regex pattern = new Regex("[a-z0-5.]{0,12}");
     private String name;
 
 
