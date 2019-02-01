@@ -7,6 +7,7 @@ import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.Acco
 import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewAccountArgs
 import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewAccountBody
 import com.memtrip.eos.core.crypto.EosPrivateKey
+import com.memtrip.eos.core.hex.DefaultHexWriter
 import com.memtrip.eos.http.rpc.ChainApi
 import com.squareup.moshi.Moshi
 import io.golos.commun4J.model.*
@@ -46,9 +47,9 @@ private enum class CommuntContract {
 }
 
 class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Commun4JConfig(),
-               chainApiProvider: io.golos.commun4J.ChainApiProvider? = null,
-               private val historyApiProvider: HistoryApiProvider = WebApi(),
-               val keyStorage: CommunKeyStorage = CommunKeyStorage()) {
+                                         chainApiProvider: io.golos.commun4J.ChainApiProvider? = null,
+                                         private val historyApiProvider: HistoryApiProvider = WebApi(),
+                                         val keyStorage: CommunKeyStorage = CommunKeyStorage()) {
     private val staleTransactionErrorCode = 3080006
 
     private val transactionPusher: io.golos.commun4J.TransactionPusher
@@ -162,7 +163,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
 
             print("post ${moshi.adapter<io.golos.commun4J.model.CreatePostRequest>(io.golos.commun4J.model.CreatePostRequest::class.java).toJson(createPostRequest)}")
 
-            val result = AbiBinaryGenCommun4J(CompressionType.NONE).squishCreatePostRequest(createPostRequest)
+            val result = createBinaryConverter().squishCreatePostRequest(createPostRequest)
             pushTransaction<CreatePostResult>(CommuntContract.PUBLICATION, CommunActions.CREATE_MESSAGE,
                     MyTransactionAuthorizationAbi(fromAccount.name), result.toHex(),
                     userActiveKey)
@@ -226,7 +227,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
             pushTransaction<UpdatePostResult>(CommuntContract.PUBLICATION,
                     CommunActions.UPDATE_MESSAGE,
                     MyTransactionAuthorizationAbi(postAuthor.name),
-                    AbiBinaryGenCommun4J(CompressionType.NONE).squishUpdatePostRequest(updateRequest).toHex(),
+                    createBinaryConverter().squishUpdatePostRequest(updateRequest).toHex(),
                     userActiveKey)
         }
         return callTilTimeoutExceptionVanishes(callable)
@@ -283,7 +284,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
             pushTransaction<DeleteResult>(CommuntContract.PUBLICATION,
                     CommunActions.DELETE_MESSAGE,
                     MyTransactionAuthorizationAbi(postAuthor),
-                    AbiBinaryGenCommun4J(CompressionType.NONE).squishDeleteMessageRequest(DeleteMessageRequest(postAuthor, permlink)).toHex(),
+                    createBinaryConverter().squishDeleteMessageRequest(DeleteMessageRequest(postAuthor, permlink)).toHex(),
                     userActiveKey)
         }
 
@@ -317,7 +318,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
              postPermlink: String,
              voteStrength: Short): io.golos.commun4J.Either<TransactionSuccessful<VoteResult>, io.golos.commun4J.model.GolosEosError> {
         val callable = Callable {
-            val squisher = AbiBinaryGenCommun4J(CompressionType.NONE)
+            val squisher = createBinaryConverter()
 
             val operationHex = if (voteStrength == 0.toShort()) squisher.squishUnVoteRequest(io.golos.commun4J.model.UnVoteRequest(fromAccount, postAuthor, postPermlink)).toHex()
             else squisher.squishVoteRequest(io.golos.commun4J.model.VoteRequest(fromAccount, postAuthor, postPermlink,
@@ -371,14 +372,12 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
         val creatorAccountName = "eosio"
 
         val createVestingCallable = Callable {
-            val writer = AbiBinaryGenCommun4J(CompressionType.NONE)
+            val writer = createBinaryConverter()
             val request = VestingStartRequest(CommunName(newAccountName))
 
             val result = writer.squishVestingStartRequest(request)
 
             val hex = result.toHex()
-
-            println(Moshi.Builder().build().adapter(VestingStartRequest::class.java).toJson(request))
 
             pushTransaction<Any>(CommuntContract.VESTING,
                     CommunActions.OPEN_VESTING, MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
@@ -393,4 +392,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
 
     fun getStory(author: CommunName, permlink: String) = historyApiProvider.getDiscussion(author, permlink)
 
+    private fun createBinaryConverter(): AbiBinaryGenCommun4J {
+        return AbiBinaryGenCommun4J(CyberwayByteWriter(), DefaultHexWriter(), CompressionType.NONE)
+    }
 }
