@@ -1,5 +1,5 @@
 group 'io.golos.commun4j'
-version '1.0-SNAPSHOT'
+version '0.3'
 
 buildscript {
     ext.kotlin_version = '1.3.11'
@@ -22,6 +22,8 @@ repositories {
     }
 }
 
+
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
@@ -32,6 +34,8 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.6"
 }
+
+jar.baseName = "${rootProject.name}"
 
 dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.1'

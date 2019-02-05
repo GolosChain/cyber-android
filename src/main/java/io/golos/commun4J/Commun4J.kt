@@ -15,7 +15,9 @@ import net.gcardone.junidecode.Junidecode
 import java.util.concurrent.Callable
 
 private enum class CommunActions {
-    CREATE_MESSAGE, UPDATE_MESSAGE, DELETE_MESSAGE, UP_VOTE, DOWN_VOTE, UN_VOTE, NEW_ACCOUNT, OPEN_VESTING;
+    CREATE_MESSAGE, UPDATE_MESSAGE, DELETE_MESSAGE, UP_VOTE,
+    DOWN_VOTE, UN_VOTE, NEW_ACCOUNT, OPEN_VESTING,
+    UPDATE_META, DELETE_METADATA;
 
     override fun toString(): String {
         return when (this) {
@@ -27,19 +29,22 @@ private enum class CommunActions {
             DELETE_MESSAGE -> "deletemssg"
             NEW_ACCOUNT -> "newaccount"
             OPEN_VESTING -> "open"
+            UPDATE_META -> "updatemeta"
+            DELETE_METADATA -> "deletemeta"
         }
     }
 
 }
 
 private enum class CommuntContract {
-    PUBLICATION, EOSIO, VESTING;
+    PUBLICATION, EOSIO, VESTING, SOCIAL;
 
     override fun toString(): String {
         return when (this) {
             PUBLICATION -> "gls.publish"
             EOSIO -> "eosio"
             VESTING -> "gls.vesting"
+            SOCIAL -> "gls.social"
         }
     }
 
@@ -61,7 +66,6 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
             .build()
 
     init {
-
         if (chainApiProvider == null) {
             chainApi = io.golos.commun4J.GolosEosConfiguratedApi(config).provide()
             this.transactionPusher = io.golos.commun4J.GolosEosTransactionPusher(chainApi, config, moshi)
@@ -83,7 +87,6 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
-
         return createPost(activeAccountName,
                 activeAccountKey,
                 title,
@@ -161,8 +164,6 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                     "ru",
                     "")
 
-            print("post ${moshi.adapter<io.golos.commun4J.model.CreatePostRequest>(io.golos.commun4J.model.CreatePostRequest::class.java).toJson(createPostRequest)}")
-
             val result = createBinaryConverter().squishCreatePostRequest(createPostRequest)
             pushTransaction<CreatePostResult>(CommuntContract.PUBLICATION, CommunActions.CREATE_MESSAGE,
                     MyTransactionAuthorizationAbi(fromAccount.name), result.toHex(),
@@ -195,6 +196,118 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                 tokenProp)
     }
 
+    fun setUserMetadata(
+            type: String? = null,
+            app: String? = null,
+            email: String? = null,
+            phone: String? = null,
+            facebook: String? = null,
+            instagram: String? = null,
+            telegram: String? = null,
+            vk: String? = null,
+            website: String? = null,
+            first_name: String? = null,
+            last_name: String? = null,
+            name: String? = null,
+            birthDate: String? = null,
+            gender: String? = null,
+            location: String? = null,
+            city: String? = null,
+            about: String? = null,
+            occupation: String? = null,
+            iCan: String? = null,
+            lookingFor: String? = null,
+            businessCategory: String? = null,
+            backgroundImage: String? = null,
+            coverImage: String? = null,
+            profileImage: String? = null,
+            userImage: String? = null,
+            icoAddress: String? = null,
+            targetDate: String? = null,
+            targetPlan: String? = null,
+            targetPointA: String? = null,
+            targetPointB: String? = null): io.golos.commun4J.Either<TransactionSuccessful<ProfileMetadatUpdateResult>, io.golos.commun4J.model.GolosEosError> {
+
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+
+        return setUserMetadata(activeAccountName, activeAccountKey, type, app, email, phone,
+                facebook, instagram, telegram, vk, website, first_name, last_name, name, birthDate, gender,
+                location, city, about, occupation, iCan, lookingFor, businessCategory, backgroundImage,
+                coverImage, profileImage, userImage, icoAddress, targetDate, targetPlan, targetPointA,
+                targetPointB)
+    }
+
+    fun setUserMetadata(
+            fromAccount: CommunName,
+            userActiveKey: String,
+            type: String? = null,
+            app: String? = null,
+            email: String? = null,
+            phone: String? = null,
+            facebook: String? = null,
+            instagram: String? = null,
+            telegram: String? = null,
+            vk: String? = null,
+            website: String? = null,
+            first_name: String? = null,
+            last_name: String? = null,
+            name: String? = null,
+            birthDate: String? = null,
+            gender: String? = null,
+            location: String? = null,
+            city: String? = null,
+            about: String? = null,
+            occupation: String? = null,
+            iCan: String? = null,
+            lookingFor: String? = null,
+            businessCategory: String? = null,
+            backgroundImage: String? = null,
+            coverImage: String? = null,
+            profileImage: String? = null,
+            userImage: String? = null,
+            icoAddress: String? = null,
+            targetDate: String? = null,
+            targetPlan: String? = null,
+            targetPointA: String? = null,
+            targetPointB: String? = null): io.golos.commun4J.Either<TransactionSuccessful<ProfileMetadatUpdateResult>, io.golos.commun4J.model.GolosEosError> {
+
+        val callable = Callable {
+            val request = ProfileMetadataUpdateRequest(fromAccount.name,
+                    ProfileMetadata(type, app, email, phone, facebook, instagram,
+                            telegram, vk, website, first_name, last_name, name, birthDate, gender, location,
+                            city, about, occupation, iCan, lookingFor, businessCategory, backgroundImage, coverImage,
+                            profileImage, userImage, icoAddress, targetDate, targetPlan, targetPointA, targetPointB))
+
+            val hex = AbiBinaryGenCommun4J(CompressionType.NONE).squishProfileMetadataUpdateRequest(request).toHex()
+
+            pushTransaction<ProfileMetadatUpdateResult>(CommuntContract.SOCIAL, CommunActions.UPDATE_META, MyTransactionAuthorizationAbi(fromAccount),
+                    hex, userActiveKey)
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
+    fun deleteUserMetadata(fromAccount: CommunName,
+                           userActiveKey: String): io.golos.commun4J.Either<TransactionSuccessful<ProfileMetadataDeleteResult>, io.golos.commun4J.model.GolosEosError> {
+
+        val callable = Callable {
+            pushTransaction<ProfileMetadataDeleteResult>(CommuntContract.SOCIAL, CommunActions.DELETE_METADATA,
+                    MyTransactionAuthorizationAbi(fromAccount),
+                    AbiBinaryGenCommun4J(CompressionType.NONE).squishProfileMetadataDeleteRequest(ProfileMetadataDeleteRequest(fromAccount)).toHex(),
+                    userActiveKey)
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
+    fun deleteUserMetadata(): io.golos.commun4J.Either<TransactionSuccessful<ProfileMetadataDeleteResult>, io.golos.commun4J.model.GolosEosError> {
+
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        return deleteUserMetadata(activeAccountName, activeAccountKey)
+    }
+
     fun createComment(fromAccount: CommunName,
                       userActiveKey: String,
                       body: String,
@@ -223,7 +336,6 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
         val callable = Callable {
             val updateRequest = UpdatePostRequest(newPostAuthor, newPermlink, newTitle, newBody,
                     newLanguage, newTags, newJsonMetadata)
-            print("updateRequest = ${moshi.adapter(UpdatePostRequest::class.java).toJson(updateRequest)}")
             pushTransaction<UpdatePostResult>(CommuntContract.PUBLICATION,
                     CommunActions.UPDATE_MESSAGE,
                     MyTransactionAuthorizationAbi(postAuthor.name),

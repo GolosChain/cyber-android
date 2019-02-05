@@ -2,8 +2,8 @@ package io.golos.commun4J
 
 import io.golos.commun4J.model.AuthType
 import io.golos.commun4J.model.CommunName
-import io.golos.commun4J.model.Tag
 
+@SuppressWarnings("unused")
 fun main(args: Array<String>) {
     val activeUserName = CommunName("destroyer2k")
     val accName = "freya5"
@@ -15,15 +15,22 @@ fun main(args: Array<String>) {
 
     val eos = io.golos.commun4J.Commun4J(keyStorage = storage)
 
+
+    eos.setUserMetadata(type = "a")
+
+    val result = eos.deleteUserMetadata()
+    println(result)
+
+
 //    val result = eos.createAccount(accName,
 //            pass,
 //            (AuthUtils::class.java).getResource("/eoscreateacckey.txt").readText(Charset.defaultCharset()))
 //    println(result)
 
 
-    val createPostResult = eos.createPost("test title", "тестовое тело поста", listOf(io.golos.commun4J.model.Tag("test")))
-    println(createPostResult)
-    assert(createPostResult is io.golos.commun4J.Either.Success)
+//    val createPostResult = eos.createPost("test title", "тестовое тело поста", listOf(io.golos.commun4J.model.Tag("test")))
+//    println(createPostResult)
+//    assert(createPostResult is io.golos.commun4J.Either.Success)
 
 //    val postPermlink = (createPostResult as io.golos.commun4J.Either.Success).value.processed.action_traces.first().act.data.permlink
 //
