@@ -1,4 +1,4 @@
-package io.golos.commun4J;
+package io.golos.commun4J.utils;
 
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;

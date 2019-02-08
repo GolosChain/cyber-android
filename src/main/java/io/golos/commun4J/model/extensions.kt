@@ -6,7 +6,7 @@ public fun String?.asOptionalStringBytes(): ByteArray {
     return if (this == null) ByteArray(1) { 0 }
     else {
         val bytes = this.toByteArray()
-        val buffer = ByteBuffer.allocate(bytes.size + 3)
+        val buffer = ByteBuffer.allocate(bytes.size + 9)
         buffer.put(1)
 
         var size : Int = bytes.size
@@ -18,9 +18,10 @@ public fun String?.asOptionalStringBytes(): ByteArray {
         } while (size != 0)
 
         buffer.put(bytes)
-        buffer.rewind()
-        val out = ByteArray(buffer.remaining())
-        buffer.get(out)
+
+        val out = ByteArray(buffer.position())
+
+        System.arraycopy(buffer.array(),  0, out, 0, out.size)
         return out
     }
 }

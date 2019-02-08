@@ -11,6 +11,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
 import com.squareup.moshi.Types
 import io.golos.commun4J.model.*
+import io.golos.commun4J.utils.Either
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -18,7 +19,7 @@ import java.util.*
 interface TransactionPusher {
     fun <T> pushTransaction(action: List<MyActionAbi>,
                             key: EosPrivateKey,
-                            traceType: Class<T>): io.golos.commun4J.Either<TransactionSuccessful<T>, io.golos.commun4J.model.GolosEosError>
+                            traceType: Class<T>): Either<TransactionSuccessful<T>, GolosEosError>
 }
 
 class GolosEosTransactionPusher(private val chainApi: ChainApi,
@@ -32,7 +33,7 @@ class GolosEosTransactionPusher(private val chainApi: ChainApi,
 
     override fun <T> pushTransaction(action: List<MyActionAbi>,
                                      key: EosPrivateKey,
-                                     traceType: Class<T>): io.golos.commun4J.Either<TransactionSuccessful<T>, io.golos.commun4J.model.GolosEosError> {
+                                     traceType: Class<T>): Either<TransactionSuccessful<T>, GolosEosError> {
 
         val info = chainApi.getInfo().blockingGet().body()!!
 
@@ -70,11 +71,11 @@ class GolosEosTransactionPusher(private val chainApi: ChainApi,
             val jsonAdapter = moshi.adapter<TransactionSuccessful<T>>(type)
             val value = jsonAdapter.fromJson(responseString)!!
 
-            return io.golos.commun4J.Either.Success(value)
+            return Either.Success(value)
 //            val comitted = result.body()!!
-//            io.golos.commun4J.Either.Success(TransactionSuccessful(comitted))
+//            io.golos.commun4J.utils.Either.Success(TransactionSuccessful(comitted))
         } else {
-            io.golos.commun4J.Either.Failure(moshi.adapter<io.golos.commun4J.model.GolosEosError>(io.golos.commun4J.model.GolosEosError::class.java).fromJson(result.errorBody()?.string().orEmpty())!!)
+            Either.Failure(moshi.adapter<io.golos.commun4J.model.GolosEosError>(io.golos.commun4J.model.GolosEosError::class.java).fromJson(result.errorBody()?.string().orEmpty())!!)
         }
     }
 

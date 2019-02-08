@@ -11,6 +11,9 @@ import com.memtrip.eos.core.hex.DefaultHexWriter
 import com.memtrip.eos.http.rpc.ChainApi
 import com.squareup.moshi.Moshi
 import io.golos.commun4J.model.*
+import io.golos.commun4J.services.CommunServicesApiProvider
+import io.golos.commun4J.utils.AuthUtils
+import io.golos.commun4J.utils.Either
 import net.gcardone.junidecode.Junidecode
 import java.util.concurrent.Callable
 
@@ -53,7 +56,7 @@ private enum class CommuntContract {
 
 class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Commun4JConfig(),
                                          chainApiProvider: io.golos.commun4J.ChainApiProvider? = null,
-                                         private val historyApiProvider: HistoryApiProvider = WebApi(),
+                                         private val historyApiProvider: HistoryApiProvider = CommunServicesApiProvider(config),
                                          val keyStorage: CommunKeyStorage = CommunKeyStorage()) {
     private val staleTransactionErrorCode = 3080006
 
@@ -82,7 +85,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                    tags: List<io.golos.commun4J.model.Tag>,
                    beneficiaries: List<io.golos.commun4J.model.Beneficiary> = emptyList(),
                    vestPayment: Boolean = true,
-                   tokenProp: Long = 0L): io.golos.commun4J.Either<TransactionSuccessful<CreatePostResult>, io.golos.commun4J.model.GolosEosError> {
+                   tokenProp: Long = 0L): Either<TransactionSuccessful<CreatePostResult>, GolosEosError> {
 
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
@@ -104,7 +107,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                    tags: List<io.golos.commun4J.model.Tag>,
                    beneficiaries: List<io.golos.commun4J.model.Beneficiary> = emptyList(),
                    vestPayment: Boolean = true,
-                   tokenProp: Long = 0L): io.golos.commun4J.Either<TransactionSuccessful<CreatePostResult>, io.golos.commun4J.model.GolosEosError> {
+                   tokenProp: Long = 0L): Either<TransactionSuccessful<CreatePostResult>, GolosEosError> {
 
         return createPostOrComment(fromAccount, userActiveKey,
                 title, body, "${Junidecode.unidecode(title)}-${System.currentTimeMillis()}",
@@ -147,9 +150,9 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                                     tags: List<io.golos.commun4J.model.Tag>,
                                     beneficiaries: List<io.golos.commun4J.model.Beneficiary> = emptyList(),
                                     vestPayment: Boolean = true,
-                                    tokenProp: Long = 0L): io.golos.commun4J.Either<TransactionSuccessful<CreatePostResult>, io.golos.commun4J.model.GolosEosError> {
+                                    tokenProp: Long = 0L): Either<TransactionSuccessful<CreatePostResult>, GolosEosError> {
 
-        val callable = Callable<Either<TransactionSuccessful<CreatePostResult>, io.golos.commun4J.model.GolosEosError>> {
+        val callable = Callable<Either<TransactionSuccessful<CreatePostResult>, GolosEosError>> {
             val createPostRequest = io.golos.commun4J.model.CreatePostRequest(
                     fromAccount.name,
                     permlink,
@@ -180,7 +183,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                       category: Tag,
                       beneficiaries: List<io.golos.commun4J.model.Beneficiary> = emptyList(),
                       vestPayment: Boolean = true,
-                      tokenProp: Long = 0L): io.golos.commun4J.Either<TransactionSuccessful<CreatePostResult>, io.golos.commun4J.model.GolosEosError> {
+                      tokenProp: Long = 0L): Either<TransactionSuccessful<CreatePostResult>, GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
@@ -226,7 +229,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
             targetDate: String? = null,
             targetPlan: String? = null,
             targetPointA: String? = null,
-            targetPointB: String? = null): io.golos.commun4J.Either<TransactionSuccessful<ProfileMetadatUpdateResult>, io.golos.commun4J.model.GolosEosError> {
+            targetPointB: String? = null): Either<TransactionSuccessful<ProfileMetadatUpdateResult>, GolosEosError> {
 
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
@@ -271,7 +274,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
             targetDate: String? = null,
             targetPlan: String? = null,
             targetPointA: String? = null,
-            targetPointB: String? = null): io.golos.commun4J.Either<TransactionSuccessful<ProfileMetadatUpdateResult>, io.golos.commun4J.model.GolosEosError> {
+            targetPointB: String? = null): Either<TransactionSuccessful<ProfileMetadatUpdateResult>, GolosEosError> {
 
         val callable = Callable {
             val request = ProfileMetadataUpdateRequest(fromAccount.name,
@@ -279,6 +282,8 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                             telegram, vk, website, first_name, last_name, name, birthDate, gender, location,
                             city, about, occupation, iCan, lookingFor, businessCategory, backgroundImage, coverImage,
                             profileImage, userImage, icoAddress, targetDate, targetPlan, targetPointA, targetPointB))
+
+            println("request = $request")
 
             val hex = AbiBinaryGenCommun4J(CompressionType.NONE).squishProfileMetadataUpdateRequest(request).toHex()
 
@@ -289,7 +294,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
     }
 
     fun deleteUserMetadata(fromAccount: CommunName,
-                           userActiveKey: String): io.golos.commun4J.Either<TransactionSuccessful<ProfileMetadataDeleteResult>, io.golos.commun4J.model.GolosEosError> {
+                           userActiveKey: String): Either<TransactionSuccessful<ProfileMetadataDeleteResult>, GolosEosError> {
 
         val callable = Callable {
             pushTransaction<ProfileMetadataDeleteResult>(CommuntContract.SOCIAL, CommunActions.DELETE_METADATA,
@@ -300,7 +305,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
         return callTilTimeoutExceptionVanishes(callable)
     }
 
-    fun deleteUserMetadata(): io.golos.commun4J.Either<TransactionSuccessful<ProfileMetadataDeleteResult>, io.golos.commun4J.model.GolosEosError> {
+    fun deleteUserMetadata(): Either<TransactionSuccessful<ProfileMetadataDeleteResult>, GolosEosError> {
 
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
@@ -316,7 +321,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                       category: Tag,
                       beneficiaries: List<io.golos.commun4J.model.Beneficiary> = listOf(),
                       vestPayment: Boolean = true,
-                      tokenProp: Long = 0L): io.golos.commun4J.Either<TransactionSuccessful<CreatePostResult>, io.golos.commun4J.model.GolosEosError> {
+                      tokenProp: Long = 0L): Either<TransactionSuccessful<CreatePostResult>, GolosEosError> {
 
 
         return createPostOrComment(fromAccount, userActiveKey, "", body,
@@ -332,7 +337,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                                     newBody: String,
                                     newLanguage: String,
                                     newTags: List<Tag>,
-                                    newJsonMetadata: String): io.golos.commun4J.Either<TransactionSuccessful<UpdatePostResult>, io.golos.commun4J.model.GolosEosError> {
+                                    newJsonMetadata: String): Either<TransactionSuccessful<UpdatePostResult>, GolosEosError> {
         val callable = Callable {
             val updateRequest = UpdatePostRequest(newPostAuthor, newPermlink, newTitle, newBody,
                     newLanguage, newTags, newJsonMetadata)
@@ -351,7 +356,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                    newPermlink: String,
                    newTitle: String,
                    newBody: String,
-                   newTags: List<Tag>): io.golos.commun4J.Either<TransactionSuccessful<UpdatePostResult>, io.golos.commun4J.model.GolosEosError> {
+                   newTags: List<Tag>): Either<TransactionSuccessful<UpdatePostResult>, GolosEosError> {
         return updatePostOrComment(postAuthor, userActiveKey, newPostAuthor, newPermlink, newTitle, newBody, "ru", newTags, "")
     }
 
@@ -360,7 +365,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                       newPostAuthor: CommunName,
                       newPermlink: String,
                       newBody: String,
-                      newCategory: Tag): io.golos.commun4J.Either<TransactionSuccessful<UpdatePostResult>, io.golos.commun4J.model.GolosEosError> {
+                      newCategory: Tag): Either<TransactionSuccessful<UpdatePostResult>, GolosEosError> {
 
         return updatePostOrComment(postAuthor, userActiveKey, newPostAuthor, newPermlink, "", newBody, "ru", listOf(newCategory), "")
     }
@@ -369,7 +374,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                    newPermlink: String,
                    newTitle: String,
                    newBody: String,
-                   newTags: List<Tag>): io.golos.commun4J.Either<TransactionSuccessful<UpdatePostResult>, io.golos.commun4J.model.GolosEosError> {
+                   newTags: List<Tag>): Either<TransactionSuccessful<UpdatePostResult>, GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
@@ -380,7 +385,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
     fun updateComment(newPostAuthor: CommunName,
                       newPermlink: String,
                       newBody: String,
-                      newCategory: Tag): io.golos.commun4J.Either<TransactionSuccessful<UpdatePostResult>, io.golos.commun4J.model.GolosEosError> {
+                      newCategory: Tag): Either<TransactionSuccessful<UpdatePostResult>, GolosEosError> {
 
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
@@ -391,7 +396,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
 
     fun deletePostOrComment(postAuthor: CommunName,
                             userActiveKey: String,
-                            permlink: String): io.golos.commun4J.Either<TransactionSuccessful<DeleteResult>, io.golos.commun4J.model.GolosEosError> {
+                            permlink: String): Either<TransactionSuccessful<DeleteResult>, GolosEosError> {
         val callable = Callable {
             pushTransaction<DeleteResult>(CommuntContract.PUBLICATION,
                     CommunActions.DELETE_MESSAGE,
@@ -404,7 +409,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
     }
 
     fun deletePostOrComment(permlink: String):
-            io.golos.commun4J.Either<TransactionSuccessful<DeleteResult>, io.golos.commun4J.model.GolosEosError> {
+            Either<TransactionSuccessful<DeleteResult>, GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
@@ -415,7 +420,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
     //vote strength -10000 _+10000
     fun vote(postAuthor: CommunName,
              postPermlink: String,
-             voteStrength: Short): io.golos.commun4J.Either<TransactionSuccessful<VoteResult>, io.golos.commun4J.model.GolosEosError> {
+             voteStrength: Short): Either<TransactionSuccessful<VoteResult>, GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
@@ -428,7 +433,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
              userActiveKey: String,
              postAuthor: CommunName,
              postPermlink: String,
-             voteStrength: Short): io.golos.commun4J.Either<TransactionSuccessful<VoteResult>, io.golos.commun4J.model.GolosEosError> {
+             voteStrength: Short): Either<TransactionSuccessful<VoteResult>, GolosEosError> {
         val callable = Callable {
             val squisher = createBinaryConverter()
 
@@ -449,7 +454,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
 
     fun createAccount(newAccountName: String,
                       newAccountMasterPassword: String,
-                      eosioCreateUserKey: String): Either<TransactionSuccessful<AccountCreationResult>, io.golos.commun4J.model.GolosEosError> {
+                      eosioCreateUserKey: String): Either<TransactionSuccessful<AccountCreationResult>, GolosEosError> {
         CommunName(newAccountName)
         val creatorAccountName = "eosio"
         val keys = AuthUtils.generatePublicWiFs(newAccountName, newAccountMasterPassword, AuthType.values())
@@ -474,13 +479,13 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
 
         val result = startVesting(newAccountName, eosioCreateUserKey)
 
-        if (result is Either.Failure) throw IllegalStateException("error happened during inititalization of account," +
-                "vall startVesting(newAccountName, eosioCreateUserKey) to fully init new account $newAccountName")
+        if (result is Either.Failure) throw IllegalStateException("error happened during initialization of account," +
+                "сall startVesting(newAccountName, eosioCreateUserKey) to fully init new account $newAccountName")
         return createAnswer
     }
 
     fun startVesting(newAccountName: String,
-                     eosioCreateUserKey: String): Either<TransactionSuccessful<Any>, io.golos.commun4J.model.GolosEosError> {
+                     eosioCreateUserKey: String): Either<TransactionSuccessful<Any>, GolosEosError> {
         val creatorAccountName = "eosio"
 
         val createVestingCallable = Callable {
@@ -500,9 +505,9 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
         return callTilTimeoutExceptionVanishes(createVestingCallable)
     }
 
-    fun getStories() = historyApiProvider.getDisucssions()
+    fun getDiscussions() = historyApiProvider.getDiscussions()
 
-    fun getStory(author: CommunName, permlink: String) = historyApiProvider.getDiscussion(author, permlink)
+    fun getDiscussion(id: String) = historyApiProvider.getDiscussion(id)
 
     private fun createBinaryConverter(): AbiBinaryGenCommun4J {
         return AbiBinaryGenCommun4J(CyberwayByteWriter(), DefaultHexWriter(), CompressionType.NONE)

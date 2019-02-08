@@ -2,6 +2,7 @@ package io.golos.commun4J
 
 import io.golos.commun4J.model.AuthType
 import io.golos.commun4J.model.CommunName
+import io.golos.commun4J.utils.Pair
 
 @SuppressWarnings("unused")
 fun main(args: Array<String>) {
@@ -16,10 +17,7 @@ fun main(args: Array<String>) {
     val eos = io.golos.commun4J.Commun4J(keyStorage = storage)
 
 
-    eos.setUserMetadata(type = "a")
-
-    val result = eos.deleteUserMetadata()
-    println(result)
+    eos.setUserMetadata(app = "appName", type = "typeName", email = "email", phone = "phone")
 
 
 //    val result = eos.createAccount(accName,
@@ -30,48 +28,48 @@ fun main(args: Array<String>) {
 
 //    val createPostResult = eos.createPost("test title", "тестовое тело поста", listOf(io.golos.commun4J.model.Tag("test")))
 //    println(createPostResult)
-//    assert(createPostResult is io.golos.commun4J.Either.Success)
+//    assert(createPostResult is io.golos.commun4J.utils.Either.Success)
 
-//    val postPermlink = (createPostResult as io.golos.commun4J.Either.Success).value.processed.action_traces.first().act.data.permlink
+//    val postPermlink = (createPostResult as io.golos.commun4J.utils.Either.Success).value.processed.action_traces.first().act.data.permlink
 //
 //    println("updating post")
 //    val updateResult = eos.updatePost(activeUserName, postPermlink, "changed title", "changed body", listOf(Tag("test")))
-//    assert(updateResult is io.golos.commun4J.Either.Success)
+//    assert(updateResult is io.golos.commun4J.utils.Either.Success)
 //
 //    println("voting")
 //    var voteResult = eos.vote(activeUserName, postPermlink, 10_000)
 //    print(voteResult)
-//    assert(voteResult is io.golos.commun4J.Either.Success)
+//    assert(voteResult is io.golos.commun4J.utils.Either.Success)
 //
 //    println("downvoting")
 //    voteResult = eos.vote(activeUserName, postPermlink, -10_000)
 //    print(voteResult)
-//    assert(voteResult is io.golos.commun4J.Either.Success)
+//    assert(voteResult is io.golos.commun4J.utils.Either.Success)
 //
 //    println("unvoting")
 //    val unvoteResult = eos.vote(activeUserName, postPermlink, 0)
 //    print(unvoteResult)
-//    assert(unvoteResult is io.golos.commun4J.Either.Success)
+//    assert(unvoteResult is io.golos.commun4J.utils.Either.Success)
 //
 //    println("creating comment")
 //    val createCommentResult = eos.createComment("test comment", activeUserName, postPermlink, Tag("test"))
-//    assert(createCommentResult is io.golos.commun4J.Either.Success)
-//    val commentPermlink = (createCommentResult as io.golos.commun4J.Either.Success).value.processed.action_traces.first().act.data.permlink
+//    assert(createCommentResult is io.golos.commun4J.utils.Either.Success)
+//    val commentPermlink = (createCommentResult as io.golos.commun4J.utils.Either.Success).value.processed.action_traces.first().act.data.permlink
 //
 //    println("voting")
 //    val voteForCommentResult = eos.vote(activeUserName, commentPermlink, 10_000)
 //    print(voteResult)
-//    assert(voteForCommentResult is io.golos.commun4J.Either.Success)
+//    assert(voteForCommentResult is io.golos.commun4J.utils.Either.Success)
 //
 //    println("downvoting")
 //    voteResult = eos.vote(activeUserName, commentPermlink, -10_000)
 //    print(voteResult)
-//    assert(voteResult is io.golos.commun4J.Either.Success)
+//    assert(voteResult is io.golos.commun4J.utils.Either.Success)
 //
 //    println("unvoting")
 //    val unvoteForCommentResult = eos.vote(activeUserName, commentPermlink, 0)
 //    print(unvoteResult)
-//    assert(unvoteForCommentResult is io.golos.commun4J.Either.Success)
+//    assert(unvoteForCommentResult is io.golos.commun4J.utils.Either.Success)
 //
 //    println("deleting post")
 //

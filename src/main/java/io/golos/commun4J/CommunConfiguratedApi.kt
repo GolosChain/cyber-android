@@ -2,6 +2,7 @@ package io.golos.commun4J
 
 import com.memtrip.eos.http.rpc.Api
 import com.memtrip.eos.http.rpc.ChainApi
+import io.golos.commun4J.utils.LogLevel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.TimeUnit
