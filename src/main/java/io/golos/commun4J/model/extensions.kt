@@ -2,14 +2,14 @@ package io.golos.commun4J.model
 
 import java.nio.ByteBuffer
 
-public fun String?.asOptionalStringBytes(): ByteArray {
+internal fun String?.asOptionalStringBytes(): ByteArray {
     return if (this == null) ByteArray(1) { 0 }
     else {
         val bytes = this.toByteArray()
         val buffer = ByteBuffer.allocate(bytes.size + 9)
         buffer.put(1)
 
-        var size : Int = bytes.size
+        var size: Int = bytes.size
         do {
             var b: Byte = (size and 0x7f).toByte()
             size = size shr 7
@@ -21,7 +21,9 @@ public fun String?.asOptionalStringBytes(): ByteArray {
 
         val out = ByteArray(buffer.position())
 
-        System.arraycopy(buffer.array(),  0, out, 0, out.size)
+        System.arraycopy(buffer.array(), 0, out, 0, out.size)
         return out
     }
 }
+
+internal fun Boolean.toByte() = if (this) 1 else 0

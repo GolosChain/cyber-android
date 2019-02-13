@@ -42,7 +42,7 @@ public class GolosEosError {
         private int code;
         private String name;
         private String what;
-        private Object details;
+        private ErrorMessage[] details;
 
         public int getCode() {
             return code;
@@ -72,7 +72,14 @@ public class GolosEosError {
             return details;
         }
 
-        public void setDetails(Object details) {
+        public void setDetails(ErrorMessage[] details) {
+            this.details = details;
+        }
+
+        public Error(int code, String name, String what, ErrorMessage[] details) {
+            this.code = code;
+            this.name = name;
+            this.what = what;
             this.details = details;
         }
 
@@ -83,6 +90,60 @@ public class GolosEosError {
                     ", name='" + name + '\'' +
                     ", what='" + what + '\'' +
                     ", details=" + details +
+                    '}';
+        }
+    }
+
+    static class ErrorMessage{
+        private String message;
+        private String file;
+        private int line_number;
+        private  String method;
+
+        public ErrorMessage(String message, String file, int line_number, String method) {
+            this.message = message;
+            this.file = file;
+            this.line_number = line_number;
+            this.method = method;
+        }
+
+        public int getLine_number() {
+            return line_number;
+        }
+
+        public void setLine_number(int line_number) {
+            this.line_number = line_number;
+        }
+
+        public String getMethod() {
+            return method;
+        }
+
+        public void setMethod(String method) {
+            this.method = method;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public String getFile() {
+            return file;
+        }
+
+        public void setFile(String file) {
+            this.file = file;
+        }
+
+        @Override
+        public String toString() {
+            return "ErrorMessage{" +
+                    "message='" + message + '\'' +
+                    ", file='" + file + '\'' +
                     '}';
         }
     }

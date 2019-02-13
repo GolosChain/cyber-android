@@ -13,7 +13,9 @@ import com.squareup.moshi.Moshi
 import io.golos.commun4J.model.*
 import io.golos.commun4J.services.CommunServicesApiProvider
 import io.golos.commun4J.utils.AuthUtils
+import io.golos.commun4J.utils.CommunNameAdapter
 import io.golos.commun4J.utils.Either
+import io.golos.commun4J.utils.checkArgument
 import net.gcardone.junidecode.Junidecode
 import java.util.concurrent.Callable
 
@@ -154,18 +156,20 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
 
         val callable = Callable<Either<TransactionSuccessful<CreatePostResult>, GolosEosError>> {
             val createPostRequest = io.golos.commun4J.model.CreatePostRequest(
-                    fromAccount.name,
+                    fromAccount,
                     permlink,
-                    parentAccount.name,
+                    parentAccount,
                     parentPermlink,
                     beneficiaries,
-                    tokenProp,
-                    vestPayment,
                     title,
                     body,
                     tags,
+                    tokenProp,
+                    vestPayment,
                     "ru",
                     "")
+
+            println("createPostRequest = ${moshi.adapter(CreatePostRequest::class.java).toJson(createPostRequest)}")
 
             val result = createBinaryConverter().squishCreatePostRequest(createPostRequest)
             pushTransaction<CreatePostResult>(CommuntContract.PUBLICATION, CommunActions.CREATE_MESSAGE,
@@ -277,7 +281,7 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
             targetPointB: String? = null): Either<TransactionSuccessful<ProfileMetadatUpdateResult>, GolosEosError> {
 
         val callable = Callable {
-            val request = ProfileMetadataUpdateRequest(fromAccount.name,
+            val request = ProfileMetadataUpdateRequest(fromAccount,
                     ProfileMetadata(type, app, email, phone, facebook, instagram,
                             telegram, vk, website, first_name, last_name, name, birthDate, gender, location,
                             city, about, occupation, iCan, lookingFor, businessCategory, backgroundImage, coverImage,
@@ -323,6 +327,8 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                       vestPayment: Boolean = true,
                       tokenProp: Long = 0L): Either<TransactionSuccessful<CreatePostResult>, GolosEosError> {
 
+        checkArgument(parentAccount.name.isNotEmpty(), "parentAccount cannot be empty")
+        checkArgument(parentPermlink.isNotEmpty(), "parentPermlink cannot be empty")
 
         return createPostOrComment(fromAccount, userActiveKey, "", body,
                 "re-$parentPermlink-${System.currentTimeMillis()}", parentPermlink,
@@ -338,9 +344,10 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                                     newLanguage: String,
                                     newTags: List<Tag>,
                                     newJsonMetadata: String): Either<TransactionSuccessful<UpdatePostResult>, GolosEosError> {
+
         val callable = Callable {
-            val updateRequest = UpdatePostRequest(newPostAuthor, newPermlink, newTitle, newBody,
-                    newLanguage, newTags, newJsonMetadata)
+            val updateRequest = UpdatePostRequest(newPostAuthor, newPermlink, newTitle, newBody, newTags,
+                    newLanguage, newJsonMetadata)
             pushTransaction<UpdatePostResult>(CommuntContract.PUBLICATION,
                     CommunActions.UPDATE_MESSAGE,
                     MyTransactionAuthorizationAbi(postAuthor.name),

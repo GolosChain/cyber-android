@@ -22,7 +22,7 @@ interface TransactionPusher {
                             traceType: Class<T>): Either<TransactionSuccessful<T>, GolosEosError>
 }
 
-class GolosEosTransactionPusher(private val chainApi: ChainApi,
+internal class GolosEosTransactionPusher(private val chainApi: ChainApi,
                                 private val commun4JConfig: io.golos.commun4J.Commun4JConfig,
                                 private val moshi: Moshi) : TransactionPusher {
 

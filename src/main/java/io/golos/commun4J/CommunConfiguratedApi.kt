@@ -11,7 +11,7 @@ interface ChainApiProvider {
     fun provide(): ChainApi
 }
 
-class GolosEosConfiguratedApi(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Commun4JConfig()) : io.golos.commun4J.ChainApiProvider {
+internal class GolosEosConfiguratedApi(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Commun4JConfig()) : io.golos.commun4J.ChainApiProvider {
 
     private val api: Api
 
