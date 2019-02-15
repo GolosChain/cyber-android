@@ -5,6 +5,7 @@ import com.memtrip.eos.core.block.BlockIdDetails
 import com.memtrip.eos.core.crypto.EosPrivateKey
 import com.memtrip.eos.core.crypto.signature.PrivateKeySigning
 import com.memtrip.eos.http.rpc.ChainApi
+import com.memtrip.eos.http.rpc.model.info.Info
 import com.memtrip.eos.http.rpc.model.signing.PushTransaction
 import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.Moshi
@@ -19,12 +20,13 @@ import java.util.*
 interface TransactionPusher {
     fun <T> pushTransaction(action: List<MyActionAbi>,
                             key: EosPrivateKey,
-                            traceType: Class<T>): Either<TransactionSuccessful<T>, GolosEosError>
+                            traceType: Class<T>,
+                            usingPrefetchedChainInfo: Info? = null): Either<TransactionSuccessful<T>, GolosEosError>
 }
 
-internal class GolosEosTransactionPusher(private val chainApi: ChainApi,
-                                private val commun4JConfig: io.golos.commun4J.Commun4JConfig,
-                                private val moshi: Moshi) : TransactionPusher {
+internal class TransactionPusherImpl(private val chainApi: ChainApi,
+                                     private val commun4JConfig: io.golos.commun4J.Commun4JConfig,
+                                     private val moshi: Moshi) : TransactionPusher {
 
     private val dateFormat: SimpleDateFormat = SimpleDateFormat(commun4JConfig.datePattern).apply {
         timeZone = TimeZone.getTimeZone(commun4JConfig.timeZoneId)
@@ -33,9 +35,10 @@ internal class GolosEosTransactionPusher(private val chainApi: ChainApi,
 
     override fun <T> pushTransaction(action: List<MyActionAbi>,
                                      key: EosPrivateKey,
-                                     traceType: Class<T>): Either<TransactionSuccessful<T>, GolosEosError> {
+                                     traceType: Class<T>,
+                                     usingPrefetchedChainInfo: Info?): Either<TransactionSuccessful<T>, GolosEosError> {
 
-        val info = chainApi.getInfo().blockingGet().body()!!
+        val info = usingPrefetchedChainInfo ?: chainApi.getInfo().blockingGet().body()!!
 
         val serverDate = Date(dateFormat.parse(info.head_block_time).time + 30_000)
 

@@ -1,9 +1,20 @@
 package io.golos.commun4J.model;
 
+import java.util.Arrays;
+
 public class GolosEosError {
     private int code;
     private String message;
     private Error error;
+
+    @Override
+    public String toString() {
+        return "GolosEosError{" +
+                "code=" + code +
+                ", message='" + message + '\'' +
+                ", error=" + error +
+                '}';
+    }
 
     public int getCode() {
         return code;
@@ -29,20 +40,21 @@ public class GolosEosError {
         this.error = error;
     }
 
-    @Override
-    public String toString() {
-        return "GolosEosError{" +
-                "code=" + code +
-                ", message='" + message + '\'' +
-                ", error=" + error +
-                '}';
-    }
-
     static class Error {
         private int code;
         private String name;
         private String what;
         private ErrorMessage[] details;
+
+        @Override
+        public String toString() {
+            return "Error{" +
+                    "code=" + code +
+                    ", name='" + name + '\'' +
+                    ", what='" + what + '\'' +
+                    ", details=" + Arrays.toString(details) +
+                    '}';
+        }
 
         public int getCode() {
             return code;
@@ -83,15 +95,6 @@ public class GolosEosError {
             this.details = details;
         }
 
-        @Override
-        public String toString() {
-            return "Error{" +
-                    "code=" + code +
-                    ", name='" + name + '\'' +
-                    ", what='" + what + '\'' +
-                    ", details=" + details +
-                    '}';
-        }
     }
 
     static class ErrorMessage{
@@ -105,6 +108,16 @@ public class GolosEosError {
             this.file = file;
             this.line_number = line_number;
             this.method = method;
+        }
+
+        @Override
+        public String toString() {
+            return "ErrorMessage{" +
+                    "message='" + message + '\'' +
+                    ", file='" + file + '\'' +
+                    ", line_number=" + line_number +
+                    ", method='" + method + '\'' +
+                    '}';
         }
 
         public int getLine_number() {
@@ -139,12 +152,5 @@ public class GolosEosError {
             this.file = file;
         }
 
-        @Override
-        public String toString() {
-            return "ErrorMessage{" +
-                    "message='" + message + '\'' +
-                    ", file='" + file + '\'' +
-                    '}';
-        }
     }
 }

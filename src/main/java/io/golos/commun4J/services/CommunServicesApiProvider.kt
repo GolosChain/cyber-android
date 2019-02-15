@@ -15,7 +15,7 @@ internal class CommunServicesApiProvider(val config: Commun4JConfig,
     override fun getDiscussions(): Either<List<CommunDiscussion>, ApiResponseError> {
         communClient.connect(config)
         return communClient.send("content.getFeed",
-                DiscussionsRequests("GOLOSID"), List::class.java) as Either<List<CommunDiscussion>, ApiResponseError>
+                DiscussionsRequests("GOLOSID"), CommunDiscussion::class.java, true) as Either<List<CommunDiscussion>, ApiResponseError>
     }
 
     override fun getDiscussion(id: String): Either<CommunDiscussion, ApiResponseError> {

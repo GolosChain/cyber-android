@@ -2,65 +2,47 @@ package io.golos.commun4J.model;
 
 public class VoteResult {
 
-    public class VoteRequest {
-        private CommunName name;
-        private CommunName author;
-        private String permlink;
-        private short weight;
+    private CommunName voter;
+    private ResultDiscussionId message_id;
+    private short weight;
 
-        public VoteRequest(String name, String author, String permlink, short weight) {
-            this.name = new CommunName(name);
-            this.author = new CommunName(author);
-            this.permlink = permlink;
-            this.weight = weight;
-        }
-
-        public VoteRequest() {
-        }
-
-        public void setName(String name) {
-            this.name = new CommunName(name);
-        }
-
-        public void setAuthor(String author) {
-            this.author = new CommunName(author);
-        }
-
-        public void setPermlink(String permlink) {
-            this.permlink = permlink;
-        }
-
-        public void setWeight(short weight) {
-            this.weight = weight;
-        }
-
-        public String getName() {
-            return name.getName();
-        }
+    public VoteResult(CommunName voter, ResultDiscussionId message_id, short weight) {
+        this.voter = voter;
+        this.message_id = message_id;
+        this.weight = weight;
+    }
 
 
-        public String getAuthor() {
-            return author.getName();
-        }
+    public CommunName getVoter() {
+        return voter;
+    }
 
+    public void setVoter(CommunName voter) {
+        this.voter = voter;
+    }
 
-        public String getPermlink() {
-            return permlink;
-        }
+    public ResultDiscussionId getMessage_id() {
+        return message_id;
+    }
 
+    public void setMessage_id(ResultDiscussionId message_id) {
+        this.message_id = message_id;
+    }
 
-        public short getWeight() {
-            return weight;
-        }
+    public short getWeight() {
+        return weight;
+    }
 
-        @Override
-        public String toString() {
-            return "VoteRequest{" +
-                    "name=" + name +
-                    ", author=" + author +
-                    ", permlink='" + permlink + '\'' +
-                    ", weight=" + weight +
-                    '}';
-        }
+    public void setWeight(short weight) {
+        this.weight = weight;
+    }
+
+    @Override
+    public String toString() {
+        return "VoteResult{" +
+                "voter=" + voter +
+                ", message_id=" + message_id +
+                ", weight=" + weight +
+                '}';
     }
 }

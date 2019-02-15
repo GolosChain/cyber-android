@@ -23,7 +23,8 @@ interface ApiClient {
 
     fun <R> send(method: String,
                  params: Any,
-                 classOfMessageToReceive: Class<R>): Either<R, ApiResponseError>
+                 classOfMessageToReceive: Class<R>,
+                 isList: Boolean = false): Either<R, ApiResponseError>
 }
 
 
@@ -63,7 +64,8 @@ internal class CommunServicesWebSocketClient : WebSocketListener(), ApiClient {
 
     override fun <R> send(method: String,
                           params: Any,
-                          classOfMessageToReceive: Class<R>): Either<R, ApiResponseError> {
+                          classOfMessageToReceive: Class<R>,
+                          isList: Boolean): Either<R, ApiResponseError> {
 
         val rpcMessage = ServicesMessagesWrapper(method, params)
 
@@ -85,7 +87,9 @@ internal class CommunServicesWebSocketClient : WebSocketListener(), ApiClient {
         responseMap[id] = ""
         latches[id] = null
 
-        val type = Types.newParameterizedType(ServicesResponseWrapper::class.java, classOfMessageToReceive)
+        val type = if (!isList)
+            Types.newParameterizedType(ServicesResponseWrapper::class.java, classOfMessageToReceive)
+        else Types.newParameterizedType(ServicesResponseWrapper::class.java, List::class.java, classOfMessageToReceive)
 
         val responseWrapper = moshi.adapter<ServicesResponseWrapper<R>>(type).fromJson(response)
 
