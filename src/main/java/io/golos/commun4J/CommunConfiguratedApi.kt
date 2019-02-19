@@ -28,7 +28,7 @@ internal class GolosEosConfiguratedApi(config: io.golos.commun4J.Commun4JConfig 
                 .readTimeout(config.readTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
                 .writeTimeout(config.writeTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
                 .build()
-        api = Api(config.connectionUrl, okHttpClient)
+        api = Api(config.blockChainHttpApiUrl, okHttpClient)
     }
 
     override fun provide(): ChainApi {

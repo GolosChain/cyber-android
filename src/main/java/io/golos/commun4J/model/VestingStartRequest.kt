@@ -5,7 +5,8 @@ import com.memtrip.eos.abi.writer.BytesCompress
 import com.memtrip.eos.abi.writer.NameCompress
 
 @Abi
-internal class VestingStartRequest(private val owner: CommunName) {
+internal class VestingStartRequest(private val owner: CommunName,
+                                   private val ramPayer: CommunName) {
 
     val getOwner: String
         @NameCompress get() = owner.name
@@ -14,9 +15,9 @@ internal class VestingStartRequest(private val owner: CommunName) {
         @BytesCompress
         get() = byteArrayOf(3, 71, 76, 83, 0, 0, 0, 0)
 
-    val ramPayer: String
+    val getRamPayer: String
         @NameCompress
-        get() = "eosio"
+        get() = ramPayer.name
 
 
 }

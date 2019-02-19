@@ -57,4 +57,5 @@ dependencies {
     implementation("com.memtrip.eos-jvm:eos-http-rpc:1.0.0-alpha29") {
         exclude group: "com.lambdaworks", module: "scrypt"
     }
+    testCompile 'junit:junit:4.12'
 }

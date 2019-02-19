@@ -40,7 +40,7 @@ public class ProfileMetadatUpdateResult {
                 '}';
     }
 
-    static class ProfileMetadata{
+   public static class ProfileMetadata{
         @Json(name = "type")
         @Nullable
         private String type;

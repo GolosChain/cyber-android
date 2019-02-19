@@ -6,6 +6,8 @@ import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.Acco
 import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.AccountRequiredAuthAbi
 import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewAccountArgs
 import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewAccountBody
+import com.memtrip.eos.chain.actions.transaction.transfer.actions.TransferArgs
+import com.memtrip.eos.chain.actions.transaction.transfer.actions.TransferBody
 import com.memtrip.eos.core.block.BlockIdDetails
 import com.memtrip.eos.core.crypto.EosPrivateKey
 import com.memtrip.eos.core.hex.DefaultHexWriter
@@ -24,7 +26,8 @@ import java.util.concurrent.Callable
 private enum class CommunActions {
     CREATE_DISCUSSION, UPDATE_DISCUSSION, DELETE_DISCUSSION, UP_VOTE,
     DOWN_VOTE, UN_VOTE, NEW_ACCOUNT, OPEN_VESTING,
-    UPDATE_META, DELETE_METADATA;
+    UPDATE_META, DELETE_METADATA, TRANSFER, PIN,
+    UN_PIN;
 
     override fun toString(): String {
         return when (this) {
@@ -38,32 +41,36 @@ private enum class CommunActions {
             OPEN_VESTING -> "open"
             UPDATE_META -> "updatemeta"
             DELETE_METADATA -> "deletemeta"
+            TRANSFER -> "transfer"
+            PIN -> "pin"
+            UN_PIN -> "unpin"
         }
     }
 
 }
 
 private enum class CommuntContract {
-    PUBLICATION, EOSIO, VESTING, SOCIAL;
+    PUBLICATION, EOSIO, CYBER, VESTING, SOCIAL, TOKEN;
 
     override fun toString(): String {
         return when (this) {
             PUBLICATION -> "gls.publish"
             EOSIO -> "eosio"
+            CYBER -> "cyber"
             VESTING -> "gls.vesting"
             SOCIAL -> "gls.social"
+            TOKEN -> "cyber.token"
         }
     }
 
 
 }
 
-class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Commun4JConfig(),
+class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Commun4JConfig(),
                                          chainApiProvider: io.golos.commun4J.ChainApiProvider? = null,
                                          private val historyApiProvider: HistoryApiProvider = CommunServicesApiProvider(config),
                                          val keyStorage: CommunKeyStorage = CommunKeyStorage()) {
     private val staleTransactionErrorCode = 3080006
-
     private val transactionPusher: io.golos.commun4J.TransactionPusher
     private val chainApi: ChainApi
     private val moshi: Moshi = Moshi
@@ -297,7 +304,6 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                             city, about, occupation, iCan, lookingFor, businessCategory, backgroundImage, coverImage,
                             profileImage, userImage, icoAddress, targetDate, targetPlan, targetPointA, targetPointB))
 
-            println("request = $request")
 
             val hex = AbiBinaryGenCommun4J(CompressionType.NONE).squishProfileMetadataUpdateRequest(request).toHex()
 
@@ -473,7 +479,6 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
 
             val operationHex = if (voteStrength == 0.toShort()) squisher
                     .squishUnVoteRequest(UnVoteRequest(fromAccount, discussionId)).toHex()
-
             else squisher.squishVoteRequest(VoteRequest(fromAccount, discussionId,
                     Math.abs(voteStrength.toInt()).toShort())).toHex()
 
@@ -492,12 +497,15 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                       newAccountMasterPassword: String,
                       eosioCreateUserKey: String): Either<TransactionSuccessful<AccountCreationResult>, GolosEosError> {
         CommunName(newAccountName)
-        val creatorAccountName = "eosio"
+        val creatorAccountName = if (config.isPrivateTestNet) CommuntContract.CYBER.toString() else CommuntContract.EOSIO.toString()
+
         val keys = AuthUtils.generatePublicWiFs(newAccountName, newAccountMasterPassword, AuthType.values())
 
         val callable = Callable {
             val writer = AbiBinaryGenTransactionWriter(CompressionType.NONE)
-            val newAccArgs = NewAccountArgs(CommuntContract.EOSIO.toString(),
+
+            val newAccArgs = NewAccountArgs(if (config.isPrivateTestNet) CommuntContract.CYBER.toString()
+            else CommuntContract.EOSIO.toString(),
                     newAccountName,
                     AccountRequiredAuthAbi(1,
                             listOf(AccountKeyAbi(keys[AuthType.OWNER]!!.replaceFirst("GLS", "EOS"), 1)),
@@ -506,12 +514,14 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
                             listOf(AccountKeyAbi(keys[AuthType.ACTIVE]!!.replaceFirst("GLS", "EOS"), 1)), emptyList(), emptyList()))
             val newAccBody = NewAccountBody(newAccArgs)
             val hex = writer.squishNewAccountBody(newAccBody).toHex()
-            pushTransaction<AccountCreationResult>(CommuntContract.EOSIO,
+            pushTransaction<AccountCreationResult>(if (config.isPrivateTestNet) CommuntContract.CYBER else CommuntContract.EOSIO,
                     CommunActions.NEW_ACCOUNT, MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
                     hex,
                     eosioCreateUserKey)
         }
         val createAnswer = callTilTimeoutExceptionVanishes(callable)
+
+        if (createAnswer is Either.Failure) return createAnswer
 
         val result = startVesting(newAccountName, eosioCreateUserKey)
 
@@ -522,11 +532,11 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
 
     fun startVesting(newAccountName: String,
                      eosioCreateUserKey: String): Either<TransactionSuccessful<Any>, GolosEosError> {
-        val creatorAccountName = "eosio"
+        val creatorAccountName = if (config.isPrivateTestNet) CommuntContract.CYBER.toString() else CommuntContract.EOSIO.toString()
 
         val createVestingCallable = Callable {
             val writer = createBinaryConverter()
-            val request = VestingStartRequest(CommunName(newAccountName))
+            val request = VestingStartRequest(CommunName(newAccountName), CommunName(creatorAccountName))
 
             val result = writer.squishVestingStartRequest(request)
 
@@ -548,4 +558,84 @@ class Commun4J @JvmOverloads constructor(config: io.golos.commun4J.Commun4JConfi
     private fun createBinaryConverter(): AbiBinaryGenCommun4J {
         return AbiBinaryGenCommun4J(CyberwayByteWriter(), DefaultHexWriter(), CompressionType.NONE)
     }
+
+
+    fun transfer(key: String,
+                 from: CommunName,
+                 to: CommunName,
+                 amount: String,
+                 currency: String,
+                 memo: String = ""): Either<TransactionSuccessful<TransferResult>, GolosEosError> {
+
+        if (!amount.matches("([0-9]+\\.[0-9]{3})".toRegex())) throw IllegalArgumentException("wrong currency format. Must be 3 points precision, like 12.000 or 0.001")
+
+        val callable = Callable {
+            val hex = AbiBinaryGenTransactionWriter(CyberwayByteWriter(), DefaultHexWriter(), CompressionType.NONE)
+                    .squishTransferBody(TransferBody(TransferArgs(from.name, to.name, "$amount $currency", memo))).toHex()
+            pushTransaction<TransferResult>(CommuntContract.TOKEN, CommunActions.TRANSFER,
+                    MyTransactionAuthorizationAbi(from), hex, key)
+        }
+
+        return callTilTimeoutExceptionVanishes(callable)
+
+    }
+
+    fun transfer(to: CommunName,
+                 amount: String,
+                 currency: String,
+                 memo: String = ""): Either<TransactionSuccessful<TransferResult>, GolosEosError> {
+        return transfer(keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }!!.second,
+                keyStorage.getActiveAccount(),
+                to,
+                amount,
+                currency,
+                memo)
+    }
+
+    fun pin(pinning: CommunName): Either<TransactionSuccessful<PinResult>, GolosEosError> {
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        return pin(activeAccountKey, activeAccountName, pinning)
+    }
+
+    fun pin(activeKey: String,
+            pinner: CommunName,
+            pinning: CommunName): Either<TransactionSuccessful<PinResult>, GolosEosError> {
+
+        val callable = Callable {
+            val hex = createBinaryConverter().squishPinRequest(PinRequest(pinner, pinning)).toHex()
+            pushTransaction<PinResult>(CommuntContract.SOCIAL,
+                    CommunActions.PIN,
+                    pinner.toTransactionAuthAbi(),
+                    hex,
+                    activeKey)
+        }
+        return callTilTimeoutExceptionVanishes(callable = callable)
+    }
+
+    fun unPin(pinning: CommunName): Either<TransactionSuccessful<PinResult>, GolosEosError> {
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        return unPin(activeAccountKey, activeAccountName, pinning)
+    }
+
+    fun unPin(activeKey: String,
+              pinner: CommunName,
+              pinning: CommunName): Either<TransactionSuccessful<PinResult>, GolosEosError> {
+
+        val callable = Callable {
+            val hex = createBinaryConverter().squishPinRequest(PinRequest(pinner, pinning)).toHex()
+            pushTransaction<PinResult>(CommuntContract.SOCIAL,
+                    CommunActions.UN_PIN,
+                    pinner.toTransactionAuthAbi(),
+                    hex,
+                    activeKey)
+        }
+        return callTilTimeoutExceptionVanishes(callable = callable)
+    }
+
 }
+
+private fun CommunName.toTransactionAuthAbi(): MyTransactionAuthorizationAbi = MyTransactionAuthorizationAbi(this.name)

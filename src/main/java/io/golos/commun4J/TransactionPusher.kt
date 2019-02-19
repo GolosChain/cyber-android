@@ -29,7 +29,7 @@ internal class TransactionPusherImpl(private val chainApi: ChainApi,
                                      private val moshi: Moshi) : TransactionPusher {
 
     private val dateFormat: SimpleDateFormat = SimpleDateFormat(commun4JConfig.datePattern).apply {
-        timeZone = TimeZone.getTimeZone(commun4JConfig.timeZoneId)
+        timeZone = TimeZone.getTimeZone(commun4JConfig.blockChainTimeZoneId)
     }
 
 
