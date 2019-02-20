@@ -1,3 +1,4 @@
+import com.sun.net.httpserver.Authenticator
 import io.golos.commun4J.Commun4J
 import io.golos.commun4J.model.AuthType
 import io.golos.commun4J.utils.Either
@@ -43,5 +44,17 @@ class SocialTest {
 
         val unpinResult = commun4J.unPin(acc.first)
         assertTrue("unpin fail", unpinResult is Either.Success)
+    }
+
+    @Test
+    fun testBlocking(){
+        val acc = AccountCreationTest.createNewAccount(mainTestNetConfig)
+        val blockResult = commun4J.block(acc.first)
+
+        assertTrue("user $acc block fail", blockResult is Either.Success)
+
+        val unblockResult = commun4J.unBlock(acc.first)
+
+        assertTrue("user $acc unblock fail", unblockResult is Either.Success)
     }
 }

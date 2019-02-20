@@ -27,7 +27,7 @@ private enum class CommunActions {
     CREATE_DISCUSSION, UPDATE_DISCUSSION, DELETE_DISCUSSION, UP_VOTE,
     DOWN_VOTE, UN_VOTE, NEW_ACCOUNT, OPEN_VESTING,
     UPDATE_META, DELETE_METADATA, TRANSFER, PIN,
-    UN_PIN;
+    UN_PIN, BLOCK, UN_BLOCK;
 
     override fun toString(): String {
         return when (this) {
@@ -44,6 +44,8 @@ private enum class CommunActions {
             TRANSFER -> "transfer"
             PIN -> "pin"
             UN_PIN -> "unpin"
+            BLOCK -> "block"
+            UN_BLOCK -> "unblock"
         }
     }
 
@@ -634,6 +636,46 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
                     activeKey)
         }
         return callTilTimeoutExceptionVanishes(callable = callable)
+    }
+
+    fun block(user: CommunName): Either<TransactionSuccessful<BlockUserResult>, GolosEosError> {
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        return block(activeAccountKey, activeAccountName, user)
+    }
+
+    fun block(blockerActiveKey: String,
+              blocker: CommunName,
+              blocking: CommunName): Either<TransactionSuccessful<BlockUserResult>, GolosEosError> {
+
+        val callable = Callable {
+            pushTransaction<BlockUserResult>(CommuntContract.SOCIAL, CommunActions.BLOCK,
+                    blocker.toTransactionAuthAbi(),
+                    createBinaryConverter().squishBlockUserRequest(BlockUserRequest(blocker, blocking)).toHex(),
+                    blockerActiveKey)
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
+    fun unBlock(user: CommunName): Either<TransactionSuccessful<BlockUserResult>, GolosEosError> {
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        return unBlock(activeAccountKey, activeAccountName, user)
+    }
+
+    fun unBlock(blockerActiveKey: String,
+              blocker: CommunName,
+              blocking: CommunName): Either<TransactionSuccessful<BlockUserResult>, GolosEosError> {
+
+        val callable = Callable {
+            pushTransaction<BlockUserResult>(CommuntContract.SOCIAL, CommunActions.UN_BLOCK,
+                    blocker.toTransactionAuthAbi(),
+                    createBinaryConverter().squishBlockUserRequest(BlockUserRequest(blocker, blocking)).toHex(),
+                    blockerActiveKey)
+        }
+        return callTilTimeoutExceptionVanishes(callable)
     }
 
 }
