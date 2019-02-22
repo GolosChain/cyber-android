@@ -6,22 +6,22 @@ import com.memtrip.eos.abi.writer.IntCompress
 import com.memtrip.eos.abi.writer.NameCompress
 
 @Abi
-internal class VoteRequest(private val voter: CommunName,
-                           private val discussionId: DiscussionId,
-                           private val weight: Short) {
+internal class VoteRequestAbi(private val voter: CommunName,
+                              private val discussionIdAbi: DiscussionIdAbi,
+                              private val weight: Short) {
 
     val getVoter: String
         @NameCompress get() = voter.name
 
     val getDiscussionId
-        @ChildCompress get() = discussionId
+        @ChildCompress get() = discussionIdAbi
 
 
     val getWeight: Int
         @IntCompress get() = weight.toInt()
 
     override fun toString(): String {
-        return "VoteRequest(voter=$voter, discussionId=$discussionId, weight=$weight)"
+        return "VoteRequestAbi(voter=$voter, discussionIdAbi=$discussionIdAbi, weight=$weight)"
     }
 
 

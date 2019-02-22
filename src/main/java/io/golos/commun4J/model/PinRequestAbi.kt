@@ -4,7 +4,7 @@ import com.memtrip.eos.abi.writer.Abi
 import com.memtrip.eos.abi.writer.NameCompress
 
 @Abi
-class PinRequest(private val pinner: CommunName, private val pinning: CommunName) {
+internal class PinRequestAbi(private val pinner: CommunName, private val pinning: CommunName) {
     val getPinner: String
         @NameCompress get() = pinner.name
 
@@ -12,6 +12,6 @@ class PinRequest(private val pinner: CommunName, private val pinning: CommunName
         @NameCompress get() = pinning.name
 
     override fun toString(): String {
-        return "PinRequest(pinner=$pinner, pinning=$pinning)"
+        return "PinRequestAbi(pinner=$pinner, pinning=$pinning)"
     }
 }

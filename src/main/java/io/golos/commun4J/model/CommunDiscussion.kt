@@ -1,68 +1,37 @@
 package io.golos.commun4J.model
 
 import java.math.BigInteger
-import java.util.*
 
-class CommunDiscussion(val id: String,
-                       val user: CommunUser,
-                       val community: CommunCommunity,
-                       val content: DiscussionContent,
-                       val votes: DiscussionVotes,
-                       val comments: DiscussionCommentsCount,
-                       val payout: DiscussionPayout,
-                       val meta: DiscussionMetadata,
-                       val createdAt: Date,
-                       val updatedAt: Date) {
+data class CommunDiscussion(val contentId: DiscussionId,
+                            val author: DiscussionAuthor,
+                            val community: CommunCommunity,
+                            val content: DiscussionContent,
+                            val votes: DiscussionVotes,
+                            val comments: DiscussionCommentsCount,
+                            val payout: DiscussionPayout,
+                            val postId: ParentId?,
+                            val parentCommentId: ParentId?,
+                            val meta: DiscussionMetadata)
 
-    override fun toString(): String {
-        return "CommunDiscussion(id='$id', user=$user, community=$community, content=$content, votes=$votes, comments=$comments, payout=$payout, meta=$meta, createdAt=$createdAt, updatedAt=$updatedAt)"
-    }
-}
+data class DiscussionAuthor(val userId: CommunName, val username: String)
 
-class DiscussionCommentsCount(val count: Long) {
-    override fun toString(): String {
-        return "DiscussionCommentsCount(count=$count)"
-    }
-}
+data class DiscussionId(val userId: String,
+                        val permlink: String,
+                        val refBlockNum: Int)
+
+data class DiscussionCommentsCount(val count: Long)
 
 
-class DiscussionContent(val title: String, val body: ContentBody) {
+data class DiscussionContent(val title: String, val body: ContentBody, val metadata: Any)
 
-    override fun toString(): String {
-        return "DiscussionContent(title='$title', body=$body)"
-    }
-}
+data class ContentBody(val preview: String?,
+                       val full: String?)
 
-class ContentBody(val preview: String?,
-                  val full: String?) {
-    override fun toString(): String {
-        return "ContentBody(preview=$preview, full=$full)"
-    }
-}
+data class DiscussionMetadata(val time: Long)
 
-class DiscussionMetadata(val time: Date) {
-    override fun toString(): String {
-        return "DiscussionMetadata(time='$time')"
-    }
-}
+data class DiscussionPayout(val rShares: BigInteger)
 
-class DiscussionPayout(val rShares: BigInteger) {
-    override fun toString(): String {
-        return "DiscussionPayout(rShares=$rShares)"
-    }
-}
+data class DiscussionVotes(val hasUpVote: Boolean,
+                           val hasDownVote: Boolean)
 
-class DiscussionVotes(private val upUserIdList: List<String>?,
-                      private val downUserIdList: List<String>?,
-                      val upByUser: Boolean,
-                      val downByUser: Boolean) {
-    override fun toString(): String {
-        return "DiscussionVotes(upUserIdList=$upUserIdList, downUserIdList=$downUserIdList, upByUser=$upByUser, downByUser=$downByUser)"
-    }
-
-    val getUpvotedUsers: List<String>
-        get() = upUserIdList ?: emptyList()
-
-    val getDownvotedUsers: List<String>
-        get() = downUserIdList ?: emptyList()
-}
+data class ParentId(val userId: CommunName, val permlink: String, val refBlockNum: Int)

@@ -6,8 +6,8 @@ import com.memtrip.eos.abi.writer.CollectionCompress
 import com.memtrip.eos.abi.writer.StringCompress
 
 @Abi
-internal class UpdateDiscussionRequest(
-        private val discussionId: DiscussionId,
+internal class UpdateDiscussionRequestAbi(
+        private val discussionIdAbi: DiscussionIdAbi,
         private val title: String,
         private val body: String,
         private val tags: List<Tag>,
@@ -15,8 +15,8 @@ internal class UpdateDiscussionRequest(
         private val jsonmetadata: String) {
 
 
-    val getDiscussionId: DiscussionId
-        @ChildCompress get() = discussionId
+    val getDiscussionIdAbi: DiscussionIdAbi
+        @ChildCompress get() = discussionIdAbi
 
     val getHeadermssg: String
         @StringCompress get() = title
@@ -33,7 +33,7 @@ internal class UpdateDiscussionRequest(
         @StringCompress get() = jsonmetadata
 
     override fun toString(): String {
-        return "UpdateDiscussionRequest(discussionId=$discussionId, title='$title', body='$body', tags=$tags, language='$language', jsonmetadata='$jsonmetadata')"
+        return "UpdateDiscussionRequestAbi(discussionIdAbi=$discussionIdAbi, title='$title', body='$body', tags=$tags, language='$language', jsonmetadata='$jsonmetadata')"
     }
 
 

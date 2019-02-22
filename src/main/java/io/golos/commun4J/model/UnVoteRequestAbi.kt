@@ -5,8 +5,8 @@ import com.memtrip.eos.abi.writer.ChildCompress
 import com.memtrip.eos.abi.writer.NameCompress
 
 @Abi
-internal class UnVoteRequest(private val voter: CommunName,
-                             private val discussionId: DiscussionId) {
+internal class UnVoteRequestAbi(private val voter: CommunName,
+                                private val discussionIdAbi: DiscussionIdAbi) {
 
 
     val getVoter: String
@@ -14,9 +14,9 @@ internal class UnVoteRequest(private val voter: CommunName,
 
 
     val getDiscussionId
-        @ChildCompress get() = discussionId
+        @ChildCompress get() = discussionIdAbi
 
     override fun toString(): String {
-        return "UnVoteRequest(voter=$voter, discussionId=$discussionId)"
+        return "UnVoteRequestAbi(voter=$voter, discussionIdAbi=$discussionIdAbi)"
     }
 }

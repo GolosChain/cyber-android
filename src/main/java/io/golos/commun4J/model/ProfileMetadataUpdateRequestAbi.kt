@@ -5,8 +5,8 @@ import com.memtrip.eos.abi.writer.ChildCompress
 import com.memtrip.eos.abi.writer.NameCompress
 
 @Abi
-internal class ProfileMetadataUpdateRequest(private val name: CommunName,
-                                   private val metadata: ProfileMetadata) {
+internal class ProfileMetadataUpdateRequestAbi(private val name: CommunName,
+                                               private val metadata: ProfileMetadata) {
 
     val getName: String
         @NameCompress get() = name.name
@@ -16,7 +16,7 @@ internal class ProfileMetadataUpdateRequest(private val name: CommunName,
 
 
     override fun toString(): String {
-        return "ProfileMetadataUpdateRequest{" +
+        return "ProfileMetadataUpdateRequestAbi{" +
                 "name='" + name + '\''.toString() +
                 ", metadata=" + metadata +
                 '}'.toString()

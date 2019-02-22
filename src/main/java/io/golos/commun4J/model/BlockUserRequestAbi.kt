@@ -4,8 +4,8 @@ import com.memtrip.eos.abi.writer.Abi
 import com.memtrip.eos.abi.writer.NameCompress
 
 @Abi
-class BlockUserRequest(private val blocker: CommunName,
-                       private val blocking: CommunName) {
+internal class BlockUserRequestAbi(private val blocker: CommunName,
+                          private val blocking: CommunName) {
 
     val getblocker
         @NameCompress get() = blocker.name
@@ -16,6 +16,6 @@ class BlockUserRequest(private val blocker: CommunName,
     override
 
     fun toString(): String {
-        return "BlockUserRequest(blocker=$blocker, blocking=$blocking)"
+        return "BlockUserRequestAbi(blocker=$blocker, blocking=$blocking)"
     }
 }

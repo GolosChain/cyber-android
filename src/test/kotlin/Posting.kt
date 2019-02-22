@@ -26,7 +26,7 @@ class PostingTest {
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
-        val postResult = (postResponse as Either.Success).value.processed.action_traces.first().act.data
+        val postResult = (postResponse as Either.Success).value.extractResult()
 
         val commentCreationResult = privateTestNetClient.createComment("тестовый коммент",
                 postResult.message_id.author, postResult.message_id.permlink, postResult.message_id.ref_block_num,
@@ -34,27 +34,53 @@ class PostingTest {
 
         assertTrue("comment creation fail on test net", commentCreationResult is Either.Success)
 
+
+        val secondPostResponse = privateTestNetClient.createPost(testingAccountInPrivateTestNet.first, testingAccountInPrivateTestNet.second, "тестовый заголовок-${UUID.randomUUID()}",
+                "тестовое тело поста", listOf(Tag("test")))
+        assertTrue("post creation fail on test net", secondPostResponse is Either.Success)
+
+        val secondPostResult = (secondPostResponse as Either.Success).value.extractResult()
+
+        val secondCommentCreationResult = privateTestNetClient.createComment(testingAccountInPrivateTestNet.first, testingAccountInPrivateTestNet.second,
+                "тестовый коммент",
+                secondPostResult.message_id.author, secondPostResult.message_id.permlink, secondPostResult.message_id.ref_block_num,
+                Tag("test"))
+
+        assertTrue("comment creation fail on test net", secondCommentCreationResult is Either.Success)
+
     }
 
     @Test
-    fun testUpdatePostOnPrivateTestNet() {
+    fun updatePostTest() {
+
         val postResponse = privateTestNetClient.createPost("тестовый заголовок-${UUID.randomUUID()}",
                 "тестовое тело поста", listOf(Tag("test")))
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
-        val postResult = (postResponse as Either.Success).value.processed.action_traces.first().act.data
+        val postResult = (postResponse as Either.Success).value.extractResult()
 
-        val updateResult = privateTestNetClient.updatePost(postResult.message_id.permlink, postResult.message_id.ref_block_num,
-                "new_title", "new_body", listOf(Tag("test")))
+        val updateResponse = privateTestNetClient.updatePost(postResult.message_id.permlink, postResult.message_id.ref_block_num,
+                "new title", "new body", listOf(Tag("test")))
 
-        assertTrue("post updating error on test net", updateResult is Either.Success)
-        val updatedPost = (updateResult as Either.Success).value.processed.action_traces.first().act.data
+        assertTrue("post update fail on test net", updateResponse is Either.Success)
+        val updateResult = (updateResponse as Either.Success).value.extractResult()
+        assertEquals("title was not updated", "new title", updateResult.headermssg)
+        assertEquals("body was not updated", "new body", updateResult.bodymssg)
 
-        assertEquals("title didn't changed", "new_title", updatedPost.headermssg)
-        assertEquals("body didn't changed", "new_body", updatedPost.bodymssg)
+        Thread.sleep(1_000)
 
-        val deleteResult = privateTestNetClient.deletePostOrComment(updatedPost.message_id.permlink, updatedPost.message_id.ref_block_num)
-        assertTrue("post deletion fail on test net", deleteResult is Either.Success)
+        val updateResponseSecond = privateTestNetClient.updatePost(testingAccountInPrivateTestNet.second,
+                testingAccountInPrivateTestNet.first, postResult.message_id.permlink, postResult.message_id.ref_block_num,
+                "new title1", "new body1", listOf(Tag("test")))
+
+        assertTrue("post update fail on test net", updateResponseSecond is Either.Success)
+        val updateResultSecond = (updateResponseSecond as Either.Success).value.extractResult()
+        assertEquals("title was not updated", "new title1", updateResultSecond.headermssg)
+        assertEquals("body was not updated", "new body1", updateResultSecond.bodymssg)
+
+        val deleteReponse = privateTestNetClient.deletePostOrComment(updateResultSecond.message_id.permlink, updateResultSecond.message_id.ref_block_num)
+        assertTrue("post deleteReponse fail on test net", deleteReponse is Either.Success)
+
     }
 }

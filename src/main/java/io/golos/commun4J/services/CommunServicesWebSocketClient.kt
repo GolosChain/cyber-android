@@ -4,11 +4,13 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
 import com.squareup.moshi.Types
 import io.golos.commun4J.Commun4JConfig
+import io.golos.commun4J.model.CommunName
 import io.golos.commun4J.services.model.ApiResponseError
 import io.golos.commun4J.services.model.Identifieble
 import io.golos.commun4J.services.model.ServicesMessagesWrapper
 import io.golos.commun4J.services.model.ServicesResponseWrapper
 import io.golos.commun4J.utils.BigIntegerAdapter
+import io.golos.commun4J.utils.CommunNameAdapter
 import io.golos.commun4J.utils.Either
 import io.golos.commun4J.utils.LogLevel
 import okhttp3.*
@@ -23,8 +25,7 @@ interface ApiClient {
 
     fun <R> send(method: String,
                  params: Any,
-                 classOfMessageToReceive: Class<R>,
-                 isList: Boolean = false): Either<R, ApiResponseError>
+                 classOfMessageToReceive: Class<R>): Either<R, ApiResponseError>
 }
 
 
@@ -35,6 +36,7 @@ internal class CommunServicesWebSocketClient : WebSocketListener(), ApiClient {
             Moshi.Builder()
                     .add(Date::class.java, Rfc3339DateJsonAdapter())
                     .add(BigInteger::class.java, BigIntegerAdapter())
+                    .add(CommunName::class.java, CommunNameAdapter())
                     .build()
     private val latches = Collections.synchronizedMap<Long, CountDownLatch>(hashMapOf())
     private val responseMap = Collections.synchronizedMap<Long, String>(hashMapOf())
@@ -53,7 +55,7 @@ internal class CommunServicesWebSocketClient : WebSocketListener(), ApiClient {
                     LogLevel.BODY -> HttpLoggingInterceptor.Level.BODY
                     LogLevel.NONE -> HttpLoggingInterceptor.Level.NONE
                 }))
-                .connectTimeout(2, TimeUnit.SECONDS)
+                .connectTimeout(config.connectionTimeOutInSeconds.toLong(), TimeUnit.SECONDS)
                 .readTimeout(config.readTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
                 .writeTimeout(config.writeTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
                 .build()
@@ -64,8 +66,7 @@ internal class CommunServicesWebSocketClient : WebSocketListener(), ApiClient {
 
     override fun <R> send(method: String,
                           params: Any,
-                          classOfMessageToReceive: Class<R>,
-                          isList: Boolean): Either<R, ApiResponseError> {
+                          classOfMessageToReceive: Class<R>): Either<R, ApiResponseError> {
 
         val rpcMessage = ServicesMessagesWrapper(method, params)
 
@@ -87,9 +88,7 @@ internal class CommunServicesWebSocketClient : WebSocketListener(), ApiClient {
         responseMap[id] = ""
         latches[id] = null
 
-        val type = if (!isList)
-            Types.newParameterizedType(ServicesResponseWrapper::class.java, classOfMessageToReceive)
-        else Types.newParameterizedType(ServicesResponseWrapper::class.java, List::class.java, classOfMessageToReceive)
+        val type = Types.newParameterizedType(ServicesResponseWrapper::class.java, classOfMessageToReceive)
 
         val responseWrapper = moshi.adapter<ServicesResponseWrapper<R>>(type).fromJson(response)
 

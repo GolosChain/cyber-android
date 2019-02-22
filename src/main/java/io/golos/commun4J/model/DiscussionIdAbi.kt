@@ -6,9 +6,9 @@ import com.memtrip.eos.abi.writer.NameCompress
 import com.memtrip.eos.abi.writer.StringCompress
 
 @Abi
-class DiscussionId(private val name: CommunName,
-                   private val permLink: String,
-                   private val refBlockNum: Long) {
+internal class DiscussionIdAbi(private val name: CommunName,
+                      private val permLink: String,
+                      private val refBlockNum: Long) {
     val getName: String
         @NameCompress get() = name.name
 
@@ -19,7 +19,7 @@ class DiscussionId(private val name: CommunName,
         @LongCompress get() = refBlockNum
 
     override fun toString(): String {
-        return "DiscussionId(name=$name, permLink='$permLink', refBlockNum=$refBlockNum)"
+        return "DiscussionIdAbi(name=$name, permLink='$permLink', refBlockNum=$refBlockNum)"
     }
 
 }

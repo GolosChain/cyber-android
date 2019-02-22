@@ -1,4 +1,3 @@
-import com.sun.net.httpserver.Authenticator
 import io.golos.commun4J.Commun4J
 import io.golos.commun4J.model.AuthType
 import io.golos.commun4J.utils.Either
@@ -34,6 +33,27 @@ class SocialTest {
         val deleteResult = commun4J.deleteUserMetadata()
 
         assertTrue("meta delete fail", deleteResult is Either.Success)
+
+
+        val newUser = AccountCreationTest.createNewAccount(mainTestNetConfig)
+
+        val setMetaResultSecond = commun4J.setUserMetadata(newUser.first,
+                newUser.second,
+                "типа1", "аппа1", website = "веб-портал1")
+        assertTrue("meta change fail", setMetaResultSecond is Either.Success)
+
+        val changedMetaSecond = (setMetaResultSecond as Either.Success).value.extractResult().metadata
+
+
+        assertEquals("type set fail", "типа1", changedMetaSecond.type)
+        assertEquals("app set fail", "аппа1", changedMetaSecond.app)
+        assertEquals("web-site set fail", "веб-портал1", changedMetaSecond.website)
+
+        val deleteResultSecond = commun4J.deleteUserMetadata(testInMainTestNetAccount.first, testInMainTestNetAccount.second)
+
+        assertTrue("meta delete fail", deleteResultSecond is Either.Success)
+
+
     }
 
     @Test
@@ -47,7 +67,7 @@ class SocialTest {
     }
 
     @Test
-    fun testBlocking(){
+    fun testBlocking() {
         val acc = AccountCreationTest.createNewAccount(mainTestNetConfig)
         val blockResult = commun4J.block(acc.first)
 

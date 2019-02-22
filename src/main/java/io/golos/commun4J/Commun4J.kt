@@ -16,6 +16,7 @@ import com.memtrip.eos.http.rpc.model.info.Info
 import com.squareup.moshi.Moshi
 import io.golos.commun4J.model.*
 import io.golos.commun4J.services.CommunServicesApiProvider
+import io.golos.commun4J.services.model.ApiResponseError
 import io.golos.commun4J.utils.AuthUtils
 import io.golos.commun4J.utils.CommunNameAdapter
 import io.golos.commun4J.utils.Either
@@ -23,9 +24,17 @@ import io.golos.commun4J.utils.checkArgument
 import net.gcardone.junidecode.Junidecode
 import java.util.concurrent.Callable
 
-private enum class CommunActions {
+internal interface CommunContract {
+
+    fun getActions(): List<CommunContract.CommunAction>
+
+    interface CommunAction
+}
+
+private enum class CommunActions : CommunContract.CommunAction {
     CREATE_DISCUSSION, UPDATE_DISCUSSION, DELETE_DISCUSSION, UP_VOTE,
-    DOWN_VOTE, UN_VOTE, NEW_ACCOUNT, OPEN_VESTING,
+    DOWN_VOTE, UN_VOTE,
+    NEW_ACCOUNT, OPEN_VESTING,
     UPDATE_META, DELETE_METADATA, TRANSFER, PIN,
     UN_PIN, BLOCK, UN_BLOCK;
 
@@ -48,11 +57,33 @@ private enum class CommunActions {
             UN_BLOCK -> "unblock"
         }
     }
-
 }
 
-private enum class CommuntContract {
+private enum class CommunContracts : CommunContract {
     PUBLICATION, EOSIO, CYBER, VESTING, SOCIAL, TOKEN;
+
+    override fun getActions(): List<CommunContract.CommunAction> {
+        return when (this) {
+            PUBLICATION -> listOf(CommunActions.CREATE_DISCUSSION,
+                    CommunActions.UPDATE_DISCUSSION,
+                    CommunActions.DELETE_DISCUSSION,
+                    CommunActions.UP_VOTE,
+                    CommunActions.DOWN_VOTE,
+                    CommunActions.UN_VOTE)
+
+            EOSIO, CYBER -> listOf(CommunActions.NEW_ACCOUNT)
+
+            VESTING -> listOf(CommunActions.OPEN_VESTING)
+
+            SOCIAL -> listOf(CommunActions.UPDATE_META,
+                    CommunActions.DELETE_METADATA,
+                    CommunActions.PIN,
+                    CommunActions.UN_PIN,
+                    CommunActions.BLOCK,
+                    CommunActions.UN_BLOCK)
+            TOKEN -> listOf(CommunActions.TRANSFER)
+        }
+    }
 
     override fun toString(): String {
         return when (this) {
@@ -113,6 +144,7 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
                 tokenProp)
     }
 
+
     fun createPost(fromAccount: CommunName,
                    userActiveKey: String,
                    title: String,
@@ -141,8 +173,8 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
         return result
     }
 
-    private inline fun <reified T> pushTransaction(contractAccount: CommuntContract,
-                                                   actionName: CommunActions,
+    private inline fun <reified T> pushTransaction(contractAccount: CommunContract,
+                                                   actionName: CommunContract.CommunAction,
                                                    authorization: MyTransactionAuthorizationAbi,
                                                    data: String,
                                                    key: String,
@@ -173,9 +205,9 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
             val chainInfo = chainApi.getInfo().blockingGet().body()!!
 
 
-            val createPostRequest = io.golos.commun4J.model.CreateDiscussionRequest(
-                    DiscussionId(fromAccount, permlink, BlockIdDetails(chainInfo.head_block_id).blockNum.toLong()),
-                    DiscussionId(parentAccount, parentPermlink, parentDiscussionRefBlockId),
+            val createPostRequest = io.golos.commun4J.model.CreateDiscussionRequestAbi(
+                    DiscussionIdAbi(fromAccount, permlink, BlockIdDetails(chainInfo.head_block_id).blockNum.toLong()),
+                    DiscussionIdAbi(parentAccount, parentPermlink, parentDiscussionRefBlockId),
                     beneficiaries,
                     title,
                     body,
@@ -185,10 +217,10 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
                     "ru",
                     "")
 
-            println("createPostRequest = ${moshi.adapter(CreateDiscussionRequest::class.java).toJson(createPostRequest)}")
+            println("createPostRequest = ${moshi.adapter(CreateDiscussionRequestAbi::class.java).toJson(createPostRequest)}")
 
             val result = createBinaryConverter().squishCreateDiscussionRequest(createPostRequest)
-            pushTransaction<CreateDiscussionResult>(CommuntContract.PUBLICATION, CommunActions.CREATE_DISCUSSION,
+            pushTransaction(CommunContracts.PUBLICATION, CommunActions.CREATE_DISCUSSION,
                     MyTransactionAuthorizationAbi(fromAccount.name), result.toHex(),
                     userActiveKey,
                     chainInfo)
@@ -300,7 +332,7 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
             targetPointB: String? = null): Either<TransactionSuccessful<ProfileMetadatUpdateResult>, GolosEosError> {
 
         val callable = Callable {
-            val request = ProfileMetadataUpdateRequest(fromAccount,
+            val request = ProfileMetadataUpdateRequestAbi(fromAccount,
                     ProfileMetadata(type, app, email, phone, facebook, instagram,
                             telegram, vk, website, first_name, last_name, name, birthDate, gender, location,
                             city, about, occupation, iCan, lookingFor, businessCategory, backgroundImage, coverImage,
@@ -309,7 +341,8 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
 
             val hex = AbiBinaryGenCommun4J(CompressionType.NONE).squishProfileMetadataUpdateRequest(request).toHex()
 
-            pushTransaction<ProfileMetadatUpdateResult>(CommuntContract.SOCIAL, CommunActions.UPDATE_META, MyTransactionAuthorizationAbi(fromAccount),
+            pushTransaction<ProfileMetadatUpdateResult>(CommunContracts.SOCIAL,
+                    CommunActions.UPDATE_META, MyTransactionAuthorizationAbi(fromAccount),
                     hex, userActiveKey)
         }
         return callTilTimeoutExceptionVanishes(callable)
@@ -319,9 +352,9 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
                            userActiveKey: String): Either<TransactionSuccessful<ProfileMetadataDeleteResult>, GolosEosError> {
 
         val callable = Callable {
-            pushTransaction<ProfileMetadataDeleteResult>(CommuntContract.SOCIAL, CommunActions.DELETE_METADATA,
+            pushTransaction<ProfileMetadataDeleteResult>(CommunContracts.SOCIAL, CommunActions.DELETE_METADATA,
                     MyTransactionAuthorizationAbi(ofUser),
-                    AbiBinaryGenCommun4J(CompressionType.NONE).squishProfileMetadataDeleteRequest(ProfileMetadataDeleteRequest(ofUser)).toHex(),
+                    AbiBinaryGenCommun4J(CompressionType.NONE).squishProfileMetadataDeleteRequest(ProfileMetadataDeleteRequestAbi(ofUser)).toHex(),
                     userActiveKey)
         }
         return callTilTimeoutExceptionVanishes(callable)
@@ -367,10 +400,10 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
                                  newJsonMetadata: String): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
 
         val callable = Callable {
-            val updateRequest = UpdateDiscussionRequest(DiscussionId(discussionAuthor, discussionPermlink, discussionRefBlockNum),
+            val updateRequest = UpdateDiscussionRequestAbi(DiscussionIdAbi(discussionAuthor, discussionPermlink, discussionRefBlockNum),
                     newTitle, newBody, newTags,
                     newLanguage, newJsonMetadata)
-            pushTransaction<UpdateDiscussionResult>(CommuntContract.PUBLICATION,
+            pushTransaction<UpdateDiscussionResult>(CommunContracts.PUBLICATION,
                     CommunActions.UPDATE_DISCUSSION,
                     MyTransactionAuthorizationAbi(discussionAuthor.name),
                     createBinaryConverter().squishUpdateDiscussionRequest(updateRequest).toHex(),
@@ -431,10 +464,10 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
                             postOrCommentPermlink: String,
                             postOrCommentRefBlockNum: Long): Either<TransactionSuccessful<DeleteResult>, GolosEosError> {
         val callable = Callable {
-            pushTransaction<DeleteResult>(CommuntContract.PUBLICATION,
+            pushTransaction<DeleteResult>(CommunContracts.PUBLICATION,
                     CommunActions.DELETE_DISCUSSION,
                     MyTransactionAuthorizationAbi(postOrCommentAuthor),
-                    createBinaryConverter().squishDeleteDiscussionRequest(DeleteDiscussionRequest(DiscussionId(postOrCommentAuthor,
+                    createBinaryConverter().squishDeleteDiscussionRequest(DeleteDiscussionRequestAbi(DiscussionIdAbi(postOrCommentAuthor,
                             postOrCommentPermlink,
                             postOrCommentRefBlockNum))).toHex(),
                     userActiveKey)
@@ -477,14 +510,14 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
         val callable = Callable {
             val squisher = createBinaryConverter()
 
-            val discussionId = DiscussionId(postOrCommentAuthor, postOrCommentPermlink, postOrCommentRefBlockNum)
+            val discussionId = DiscussionIdAbi(postOrCommentAuthor, postOrCommentPermlink, postOrCommentRefBlockNum)
 
             val operationHex = if (voteStrength == 0.toShort()) squisher
-                    .squishUnVoteRequest(UnVoteRequest(fromAccount, discussionId)).toHex()
-            else squisher.squishVoteRequest(VoteRequest(fromAccount, discussionId,
+                    .squishUnVoteRequest(UnVoteRequestAbi(fromAccount, discussionId)).toHex()
+            else squisher.squishVoteRequest(VoteRequestAbi(fromAccount, discussionId,
                     Math.abs(voteStrength.toInt()).toShort())).toHex()
 
-            pushTransaction<VoteResult>(CommuntContract.PUBLICATION,
+            pushTransaction<VoteResult>(CommunContracts.PUBLICATION,
                     if (voteStrength == 0.toShort()) CommunActions.UN_VOTE else if (voteStrength > 0) CommunActions.UP_VOTE else CommunActions.DOWN_VOTE,
                     MyTransactionAuthorizationAbi(fromAccount.name),
                     operationHex,
@@ -499,15 +532,15 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
                       newAccountMasterPassword: String,
                       eosioCreateUserKey: String): Either<TransactionSuccessful<AccountCreationResult>, GolosEosError> {
         CommunName(newAccountName)
-        val creatorAccountName = if (config.isPrivateTestNet) CommuntContract.CYBER.toString() else CommuntContract.EOSIO.toString()
+        val creatorAccountName = if (config.isPrivateTestNet) CommunContracts.CYBER.toString() else CommunContracts.EOSIO.toString()
 
         val keys = AuthUtils.generatePublicWiFs(newAccountName, newAccountMasterPassword, AuthType.values())
 
         val callable = Callable {
             val writer = AbiBinaryGenTransactionWriter(CompressionType.NONE)
 
-            val newAccArgs = NewAccountArgs(if (config.isPrivateTestNet) CommuntContract.CYBER.toString()
-            else CommuntContract.EOSIO.toString(),
+            val newAccArgs = NewAccountArgs(if (config.isPrivateTestNet) CommunContracts.CYBER.toString()
+            else CommunContracts.EOSIO.toString(),
                     newAccountName,
                     AccountRequiredAuthAbi(1,
                             listOf(AccountKeyAbi(keys[AuthType.OWNER]!!.replaceFirst("GLS", "EOS"), 1)),
@@ -516,7 +549,7 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
                             listOf(AccountKeyAbi(keys[AuthType.ACTIVE]!!.replaceFirst("GLS", "EOS"), 1)), emptyList(), emptyList()))
             val newAccBody = NewAccountBody(newAccArgs)
             val hex = writer.squishNewAccountBody(newAccBody).toHex()
-            pushTransaction<AccountCreationResult>(if (config.isPrivateTestNet) CommuntContract.CYBER else CommuntContract.EOSIO,
+            pushTransaction<AccountCreationResult>(if (config.isPrivateTestNet) CommunContracts.CYBER else CommunContracts.EOSIO,
                     CommunActions.NEW_ACCOUNT, MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
                     hex,
                     eosioCreateUserKey)
@@ -534,17 +567,17 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
 
     fun startVesting(newAccountName: String,
                      eosioCreateUserKey: String): Either<TransactionSuccessful<Any>, GolosEosError> {
-        val creatorAccountName = if (config.isPrivateTestNet) CommuntContract.CYBER.toString() else CommuntContract.EOSIO.toString()
+        val creatorAccountName = if (config.isPrivateTestNet) CommunContracts.CYBER.toString() else CommunContracts.EOSIO.toString()
 
         val createVestingCallable = Callable {
             val writer = createBinaryConverter()
-            val request = VestingStartRequest(CommunName(newAccountName), CommunName(creatorAccountName))
+            val request = VestingStartRequestAbi(CommunName(newAccountName), CommunName(creatorAccountName))
 
             val result = writer.squishVestingStartRequest(request)
 
             val hex = result.toHex()
 
-            pushTransaction<Any>(CommuntContract.VESTING,
+            pushTransaction<Any>(CommunContracts.VESTING,
                     CommunActions.OPEN_VESTING, MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
                     hex,
                     eosioCreateUserKey)
@@ -553,13 +586,47 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
         return callTilTimeoutExceptionVanishes(createVestingCallable)
     }
 
-    fun getDiscussions() = historyApiProvider.getDiscussions()
+    fun getCommunityPosts(communityId: String,
+                          limit: Int,
+                          sort: DiscussionTimeSort,
+                          sequenceKey: String?) = historyApiProvider.getDiscussions(PostsFeedType.COMMUNITY, sort, sequenceKey, limit, null, communityId)
 
-    fun getDiscussion(id: String) = historyApiProvider.getDiscussion(id)
+    fun getUserSubsriptions(user: CommunName,
+                            limit: Int,
+                            sort: DiscussionTimeSort,
+                            sequenceKey: String?) = historyApiProvider.getDiscussions(PostsFeedType.SUBSCRIPTIONS,
+            sort, sequenceKey, limit, user.name, null)
 
-    private fun createBinaryConverter(): AbiBinaryGenCommun4J {
-        return AbiBinaryGenCommun4J(CyberwayByteWriter(), DefaultHexWriter(), CompressionType.NONE)
-    }
+    fun getUserPosts(user: CommunName,
+                     limit: Int,
+                     sort: DiscussionTimeSort,
+                     sequenceKey: String?) =
+            historyApiProvider.getDiscussions(PostsFeedType.USER_POSTS, sort, sequenceKey, limit, user.name, null)
+
+
+    fun getPost(user: CommunName,
+                permlink: String,
+                refBlockNum: Int) = historyApiProvider.getDiscussion(user.name, permlink, refBlockNum)
+
+    fun getCommentsOfPost(user: CommunName,
+                          permlink: String,
+                          refBlockNum: Int?,
+                          limit: Int,
+                          sort: DiscussionTimeSort,
+                          sequenceKey: String?) =
+
+            historyApiProvider.getComments(sort, sequenceKey, limit,
+                    CommentsOrigin.COMMENTS_OF_POST, user.name, permlink, refBlockNum)
+
+    fun getCommentsOfUser(user: CommunName,
+                          limit: Int,
+                          sort: DiscussionTimeSort,
+                          sequenceKey: String): Either<DiscussionsResult, ApiResponseError> =
+            historyApiProvider.getComments(sort, sequenceKey, limit,
+                    CommentsOrigin.COMMENTS_OF_USER, user.name, null, null)
+
+
+    fun getUserMetadata(user: CommunName): Either<Any, ApiResponseError> = historyApiProvider.getUserMetadata(user.name)
 
 
     fun transfer(key: String,
@@ -574,7 +641,7 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
         val callable = Callable {
             val hex = AbiBinaryGenTransactionWriter(CyberwayByteWriter(), DefaultHexWriter(), CompressionType.NONE)
                     .squishTransferBody(TransferBody(TransferArgs(from.name, to.name, "$amount $currency", memo))).toHex()
-            pushTransaction<TransferResult>(CommuntContract.TOKEN, CommunActions.TRANSFER,
+            pushTransaction<TransferResult>(CommunContracts.TOKEN, CommunActions.TRANSFER,
                     MyTransactionAuthorizationAbi(from), hex, key)
         }
 
@@ -606,8 +673,8 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
             pinning: CommunName): Either<TransactionSuccessful<PinResult>, GolosEosError> {
 
         val callable = Callable {
-            val hex = createBinaryConverter().squishPinRequest(PinRequest(pinner, pinning)).toHex()
-            pushTransaction<PinResult>(CommuntContract.SOCIAL,
+            val hex = createBinaryConverter().squishPinRequest(PinRequestAbi(pinner, pinning)).toHex()
+            pushTransaction<PinResult>(CommunContracts.SOCIAL,
                     CommunActions.PIN,
                     pinner.toTransactionAuthAbi(),
                     hex,
@@ -628,8 +695,8 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
               pinning: CommunName): Either<TransactionSuccessful<PinResult>, GolosEosError> {
 
         val callable = Callable {
-            val hex = createBinaryConverter().squishPinRequest(PinRequest(pinner, pinning)).toHex()
-            pushTransaction<PinResult>(CommuntContract.SOCIAL,
+            val hex = createBinaryConverter().squishPinRequest(PinRequestAbi(pinner, pinning)).toHex()
+            pushTransaction<PinResult>(CommunContracts.SOCIAL,
                     CommunActions.UN_PIN,
                     pinner.toTransactionAuthAbi(),
                     hex,
@@ -650,9 +717,9 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
               blocking: CommunName): Either<TransactionSuccessful<BlockUserResult>, GolosEosError> {
 
         val callable = Callable {
-            pushTransaction<BlockUserResult>(CommuntContract.SOCIAL, CommunActions.BLOCK,
+            pushTransaction<BlockUserResult>(CommunContracts.SOCIAL, CommunActions.BLOCK,
                     blocker.toTransactionAuthAbi(),
-                    createBinaryConverter().squishBlockUserRequest(BlockUserRequest(blocker, blocking)).toHex(),
+                    createBinaryConverter().squishBlockUserRequest(BlockUserRequestAbi(blocker, blocking)).toHex(),
                     blockerActiveKey)
         }
         return callTilTimeoutExceptionVanishes(callable)
@@ -666,13 +733,13 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
     }
 
     fun unBlock(blockerActiveKey: String,
-              blocker: CommunName,
-              blocking: CommunName): Either<TransactionSuccessful<BlockUserResult>, GolosEosError> {
+                blocker: CommunName,
+                blocking: CommunName): Either<TransactionSuccessful<BlockUserResult>, GolosEosError> {
 
         val callable = Callable {
-            pushTransaction<BlockUserResult>(CommuntContract.SOCIAL, CommunActions.UN_BLOCK,
+            pushTransaction<BlockUserResult>(CommunContracts.SOCIAL, CommunActions.UN_BLOCK,
                     blocker.toTransactionAuthAbi(),
-                    createBinaryConverter().squishBlockUserRequest(BlockUserRequest(blocker, blocking)).toHex(),
+                    createBinaryConverter().squishBlockUserRequest(BlockUserRequestAbi(blocker, blocking)).toHex(),
                     blockerActiveKey)
         }
         return callTilTimeoutExceptionVanishes(callable)
@@ -681,3 +748,7 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
 }
 
 private fun CommunName.toTransactionAuthAbi(): MyTransactionAuthorizationAbi = MyTransactionAuthorizationAbi(this.name)
+
+private fun createBinaryConverter(): AbiBinaryGenCommun4J {
+    return AbiBinaryGenCommun4J(CyberwayByteWriter(), DefaultHexWriter(), CompressionType.NONE)
+}

@@ -8,13 +8,21 @@ import io.golos.commun4J.model.CommunName
 import java.math.BigInteger
 
 
-class CommunNameAdapter {
+class CommunNameAdapter : JsonAdapter<CommunName>() {
+
+    override fun fromJson(reader: JsonReader): CommunName? {
+        val value = reader.nextString()
+        return CommunName(value)
+    }
+
+    override fun toJson(writer: JsonWriter, value: CommunName?) {
+        writer.value(value?.name)
+    }
     @FromJson
     fun fromJson(jsonReader: JsonReader, delegate: JsonAdapter<CommunName>): CommunName? {
         val value = jsonReader.nextString()
         return CommunName(value)
     }
-
 }
 
 class BigIntegerAdapter : JsonAdapter<BigInteger>() {
