@@ -6,12 +6,12 @@ import com.memtrip.eos.abi.writer.NameCompress
 
 @Abi
 internal class ProfileMetadataUpdateRequestAbi(private val name: CommunName,
-                                               private val metadata: ProfileMetadata) {
+                                               private val metadata: ProfileMetadataAbi) {
 
     val getName: String
         @NameCompress get() = name.name
 
-    val getMetadata: ProfileMetadata
+    val getMetadata: ProfileMetadataAbi
         @ChildCompress get() = metadata
 
 

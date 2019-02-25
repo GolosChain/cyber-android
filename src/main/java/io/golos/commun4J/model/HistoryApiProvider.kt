@@ -103,6 +103,6 @@ interface HistoryApiProvider {
 ////    params:                         // Параметры запроса из гейта
 ////    userId <string>             // Идентификатор пользователя
 
-    fun getUserMetadata(userId: String):Either<Any, ApiResponseError>
+    fun getUserMetadata(userId: String):Either<UserMetadata, ApiResponseError>
 }
 

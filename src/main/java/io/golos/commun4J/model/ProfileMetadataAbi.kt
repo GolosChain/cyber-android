@@ -4,7 +4,7 @@ import com.memtrip.eos.abi.writer.Abi
 import com.memtrip.eos.abi.writer.BytesCompress
 
 @Abi
-class ProfileMetadata(
+internal class ProfileMetadataAbi(
         val type: String?,
         val app: String?,
         val email: String?,
@@ -130,7 +130,7 @@ class ProfileMetadata(
 
 
     override fun toString(): String {
-        return "ProfileMetadata{" +
+        return "ProfileMetadataAbi{" +
                 "type='" + type + '\''.toString() +
                 ", app='" + app + '\''.toString() +
                 ", email='" + email + '\''.toString() +

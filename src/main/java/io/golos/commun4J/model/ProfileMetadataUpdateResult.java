@@ -4,23 +4,23 @@ import com.squareup.moshi.Json;
 
 import org.jetbrains.annotations.Nullable;
 
-public class ProfileMetadatUpdateResult {
+public class ProfileMetadataUpdateResult {
     private String name;
-    private ProfileMetadata meta;
+    private ResultProfileMetadata meta;
 
-    public ProfileMetadatUpdateResult(String name, ProfileMetadata metadata) {
+    public ProfileMetadataUpdateResult(String name, ResultProfileMetadata metadata) {
         this.name = name;
         this.meta = metadata;
     }
 
-    public ProfileMetadatUpdateResult() {
+    public ProfileMetadataUpdateResult() {
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setMetadata(ProfileMetadata metadata) {
+    public void setMetadata(ResultProfileMetadata metadata) {
         this.meta = metadata;
     }
 
@@ -28,19 +28,19 @@ public class ProfileMetadatUpdateResult {
         return name;
     }
 
-    public ProfileMetadata getMetadata() {
+    public ResultProfileMetadata getMetadata() {
         return meta;
     }
 
     @Override
     public String toString() {
-        return "ProfileMetadatUpdateResult{" +
+        return "ProfileMetadataUpdateResult{" +
                 "name='" + name + '\'' +
                 ", metadata=" + meta +
                 '}';
     }
 
-   public static class ProfileMetadata{
+   public static class ResultProfileMetadata {
         @Json(name = "type")
         @Nullable
         private String type;
@@ -132,7 +132,7 @@ public class ProfileMetadatUpdateResult {
         @Json(name = "target_point_b")
         private String targetPointB;
 
-        public ProfileMetadata(@Nullable String type, @Nullable String app, @Nullable String email, @Nullable String phone, @Nullable String facebook, @Nullable String instagram, @Nullable String telegram, @Nullable String vk, @Nullable String website, @Nullable String firstName, @Nullable String lastName, @Nullable String name, @Nullable String birthDate, @Nullable String gender, @Nullable String location, @Nullable String city, @Nullable String about, @Nullable String occupation, @Nullable String iCan, @Nullable String lookingFor, @Nullable String businessCategory, @Nullable String backgroundImage, @Nullable String coverImage, @Nullable String profileImage, @Nullable String userImage, @Nullable String icoAddress, @Nullable String targetDate, @Nullable String targetPlan, @Nullable String targetPointA, @Nullable String targetPointB) {
+        public ResultProfileMetadata(@Nullable String type, @Nullable String app, @Nullable String email, @Nullable String phone, @Nullable String facebook, @Nullable String instagram, @Nullable String telegram, @Nullable String vk, @Nullable String website, @Nullable String firstName, @Nullable String lastName, @Nullable String name, @Nullable String birthDate, @Nullable String gender, @Nullable String location, @Nullable String city, @Nullable String about, @Nullable String occupation, @Nullable String iCan, @Nullable String lookingFor, @Nullable String businessCategory, @Nullable String backgroundImage, @Nullable String coverImage, @Nullable String profileImage, @Nullable String userImage, @Nullable String icoAddress, @Nullable String targetDate, @Nullable String targetPlan, @Nullable String targetPointA, @Nullable String targetPointB) {
             this.type = type;
             this.app = app;
             this.email = email;
@@ -165,7 +165,7 @@ public class ProfileMetadatUpdateResult {
             this.targetPointB = targetPointB;
         }
 
-        public ProfileMetadata() {
+        public ResultProfileMetadata() {
         }
 
         @Nullable
@@ -440,7 +440,7 @@ public class ProfileMetadatUpdateResult {
 
         @Override
         public String toString() {
-            return "ProfileMetadata{" +
+            return "ProfileMetadataAbi{" +
                     "type='" + type + '\'' +
                     ", app='" + app + '\'' +
                     ", email='" + email + '\'' +

@@ -6,4 +6,9 @@ val privateTestNetConfig = Commun4JConfig(blockChainHttpApiUrl = "http://159.69.
 
 val testInMainTestNetAccount by lazy { AccountCreationTest.createNewAccount(mainTestNetConfig) }
 
+val testInMainTestNetAccountSecond by lazy { AccountCreationTest.createNewAccount(mainTestNetConfig) }
+
 val testingAccountInPrivateTestNet by lazy { AccountCreationTest.createNewAccount(privateTestNetConfig) }
+
+val testingAccountInPrivateTestNetSecond by lazy { AccountCreationTest.createNewAccount(privateTestNetConfig) }
+

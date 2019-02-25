@@ -284,7 +284,7 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
             targetDate: String? = null,
             targetPlan: String? = null,
             targetPointA: String? = null,
-            targetPointB: String? = null): Either<TransactionSuccessful<ProfileMetadatUpdateResult>, GolosEosError> {
+            targetPointB: String? = null): Either<TransactionSuccessful<ProfileMetadataUpdateResult>, GolosEosError> {
 
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
@@ -329,11 +329,11 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
             targetDate: String? = null,
             targetPlan: String? = null,
             targetPointA: String? = null,
-            targetPointB: String? = null): Either<TransactionSuccessful<ProfileMetadatUpdateResult>, GolosEosError> {
+            targetPointB: String? = null): Either<TransactionSuccessful<ProfileMetadataUpdateResult>, GolosEosError> {
 
         val callable = Callable {
             val request = ProfileMetadataUpdateRequestAbi(fromAccount,
-                    ProfileMetadata(type, app, email, phone, facebook, instagram,
+                    ProfileMetadataAbi(type, app, email, phone, facebook, instagram,
                             telegram, vk, website, first_name, last_name, name, birthDate, gender, location,
                             city, about, occupation, iCan, lookingFor, businessCategory, backgroundImage, coverImage,
                             profileImage, userImage, icoAddress, targetDate, targetPlan, targetPointA, targetPointB))
@@ -341,7 +341,7 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
 
             val hex = AbiBinaryGenCommun4J(CompressionType.NONE).squishProfileMetadataUpdateRequest(request).toHex()
 
-            pushTransaction<ProfileMetadatUpdateResult>(CommunContracts.SOCIAL,
+            pushTransaction<ProfileMetadataUpdateResult>(CommunContracts.SOCIAL,
                     CommunActions.UPDATE_META, MyTransactionAuthorizationAbi(fromAccount),
                     hex, userActiveKey)
         }
@@ -621,12 +621,12 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
     fun getCommentsOfUser(user: CommunName,
                           limit: Int,
                           sort: DiscussionTimeSort,
-                          sequenceKey: String): Either<DiscussionsResult, ApiResponseError> =
+                          sequenceKey: String?): Either<DiscussionsResult, ApiResponseError> =
             historyApiProvider.getComments(sort, sequenceKey, limit,
                     CommentsOrigin.COMMENTS_OF_USER, user.name, null, null)
 
 
-    fun getUserMetadata(user: CommunName): Either<Any, ApiResponseError> = historyApiProvider.getUserMetadata(user.name)
+    fun getUserMetadata(user: CommunName): Either<UserMetadata, ApiResponseError> = historyApiProvider.getUserMetadata(user.name)
 
 
     fun transfer(key: String,

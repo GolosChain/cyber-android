@@ -39,11 +39,35 @@ class ServicesFetchTest {
 
         assertTrue(comments is Either.Success)
 
-        println(comments)
+        val commentsOfUser = commun4J.getCommentsOfUser(
+                post.author.userId.name.toCommunName(),
+                10,
+                DiscussionTimeSort.INVERTED,
+                null)
+
+        assertTrue(commentsOfUser is Either.Success)
+
+        val subscriptionsOfUser =  commun4J.getUserSubsriptions(
+                post.author.userId.name.toCommunName(),
+                10,
+                DiscussionTimeSort.INVERTED,
+                null)
+
+        assertTrue(subscriptionsOfUser is Either.Success)
+
+        val postsOfUser =  commun4J.getUserPosts(
+                post.author.userId.name.toCommunName(),
+                10,
+                DiscussionTimeSort.INVERTED,
+                null)
+
+        assertTrue(postsOfUser is Either.Success)
+
     }
 
     @Test
     fun userMetadataFetchTest() {
         val response = commun4J.getUserMetadata("destroyer2k".toCommunName())
+        assertTrue(response is Either.Success)
     }
 }

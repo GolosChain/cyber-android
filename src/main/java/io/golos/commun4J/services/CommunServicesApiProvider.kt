@@ -56,9 +56,9 @@ internal class CommunServicesApiProvider(val config: Commun4JConfig,
                 CommentsRequest(sort.toString(), sequenceKey, limit, origin.toString(), userId, permlink, refBlockNum), DiscussionsResult::class.java)
     }
 
-    override fun getUserMetadata(userId: String): Either<Any, ApiResponseError> {
+    override fun getUserMetadata(userId: String): Either<UserMetadata, ApiResponseError> {
         communClient.connect(config)
         return communClient.send(ServicesGateMethods.GET_USER_METADATA.toString(),
-                UserMetaDataRequest(userId), Any::class.java)
+                UserMetaDataRequest(userId), UserMetadata::class.java)
     }
 }

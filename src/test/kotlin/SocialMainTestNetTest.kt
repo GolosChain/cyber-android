@@ -1,5 +1,6 @@
 import io.golos.commun4J.Commun4J
 import io.golos.commun4J.model.AuthType
+import io.golos.commun4J.model.CommunName
 import io.golos.commun4J.utils.Either
 import io.golos.commun4J.utils.Pair
 import org.junit.Assert.assertEquals
@@ -7,9 +8,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-class SocialTest {
+class SocialMainTestNetTest {
 
     lateinit var commun4J: Commun4J
+    private lateinit var secondAcc: kotlin.Pair<CommunName, String>
 
 
     @Before
@@ -18,6 +20,7 @@ class SocialTest {
         commun4J.keyStorage.addAccountKeys(testInMainTestNetAccount.first, setOf(
                 Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)
         ))
+        secondAcc = testInMainTestNetAccountSecond
     }
 
     @Test
@@ -64,6 +67,14 @@ class SocialTest {
 
         val unpinResult = commun4J.unPin(acc.first)
         assertTrue("unpin fail", unpinResult is Either.Success)
+
+        val pinResultSecond = commun4J.pin(secondAcc.second, secondAcc.first,
+                commun4J.keyStorage.getActiveAccount())
+        assertTrue("pin fail", pinResultSecond is Either.Success)
+
+        val unPinResultSecond = commun4J.unPin(secondAcc.second, secondAcc.first,
+                commun4J.keyStorage.getActiveAccount())
+        assertTrue("pin fail", unPinResultSecond is Either.Success)
     }
 
     @Test
@@ -73,8 +84,16 @@ class SocialTest {
 
         assertTrue("user $acc block fail", blockResult is Either.Success)
 
-        val unblockResult = commun4J.unBlock(acc.first)
+        val blockResultSecond = commun4J.block(secondAcc.second, secondAcc.first,
+                commun4J.keyStorage.getActiveAccount())
+        assertTrue("pin fail", blockResultSecond is Either.Success)
 
+
+        val unblockResult = commun4J.unBlock(acc.first)
         assertTrue("user $acc unblock fail", unblockResult is Either.Success)
+
+        val unBlockResultSecond = commun4J.unBlock(secondAcc.second, secondAcc.first,
+                commun4J.keyStorage.getActiveAccount())
+        assertTrue("pin fail", unBlockResultSecond is Either.Success)
     }
 }
