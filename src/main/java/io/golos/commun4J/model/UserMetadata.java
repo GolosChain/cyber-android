@@ -2,6 +2,9 @@ package io.golos.commun4J.model;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Date;
+import java.util.List;
+
 //personal: {
 //        avatarUrl: {
 //        type: String,
@@ -28,65 +31,144 @@ import org.jetbrains.annotations.Nullable;
 //        },
 //        },
 public class UserMetadata {
-    @Nullable private String avatarUrl;
-    @Nullable private String coverUrl;
-    @Nullable private String biography;
-    @Nullable private Contacts contacts;
+    private UserPersonalData personal;
+    private UserSubscriptions subscriptions;
+    private UserStats stats;
+    private CommunName userId;
+    private String username;
+    private UserRegistration registration;
 
-    public UserMetadata(@Nullable String avatarUrl, @Nullable String coverUrl, @Nullable String biography, @Nullable Contacts contacts) {
-        this.avatarUrl = avatarUrl;
-        this.coverUrl = coverUrl;
-        this.biography = biography;
-        this.contacts = contacts;
+
+    public UserSubscriptions getSubscriptions() {
+        return subscriptions;
     }
 
-    @Nullable
-    public String getAvatarUrl() {
-        return avatarUrl;
+    public void setSubscriptions(UserSubscriptions subscriptions) {
+        this.subscriptions = subscriptions;
     }
 
-    public void setAvatarUrl(@Nullable String avatarUrl) {
-        this.avatarUrl = avatarUrl;
+    public CommunName getUserId() {
+        return userId;
     }
 
-    @Nullable
-    public String getCoverUrl() {
-        return coverUrl;
+    public void setUserId(CommunName userId) {
+        this.userId = userId;
     }
 
-    public void setCoverUrl(@Nullable String coverUrl) {
-        this.coverUrl = coverUrl;
+    public String getUsername() {
+        return username;
     }
 
-    @Nullable
-    public String getBiography() {
-        return biography;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public void setBiography(@Nullable String biography) {
-        this.biography = biography;
+    public UserStats getStats() {
+        return stats;
     }
 
-    @Nullable
-    public Contacts getContacts() {
-        return contacts;
+    public void setStats(UserStats stats) {
+        this.stats = stats;
     }
 
-    public void setContacts(@Nullable Contacts contacts) {
-        this.contacts = contacts;
+
+    public UserPersonalData getPersonal() {
+        return personal;
+    }
+
+    public void setPersonal(UserPersonalData personal) {
+        this.personal = personal;
+    }
+
+    public UserRegistration getRegistration() {
+        return registration;
+    }
+
+    public void setRegistration(UserRegistration registration) {
+        this.registration = registration;
+    }
+
+    public UserMetadata(UserPersonalData personal, UserSubscriptions subscriptions, UserStats stats, CommunName userId, String username, UserRegistration registration) {
+        this.personal = personal;
+        this.subscriptions = subscriptions;
+        this.stats = stats;
+        this.userId = userId;
+        this.username = username;
+        this.registration = registration;
     }
 
     @Override
     public String toString() {
         return "UserMetadata{" +
-                "avatarUrl='" + avatarUrl + '\'' +
-                ", coverUrl='" + coverUrl + '\'' +
-                ", biography='" + biography + '\'' +
-                ", contacts=" + contacts +
-                '}';
+                "personal=" + personal +
+                ", subscriptions=" + subscriptions +
+                ", stats=" + stats +
+                ", userId=" + userId +
+                ", username='" + username + '\'' +
+                ", registration=" + registration + "}";
     }
 
-    static class Contacts{
+    static class UserPersonalData {
+        @Nullable private String avatarUrl;
+        @Nullable private String coverUrl;
+        @Nullable private String biography;
+        @Nullable private Contacts contacts;
+
+        public UserPersonalData(@Nullable String avatarUrl, @Nullable String coverUrl, @Nullable String biography, @Nullable Contacts contacts) {
+            this.avatarUrl = avatarUrl;
+            this.coverUrl = coverUrl;
+            this.biography = biography;
+            this.contacts = contacts;
+        }
+
+        @Nullable
+        public String getAvatarUrl() {
+            return avatarUrl;
+        }
+
+        public void setAvatarUrl(@Nullable String avatarUrl) {
+            this.avatarUrl = avatarUrl;
+        }
+
+        @Nullable
+        public String getCoverUrl() {
+            return coverUrl;
+        }
+
+        public void setCoverUrl(@Nullable String coverUrl) {
+            this.coverUrl = coverUrl;
+        }
+
+        @Nullable
+        public String getBiography() {
+            return biography;
+        }
+
+        public void setBiography(@Nullable String biography) {
+            this.biography = biography;
+        }
+
+        @Nullable
+        public Contacts getContacts() {
+            return contacts;
+        }
+
+        public void setContacts(@Nullable Contacts contacts) {
+            this.contacts = contacts;
+        }
+
+        @Override
+        public String toString() {
+            return "UserPersonalData{" +
+                    "avatarUrl='" + avatarUrl + '\'' +
+                    ", coverUrl='" + coverUrl + '\'' +
+                    ", biography='" + biography + '\'' +
+                    ", contacts=" + contacts +
+                    '}';
+        }
+    }
+
+    static class Contacts {
         @Nullable private String facebook;
         @Nullable private String telegram;
         @Nullable private String whatsApp;
@@ -146,4 +228,72 @@ public class UserMetadata {
         }
     }
 
+    static class UserRegistration {
+        private Date time;
+
+        public UserRegistration(Date time) {
+            this.time = time;
+        }
+
+        public Date getTime() {
+            return time;
+        }
+
+        public void setTime(Date time) {
+            this.time = time;
+        }
+
+        @Override
+        public String toString() {
+            return "UserRegistration{" +
+                    "time=" + time +
+                    '}';
+        }
+    }
+
+    static class UserStats {
+        private long postsCount;
+
+        public UserStats(long postsCount) {
+            this.postsCount = postsCount;
+        }
+
+        public long getPostsCount() {
+            return postsCount;
+        }
+
+        public void setPostsCount(long postsCount) {
+            this.postsCount = postsCount;
+        }
+
+        @Override
+        public String toString() {
+            return "UserStats{" +
+                    "postsCount=" + postsCount +
+                    '}';
+        }
+    }
+
+    static class UserSubscriptions {
+        private List<CommunCommunity> communities;
+
+        public UserSubscriptions(List<CommunCommunity> communities) {
+            this.communities = communities;
+        }
+
+        public List<CommunCommunity> getCommunities() {
+            return communities;
+        }
+
+        public void setCommunities(List<CommunCommunity> communities) {
+            this.communities = communities;
+        }
+
+        @Override
+        public String toString() {
+            return "UserSubscriptions{" +
+                    "communities=" + communities +
+                    '}';
+        }
+    }
 }

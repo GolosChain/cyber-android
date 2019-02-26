@@ -1,6 +1,7 @@
 package io.golos.commun4J.model
 
 import java.math.BigInteger
+import java.util.*
 
 data class CommunDiscussion(val contentId: DiscussionId,
                             val author: DiscussionAuthor,
@@ -27,7 +28,7 @@ data class DiscussionContent(val title: String, val body: ContentBody, val metad
 data class ContentBody(val preview: String?,
                        val full: String?)
 
-data class DiscussionMetadata(val time: Long)
+data class DiscussionMetadata(val time: Date)
 
 data class DiscussionPayout(val rShares: BigInteger)
 

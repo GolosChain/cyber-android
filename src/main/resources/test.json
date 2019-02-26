@@ -1,202 +1,34 @@
-[
-  {
-    "contentId": {
-      "userId": "test2",
-      "permlink": "xyz4",
-      "refBlockNum": 1
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "subscriptions": {
+      "communities": [
+        {
+          "id": "gls",
+          "name": "GOLOS",
+          "avatarUrl": "none"
+        }
+      ]
     },
-    "content": {
-      "title": "test4",
-      "body": {
-        "preview": "test!4"
+    "stats": {
+      "postsCount": 0
+    },
+    "userId": "destroyer2k",
+    "username": "DeStrR0yEr2k",
+    "registration": {
+      "time": "2019-02-25T11:04:24.000Z"
+    },
+    "personal": {
+      "contacts": {
+        "facebook": "WAIT FOR BLOCKCHAIN",
+        "telegram": "WAIT FOR BLOCKCHAIN",
+        "whatsApp": "WAIT FOR BLOCKCHAIN",
+        "weChat": "WAIT FOR BLOCKCHAIN"
       },
-      "metadata": {}
-    },
-    "votes": {},
-    "comments": {
-      "count": 0
-    },
-    "payout": {
-      "rShares": 0
-    },
-    "meta": {
-      "time": 4000
-    },
-    "author": {
-      "userId": "test2",
-      "username": "ololo2"
-    },
-    "community": {
-      "id": "gls",
-      "name": "GOLOS",
-      "avatarUrl": "none"
-    }
-  },
-  {
-    "contentId": {
-      "userId": "test1",
-      "permlink": "xyz3",
-      "refBlockNum": 1
-    },
-    "content": {
-      "title": "test3",
-      "body": {
-        "preview": "test!3"
-      },
-      "metadata": {}
-    },
-    "votes": {},
-    "comments": {
-      "count": 0
-    },
-    "payout": {
-      "rShares": 0
-    },
-    "meta": {
-      "time": 4000
-    },
-    "author": {
-      "userId": "test1",
-      "username": "ololo1"
-    },
-    "community": {
-      "id": "gls",
-      "name": "GOLOS",
-      "avatarUrl": "none"
-    }
-  },
-  {
-    "contentId": {
-      "userId": "test1",
-      "permlink": "xyz2",
-      "refBlockNum": 1
-    },
-    "content": {
-      "title": "test2",
-      "body": {
-        "preview": "test!2"
-      },
-      "metadata": {}
-    },
-    "votes": {},
-    "comments": {
-      "count": 0
-    },
-    "payout": {
-      "rShares": 0
-    },
-    "meta": {
-      "time": 4000
-    },
-    "author": {
-      "userId": "test1",
-      "username": "ololo1"
-    },
-    "community": {
-      "id": "gls",
-      "name": "GOLOS",
-      "avatarUrl": "none"
-    }
-  },
-  {
-    "contentId": {
-      "userId": "test1",
-      "permlink": "xyz1",
-      "refBlockNum": 1
-    },
-    "content": {
-      "title": "test1",
-      "body": {
-        "preview": "test!1"
-      },
-      "metadata": {}
-    },
-    "votes": {},
-    "comments": {
-      "count": 0
-    },
-    "payout": {
-      "rShares": 0
-    },
-    "meta": {
-      "time": 4000
-    },
-    "author": {
-      "userId": "test1",
-      "username": "ololo1"
-    },
-    "community": {
-      "id": "gls",
-      "name": "GOLOS",
-      "avatarUrl": "none"
-    }
-  },
-  {
-    "contentId": {
-      "userId": "test2",
-      "permlink": "xyz4",
-      "refBlockNum": 1
-    },
-    "content": {
-      "title": "test4",
-      "body": {
-        "preview": "test!4"
-      },
-      "metadata": {}
-    },
-    "votes": {},
-    "comments": {
-      "count": 0
-    },
-    "payout": {
-      "rShares": 0
-    },
-    "meta": {
-      "time": 4000
-    },
-    "author": {
-      "userId": "test2",
-      "username": "ololo2"
-    },
-    "community": {
-      "id": "gls",
-      "name": "GOLOS",
-      "avatarUrl": "none"
-    }
-  },
-  {
-    "contentId": {
-      "userId": "test2",
-      "permlink": "aaa2",
-      "refBlockNum": 1
-    },
-    "postId": {
-      "userId": "test1",
-      "permlink": "xyz1",
-      "refBlockNum": 1
-    },
-    "parentCommentId": null,
-    "content": {
-      "title": "test!3",
-      "body": {
-        "full": "aaaaaa3"
-      },
-      "metadata": {}
-    },
-    "payout": {
-      "rShares": 0
-    },
-    "votes": {},
-    "meta": {
-      "time": 30000
-    },
-    "ordering": {
-      "root": 2,
-      "child": 0
-    },
-    "author": {
-      "userId": "test2",
-      "username": "ololo2"
+      "avatarUrl": "WAIT FOR BLOCKCHAIN",
+      "coverUrl": "WAIT FOR BLOCKCHAIN",
+      "biography": "WAIT FOR BLOCKCHAIN"
     }
   }
-]
+}
