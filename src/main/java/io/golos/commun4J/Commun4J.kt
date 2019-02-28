@@ -15,7 +15,7 @@ import com.memtrip.eos.http.rpc.ChainApi
 import com.memtrip.eos.http.rpc.model.info.Info
 import com.squareup.moshi.Moshi
 import io.golos.commun4J.model.*
-import io.golos.commun4J.services.CommunServicesApiProvider
+import io.golos.commun4J.services.CommunServicesApiService
 import io.golos.commun4J.services.model.ApiResponseError
 import io.golos.commun4J.utils.AuthUtils
 import io.golos.commun4J.utils.CommunNameAdapter
@@ -101,8 +101,8 @@ private enum class CommunContracts : CommunContract {
 
 class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.Commun4JConfig = io.golos.commun4J.Commun4JConfig(),
                                          chainApiProvider: io.golos.commun4J.ChainApiProvider? = null,
-                                         private val historyApiProvider: HistoryApiProvider = CommunServicesApiProvider(config),
-                                         val keyStorage: CommunKeyStorage = CommunKeyStorage()) {
+                                         val keyStorage: CommunKeyStorage = CommunKeyStorage(),
+                                         private val apiService: ApiService = CommunServicesApiService(config, keyStorage)) {
     private val staleTransactionErrorCode = 3080006
     private val transactionPusher: io.golos.commun4J.TransactionPusher
     private val chainApi: ChainApi
@@ -589,44 +589,48 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
     fun getCommunityPosts(communityId: String,
                           limit: Int,
                           sort: DiscussionTimeSort,
-                          sequenceKey: String?) = historyApiProvider.getDiscussions(PostsFeedType.COMMUNITY, sort, sequenceKey, limit, null, communityId)
+                          sequenceKey: String? = null) = apiService.getDiscussions(PostsFeedType.COMMUNITY, sort, sequenceKey, limit, null, communityId)
 
     fun getUserSubsriptions(user: CommunName,
                             limit: Int,
                             sort: DiscussionTimeSort,
-                            sequenceKey: String?) = historyApiProvider.getDiscussions(PostsFeedType.SUBSCRIPTIONS,
+                            sequenceKey: String?) = apiService.getDiscussions(PostsFeedType.SUBSCRIPTIONS,
             sort, sequenceKey, limit, user.name, null)
 
     fun getUserPosts(user: CommunName,
                      limit: Int,
                      sort: DiscussionTimeSort,
-                     sequenceKey: String?) =
-            historyApiProvider.getDiscussions(PostsFeedType.USER_POSTS, sort, sequenceKey, limit, user.name, null)
+                     sequenceKey: String? = null) =
+            apiService.getDiscussions(PostsFeedType.USER_POSTS, sort, sequenceKey, limit, user.name, null)
 
 
     fun getPost(user: CommunName,
                 permlink: String,
-                refBlockNum: Int) = historyApiProvider.getDiscussion(user.name, permlink, refBlockNum)
+                refBlockNum: Int) = apiService.getDiscussion(user.name, permlink, refBlockNum)
 
     fun getCommentsOfPost(user: CommunName,
                           permlink: String,
                           refBlockNum: Int?,
                           limit: Int,
                           sort: DiscussionTimeSort,
-                          sequenceKey: String?) =
+                          sequenceKey: String? = null) =
 
-            historyApiProvider.getComments(sort, sequenceKey, limit,
+            apiService.getComments(sort, sequenceKey, limit,
                     CommentsOrigin.COMMENTS_OF_POST, user.name, permlink, refBlockNum)
 
     fun getCommentsOfUser(user: CommunName,
                           limit: Int,
                           sort: DiscussionTimeSort,
-                          sequenceKey: String?): Either<DiscussionsResult, ApiResponseError> =
-            historyApiProvider.getComments(sort, sequenceKey, limit,
+                          sequenceKey: String? = null): Either<DiscussionsResult, ApiResponseError> =
+            apiService.getComments(sort, sequenceKey, limit,
                     CommentsOrigin.COMMENTS_OF_USER, user.name, null, null)
 
 
-    fun getUserMetadata(user: CommunName): Either<UserMetadata, ApiResponseError> = historyApiProvider.getUserMetadata(user.name)
+    fun getUserMetadata(user: CommunName): Either<UserMetadata, ApiResponseError> = apiService.getUserMetadata(user.name)
+
+    fun addAuthListener(listener: AuthListener){
+        apiService.addOnAuthListener(listener)
+    }
 
 
     fun transfer(key: String,
@@ -636,7 +640,7 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
                  currency: String,
                  memo: String = ""): Either<TransactionSuccessful<TransferResult>, GolosEosError> {
 
-        if (!amount.matches("([0-9]+\\.[0-9]{3})".toRegex())) throw IllegalArgumentException("wrong currency format. Must be 3 points precision, like 12.000 or 0.001")
+        if (!amount.matches("([0-9]+\\.[0-9]{3})".toRegex())) throw IllegalArgumentException("wrong currency format. Must have 3 points precision, like 12.000 or 0.001")
 
         val callable = Callable {
             val hex = AbiBinaryGenTransactionWriter(CyberwayByteWriter(), DefaultHexWriter(), CompressionType.NONE)
@@ -646,7 +650,6 @@ class Commun4J @JvmOverloads constructor(private val config: io.golos.commun4J.C
         }
 
         return callTilTimeoutExceptionVanishes(callable)
-
     }
 
     fun transfer(to: CommunName,

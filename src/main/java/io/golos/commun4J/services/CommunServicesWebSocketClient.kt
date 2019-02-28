@@ -5,10 +5,7 @@ import com.squareup.moshi.Rfc3339DateJsonAdapter
 import com.squareup.moshi.Types
 import io.golos.commun4J.Commun4JConfig
 import io.golos.commun4J.model.CommunName
-import io.golos.commun4J.services.model.ApiResponseError
-import io.golos.commun4J.services.model.Identifieble
-import io.golos.commun4J.services.model.ServicesMessagesWrapper
-import io.golos.commun4J.services.model.ServicesResponseWrapper
+import io.golos.commun4J.services.model.*
 import io.golos.commun4J.utils.BigIntegerAdapter
 import io.golos.commun4J.utils.CommunNameAdapter
 import io.golos.commun4J.utils.Either
@@ -26,12 +23,20 @@ interface ApiClient {
     fun <R> send(method: String,
                  params: Any,
                  classOfMessageToReceive: Class<R>): Either<R, ApiResponseError>
+
+    fun unAuth()
+
+    fun setAuthRequestListener(listener: AuthRequestListener?)
+}
+
+interface AuthRequestListener {
+
+    fun onAuthRequest(secret: String)
 }
 
 
-internal class CommunServicesWebSocketClient : WebSocketListener(), ApiClient {
+internal class CommunServicesWebSocketClient(private val config: Commun4JConfig) : WebSocketListener(), ApiClient {
     private lateinit var webSocket: WebSocket
-    private lateinit var config: Commun4JConfig
     private val moshi =
             Moshi.Builder()
                     .add(Date::class.java, Rfc3339DateJsonAdapter())
@@ -41,13 +46,14 @@ internal class CommunServicesWebSocketClient : WebSocketListener(), ApiClient {
     private val latches = Collections.synchronizedMap<Long, CountDownLatch>(hashMapOf())
     private val responseMap = Collections.synchronizedMap<Long, String>(hashMapOf())
 
+    private var authListener: AuthRequestListener? = null
 
-    fun connect(config: Commun4JConfig = io.golos.commun4J.Commun4JConfig()) {
+
+    private fun connect() {
 
         synchronized(this) {
             if (::webSocket.isInitialized) return
         }
-
 
         val client = OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor().setLevel(
                 when (config.logLevel) {
@@ -60,13 +66,14 @@ internal class CommunServicesWebSocketClient : WebSocketListener(), ApiClient {
                 .writeTimeout(config.writeTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
                 .build()
 
-        this.config = config
         webSocket = client.newWebSocket(Request.Builder().url(config.servicesUrl).build(), this)
     }
 
     override fun <R> send(method: String,
                           params: Any,
                           classOfMessageToReceive: Class<R>): Either<R, ApiResponseError> {
+
+        connect()
 
         val rpcMessage = ServicesMessagesWrapper(method, params)
 
@@ -104,13 +111,13 @@ internal class CommunServicesWebSocketClient : WebSocketListener(), ApiClient {
         super.onFailure(webSocket, t, response)
         System.err.println("socket failure $response")
         t.printStackTrace()
-        latches.forEach { _, u -> u.countDown() }
+        latches.forEach { _, u -> u?.countDown() }
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         System.err.println("socket is closing by $reason with code $code")
         super.onClosing(webSocket, code, reason)
-        latches.forEach { _, u -> u.countDown() }
+        latches.forEach { _, u -> u?.countDown() }
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
@@ -119,9 +126,17 @@ internal class CommunServicesWebSocketClient : WebSocketListener(), ApiClient {
             println("on message $text")
         try {
             val id = moshi.adapter<Identifieble>(Identifieble::class.java).fromJson(text)?.id
-                    ?: return
-            responseMap[id] = text
-            latches[id]?.countDown()
+            if (id != null) {
+                responseMap[id] = text
+                latches[id]?.countDown()
+            } else if (text.contains("\"method\":\"sign\"")) {
+                val type = Types.newParameterizedType(ServicesRequestWrapper::class.java, SecretRequest::class.java)
+                val secret = moshi.adapter<ServicesRequestWrapper<SecretRequest>>(type).fromJson(text)
+                        ?: return
+
+                authListener?.onAuthRequest(secret.params.secret)
+
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -130,4 +145,16 @@ internal class CommunServicesWebSocketClient : WebSocketListener(), ApiClient {
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
     }
+
+    override fun setAuthRequestListener(listener: AuthRequestListener?) {
+        this.authListener = listener
+    }
+
+    override fun unAuth() {
+        synchronized(this) {
+            if (::webSocket.isInitialized) webSocket.close(1000, "connection drop by user request")
+        }
+    }
 }
+
+private class SecretRequest(val secret: String)

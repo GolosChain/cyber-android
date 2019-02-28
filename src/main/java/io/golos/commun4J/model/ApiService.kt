@@ -39,7 +39,12 @@ enum class DiscussionTimeSort {
     }
 }
 
-interface HistoryApiProvider {
+interface AuthListener {
+    fun onAuthSuccess(forUser: CommunName)
+    fun onFail(e: Exception)
+}
+
+interface ApiService {
     //type <string>('community')  // Тип ленты
 //[
 //community             // Лента комьюнити, требует communityId
@@ -97,12 +102,14 @@ interface HistoryApiProvider {
                     origin: CommentsOrigin,
                     userId: String?,
                     permlink: String?,
-                    refBlockNum: Int?):Either<DiscussionsResult, ApiResponseError>
+                    refBlockNum: Int?): Either<DiscussionsResult, ApiResponseError>
 
 //    content.getProfile:                 // Получение профиля пользователя
 ////    params:                         // Параметры запроса из гейта
 ////    userId <string>             // Идентификатор пользователя
 
-    fun getUserMetadata(userId: String):Either<UserMetadata, ApiResponseError>
+    fun getUserMetadata(userId: String): Either<UserMetadata, ApiResponseError>
+
+    fun addOnAuthListener(listener: AuthListener)
 }
 
