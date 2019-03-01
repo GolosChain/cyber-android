@@ -1,6 +1,6 @@
-import io.golos.commun4J.model.CommunName
-import io.golos.commun4J.model.TransactionSuccessful
+import io.golos.cyber4j.model.CyberName
+import io.golos.cyber4j.model.TransactionSuccessful
 
-internal fun String.toCommunName() = CommunName(this)
+internal fun String.toCommunName() = CyberName(this)
 
 internal fun <T> TransactionSuccessful<T>.extractResult() = this.processed.action_traces.first().act.data

@@ -1,12 +1,11 @@
-import io.golos.commun4J.Commun4J
-import io.golos.commun4J.Commun4JConfig
-import io.golos.commun4J.model.AuthListener
-import io.golos.commun4J.model.AuthType
-import io.golos.commun4J.model.CommunName
-import io.golos.commun4J.model.DiscussionTimeSort
-import io.golos.commun4J.utils.Pair
+import io.golos.cyber4j.Cyber4J
+import io.golos.cyber4j.Cyber4JConfig
+import io.golos.cyber4j.model.AuthListener
+import io.golos.cyber4j.model.AuthType
+import io.golos.cyber4j.model.CyberName
+import io.golos.cyber4j.model.DiscussionTimeSort
+import io.golos.cyber4j.utils.Pair
 import junit.framework.Assert.fail
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
@@ -19,14 +18,14 @@ class ServicesAuthTest {
 
     @Test
     fun testAuth() {
-        val activeUserName = CommunName("destroyer2k")
-        val storage = io.golos.commun4J
-                .CommunKeyStorage()
+        val activeUserName = CyberName("destroyer2k")
+        val storage = io.golos.cyber4j
+                .KeyStorage()
                 .apply { addAccountKeys(activeUserName, setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ"))) }
 
-        val commun4J = Commun4J(Commun4JConfig(servicesUrl = "ws://116.203.98.241:8080"), keyStorage = storage)
+        val commun4J = Cyber4J(Cyber4JConfig(servicesUrl = "ws://116.203.98.241:8080"), keyStorage = storage)
         commun4J.addAuthListener(object : AuthListener {
-            override fun onAuthSuccess(forUser: CommunName) {
+            override fun onAuthSuccess(forUser: CyberName) {
             }
 
             override fun onFail(e: Exception) {
@@ -38,7 +37,7 @@ class ServicesAuthTest {
         commun4J.getUserPosts("destroyer2k".toCommunName(), 20, DiscussionTimeSort.INVERTED)
 
 
-        val commun4JWithoutKeys = Commun4J(Commun4JConfig(servicesUrl = "ws://116.203.98.241:8080"))
+        val commun4JWithoutKeys = Cyber4J(Cyber4JConfig(servicesUrl = "ws://116.203.98.241:8080"))
 
         commun4JWithoutKeys.getUserPosts("qraf".toCommunName(), 20, DiscussionTimeSort.INVERTED)
 

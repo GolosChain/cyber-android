@@ -1,4 +1,4 @@
-group 'io.golos.commun4j'
+group 'io.golos.cyber4j'
 version '0.4'
 
 buildscript {

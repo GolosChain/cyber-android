@@ -1,15 +1,15 @@
-import io.golos.commun4J.Commun4J
-import io.golos.commun4J.model.AuthType
-import io.golos.commun4J.model.CommunName
-import io.golos.commun4J.utils.Either
-import io.golos.commun4J.utils.Pair
+import io.golos.cyber4j.Cyber4J
+import io.golos.cyber4j.model.AuthType
+import io.golos.cyber4j.model.CyberName
+import io.golos.cyber4j.utils.Either
+import io.golos.cyber4j.utils.Pair
 import junit.framework.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 class TransferTestInTestNet {
-    private val privateTestNetClient = Commun4J(privateTestNetConfig)
-    private lateinit var secondAccount: kotlin.Pair<CommunName, String>
+    private val privateTestNetClient = Cyber4J(privateTestNetConfig)
+    private lateinit var secondAccount: kotlin.Pair<CyberName, String>
 
     @Before
     fun before() {
