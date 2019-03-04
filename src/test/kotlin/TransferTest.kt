@@ -7,15 +7,15 @@ import junit.framework.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-class TransferTestInTestNet {
-    private val privateTestNetClient = Cyber4J(privateTestNetConfig)
+class TransferTest {
+    private val privateTestNetClient = Cyber4J(mainTestNetConfig)
     private lateinit var secondAccount: kotlin.Pair<CyberName, String>
 
     @Before
     fun before() {
-        privateTestNetClient.keyStorage.addAccountKeys(testingAccountInPrivateTestNet.first,
-                setOf(Pair(AuthType.ACTIVE, testingAccountInPrivateTestNet.second)))
-        secondAccount = testingAccountInPrivateTestNetSecond
+        privateTestNetClient.keyStorage.addAccountKeys(testInMainTestNetAccount.first,
+                setOf(Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)))
+        secondAccount = testInMainTestNetAccountSecond
     }
 
     @Test

@@ -22,21 +22,6 @@ class AccountCreationTest {
         assertTrue("account creation failure on main net for user $newUser", accReationResult is Either.Success)
     }
 
-    @Test
-    fun testAccountCreationOnTestNet() {
-        val commun = io.golos.cyber4j.Cyber4J(privateTestNetConfig)
-        val pass = UUID.randomUUID().toString()
-        val newUser = generateRandomCommunName()
-        val accReationResult = commun.createAccount(newUser, pass, eosCreateKey)
-
-        assertTrue("account creation failure on testnet for user $newUser", accReationResult is Either.Success)
-    }
-
-    @Test
-    fun generateUser(){
-        println(createNewAccount(privateTestNetConfig))
-    }
-
 
     companion object {
         private val eosCreateKey = (AuthUtils::class.java).getResource("/eoscreateacckey.txt").readText(Charset.defaultCharset())
@@ -49,7 +34,6 @@ class AccountCreationTest {
             commun.createAccount(newUser, pass, eosCreateKey) as Either.Success
 
             return Pair(CyberName(newUser), AuthUtils.generatePrivateWiFs(newUser, pass, arrayOf(AuthType.ACTIVE))[AuthType.ACTIVE]!!)
-
         }
 
         private fun generateRandomCommunName(): String {

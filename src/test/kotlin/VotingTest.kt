@@ -9,20 +9,20 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-class VotingPrivateTestNetTest {
+class VotingTest {
 
-    private val client = Cyber4J(privateTestNetConfig)
+    private val client = Cyber4J(mainTestNetConfig)
     private lateinit var postCreateResult: CreateDiscussionResult
     private lateinit var secndTestAccount: kotlin.Pair<CyberName, String>
 
     @Before
     fun before() {
-        client.keyStorage.addAccountKeys(testingAccountInPrivateTestNet.first,
-                setOf(Pair(AuthType.ACTIVE, testingAccountInPrivateTestNet.second)))
+        client.keyStorage.addAccountKeys(testInMainTestNetAccount.first,
+                setOf(Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)))
         postCreateResult = (client.createPost("sdgsdg", "gdssdg", listOf(Tag("test")))
                 as Either.Success).value.processed.action_traces.first().act.data
 
-        secndTestAccount = testingAccountInPrivateTestNetSecond
+        secndTestAccount = testInMainTestNetAccountSecond
     }
 
     @Test

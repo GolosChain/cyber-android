@@ -38,7 +38,9 @@ enum class DiscussionTimeSort {
         }
     }
 }
-
+/** listener interface for auth state in cyber microservices.
+ *
+ * */
 interface AuthListener {
     fun onAuthSuccess(forUser: CyberName)
     fun onFail(e: Exception)

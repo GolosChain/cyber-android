@@ -3,8 +3,6 @@ package io.golos.cyber4j
 import io.golos.cyber4j.utils.LogLevel
 
 data class Cyber4JConfig @JvmOverloads constructor(val blockChainHttpApiUrl: String = "http://46.4.96.246:8888/",// url of eos chain rest api
-                                                   val isPrivateTestNet : Boolean = false, // some authorities differs in private and public testnets.
-                                                   //it's better to ask core team which type of testnet you are using, otherwise some methods would not work properly
                                                    val servicesUrl: String = "wss://dev-gate.golos.io", //url of microservices gateway
                                                    val connectionTimeOutInSeconds: Int = 12,// time to wait unused socket or unresponsive http request to wait before drop
                                                    val readTimeoutInSeconds: Int = 12,// time to wait read from socket or  http request to wait before drop

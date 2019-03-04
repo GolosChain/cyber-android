@@ -63,7 +63,7 @@ private enum class CyberActions : CyberContract.CyberAction {
 }
 
 private enum class CyberContracts : CyberContract {
-    PUBLICATION, EOSIO, CYBER, VESTING, SOCIAL, TOKEN;
+    PUBLICATION, CYBER, VESTING, SOCIAL, TOKEN;
 
     override fun getActions(): List<CyberContract.CyberAction> {
         return when (this) {
@@ -74,7 +74,7 @@ private enum class CyberContracts : CyberContract {
                     CyberActions.DOWN_VOTE,
                     CyberActions.UN_VOTE)
 
-            EOSIO, CYBER -> listOf(CyberActions.NEW_ACCOUNT)
+            CYBER -> listOf(CyberActions.NEW_ACCOUNT)
 
             VESTING -> listOf(CyberActions.OPEN_VESTING)
 
@@ -91,7 +91,6 @@ private enum class CyberContracts : CyberContract {
     override fun toString(): String {
         return when (this) {
             PUBLICATION -> "gls.publish"
-            EOSIO -> "cyber"
             CYBER -> "cyber"
             VESTING -> "gls.vesting"
             SOCIAL -> "gls.social"
@@ -704,23 +703,22 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
      * @param newAccountMasterPassword master password for generating keys for newly created account.
      * method uses [AuthUtils.generatePrivateWiFs] for generating private key - so can you. Also
      * [AuthUtils.generatePublicWiFs] for acquiring public keys
-     * @param eosioCreateUserKey key of eosio or cyberway(in private testnet) for "newaccount" action with "createuser" permission
+     * @param cyberCreatePermissionKey key of "cyber" for "newaccount" action with "createuser" permission
      * @throws IllegalStateException if method failed to start vesting for new account. You can call [startVesting] manually.
      * Or ask core team for troubleshooting
      * */
     fun createAccount(newAccountName: String,
                       newAccountMasterPassword: String,
-                      eosioCreateUserKey: String): Either<TransactionSuccessful<AccountCreationResult>, GolosEosError> {
+                      cyberCreatePermissionKey: String): Either<TransactionSuccessful<AccountCreationResult>, GolosEosError> {
         CyberName(newAccountName)
-        val creatorAccountName = if (config.isPrivateTestNet) CyberContracts.CYBER.toString() else CyberContracts.EOSIO.toString()
+        val creatorAccountName = CyberContracts.CYBER.toString()
 
         val keys = AuthUtils.generatePublicWiFs(newAccountName, newAccountMasterPassword, AuthType.values())
 
         val callable = Callable {
             val writer = AbiBinaryGenTransactionWriter(CompressionType.NONE)
 
-            val newAccArgs = NewAccountArgs(if (config.isPrivateTestNet) CyberContracts.CYBER.toString()
-            else CyberContracts.EOSIO.toString(),
+            val newAccArgs = NewAccountArgs(CyberContracts.CYBER.toString(),
                     newAccountName,
                     AccountRequiredAuthAbi(1,
                             listOf(AccountKeyAbi(keys[AuthType.OWNER]!!.replaceFirst("GLS", "EOS"), 1)),
@@ -729,32 +727,32 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
                             listOf(AccountKeyAbi(keys[AuthType.ACTIVE]!!.replaceFirst("GLS", "EOS"), 1)), emptyList(), emptyList()))
             val newAccBody = NewAccountBody(newAccArgs)
             val hex = writer.squishNewAccountBody(newAccBody).toHex()
-            pushTransaction<AccountCreationResult>(if (config.isPrivateTestNet) CyberContracts.CYBER else CyberContracts.EOSIO,
+            pushTransaction<AccountCreationResult>(CyberContracts.CYBER,
                     CyberActions.NEW_ACCOUNT, MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
                     hex,
-                    eosioCreateUserKey)
+                    cyberCreatePermissionKey)
         }
         val createAnswer = callTilTimeoutExceptionVanishes(callable)
 
         if (createAnswer is Either.Failure) return createAnswer
 
-        val result = startVesting(newAccountName, eosioCreateUserKey)
+        val result = startVesting(newAccountName, cyberCreatePermissionKey)
 
         if (result is Either.Failure) throw IllegalStateException("error happened during initialization of account," +
-                "сall startVesting(newAccountName, eosioCreateUserKey) to fully init new account $newAccountName")
+                "сall startVesting(newAccountName, cyberCreatePermissionKey) to fully init new account $newAccountName")
         return createAnswer
     }
 
     /** method for start vesting for account. Operation is needed to activate
      * vestingShares accrual for account.
      * @param newAccountName account name
-     * @param eosioCreateUserKey   key of eosio or cyberway(in private testnet) for "open" action with "createuser"
+     * @param cyberCreatePermissionKey   key of cyber for "open" action with "createuser"
      * permission
      * */
 
     fun startVesting(newAccountName: String,
-                     eosioCreateUserKey: String): Either<TransactionSuccessful<Any>, GolosEosError> {
-        val creatorAccountName = if (config.isPrivateTestNet) CyberContracts.CYBER.toString() else CyberContracts.EOSIO.toString()
+                     cyberCreatePermissionKey: String): Either<TransactionSuccessful<Any>, GolosEosError> {
+        val creatorAccountName = CyberContracts.CYBER.toString()
 
         val createVestingCallable = Callable {
             val writer = createBinaryConverter()
@@ -767,7 +765,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
             pushTransaction<Any>(CyberContracts.VESTING,
                     CyberActions.OPEN_VESTING, MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
                     hex,
-                    eosioCreateUserKey)
+                    cyberCreatePermissionKey)
         }
 
         return callTilTimeoutExceptionVanishes(createVestingCallable)
@@ -885,6 +883,12 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
      */
     fun getUserMetadata(user: CyberName): Either<UserMetadata, ApiResponseError> = apiService.getUserMetadata(user.name)
 
+    /** method adds listener of authorization state in cyber microservices.
+     *  If  instance of this [Cyber4J] is created with  [keyStorage], that
+     *  has active user - it will try to authorize on a first call of any microservices-related method.
+     *  Otherwise, if active user is added to [keyStorage] during lifetime of [Cyber4J] object,
+     *  authorization will proceed immediately.
+     * */
     fun addAuthListener(listener: AuthListener) {
         apiService.addOnAuthListener(listener)
     }
