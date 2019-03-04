@@ -48,4 +48,22 @@ class ServicesAuthTest {
         Thread.sleep(3000)
 
     }
+
+    @Test
+    fun testAuth2() {
+        val commun4JWithoutKeys = Cyber4J(Cyber4JConfig(servicesUrl = "ws://116.203.98.241:8080"))
+        commun4JWithoutKeys.addAuthListener(object : AuthListener {
+            override fun onAuthSuccess(forUser: CyberName) {
+            }
+
+            override fun onFail(e: Exception) {
+                println("onFail $e")
+                fail("auth failed")
+            }
+        })
+        commun4JWithoutKeys.keyStorage.addAccountKeys("destroyer2k".toCommunName(), setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
+        commun4JWithoutKeys.getUserPosts("asfasf".toCommunName(), 20, DiscussionTimeSort.INVERTED)
+
+        Thread.sleep(3000)
+    }
 }

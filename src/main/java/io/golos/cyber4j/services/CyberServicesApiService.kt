@@ -10,6 +10,7 @@ import io.golos.cyber4j.utils.StringSigner
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 private enum class ServicesGateMethods {
     GET_FEED, GET_POST, GET_COMMENTS, GET_USER_METADATA, GET_SECRET, AUTH;
@@ -35,6 +36,7 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
     private val authExecutor = Executors.newSingleThreadExecutor()
     private var lock: CountDownLatch? = null
     private var authListeners = ArrayList<AuthListener>()
+    private val isAuthRunning = AtomicBoolean(false)
 
     init {
         apiClient.setAuthRequestListener(this)
@@ -49,13 +51,11 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
     override fun onActiveKeysAdded(newUser: CyberName,
                                    activeKey: String,
                                    oldUser: CyberName?) {
-        lock()
         if (oldUser != null && oldUser != newUser) {
             apiClient.unAuth()
         } else if (oldUser == null) {
             authIfPossible()
         }
-        releaseLock()
     }
 
     override fun onAuthRequest(secret: String) {
@@ -63,10 +63,11 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
     }
 
 
-    @Synchronized
     private fun authIfPossible(presetSecret: String? = null) {
+        if (isAuthRunning.get()) return
         if (keyStore.isActiveAccountSet()) {
             lock()
+            isAuthRunning.set(true)
             authExecutor.execute {
                 if (!keyStore.isActiveAccountSet()) {
                     releaseLock()
@@ -99,24 +100,28 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
                         authListener.onAuthSuccess(activeAccount)
                     }
                     releaseLock()
+                    isAuthRunning.set(false)
                 } catch (e: IllegalStateException) {
                     e.printStackTrace()
                     releaseLock()
+                    isAuthRunning.set(false)
                     System.err.println("active account not set")
                     authListeners.forEach { it.onFail(e) }
                 } catch (e: ClassCastException) {
                     e.printStackTrace()
                     releaseLock()
+                    isAuthRunning.set(false)
                     System.err.println("response error")
                     authListeners.forEach { it.onFail(e) }
                 } catch (e: Exception) {
                     e.printStackTrace()
                     releaseLock()
+                    isAuthRunning.set(false)
                     System.err.println("unknown error")
                     authListeners.forEach { it.onFail(e) }
                 }
             }
-        }
+        } else releaseLock()
     }
 
     override fun getDiscussions(feedType: PostsFeedType,
