@@ -18,7 +18,7 @@ data class DiscussionAuthor(val userId: CyberName, val username: String)
 
 data class DiscussionId(val userId: String,
                         val permlink: String,
-                        val refBlockNum: Int)
+                        val refBlockNum: Long)
 
 data class DiscussionCommentsCount(val count: Long)
 

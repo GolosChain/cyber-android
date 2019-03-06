@@ -899,7 +899,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
 
     fun getCommentsOfPost(user: CyberName,
                           permlink: String,
-                          refBlockNum: Int?,
+                          refBlockNum: Long,
                           limit: Int,
                           sort: DiscussionTimeSort,
                           sequenceKey: String? = null) =

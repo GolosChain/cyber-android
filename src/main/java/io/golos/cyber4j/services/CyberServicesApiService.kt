@@ -147,7 +147,7 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
 
     override fun getComments(sort: DiscussionTimeSort, sequenceKey: String?,
                              limit: Int, origin: CommentsOrigin, userId: String?,
-                             permlink: String?, refBlockNum: Int?): Either<DiscussionsResult, ApiResponseError> {
+                             permlink: String?, refBlockNum: Long?): Either<DiscussionsResult, ApiResponseError> {
         lockIfNeeded()
         return apiClient.send(ServicesGateMethods.GET_COMMENTS.toString(),
                 CommentsRequest(sort.toString(), sequenceKey, limit, origin.toString(), userId, permlink, refBlockNum), DiscussionsResult::class.java)

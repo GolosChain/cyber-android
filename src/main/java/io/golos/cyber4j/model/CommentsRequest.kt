@@ -6,4 +6,4 @@ internal class CommentsRequest(val sortBy: String,
                                val type: String,
                                val userId: String?,
                                val permlink: String?,
-                               val refBlockNum: Int?)
+                               val refBlockNum: Long?)

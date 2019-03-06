@@ -104,7 +104,7 @@ interface ApiService {
                     origin: CommentsOrigin,
                     userId: String?,
                     permlink: String?,
-                    refBlockNum: Int?): Either<DiscussionsResult, ApiResponseError>
+                    refBlockNum: Long?): Either<DiscussionsResult, ApiResponseError>
 
 //    content.getProfile:                 // Получение профиля пользователя
 ////    params:                         // Параметры запроса из гейта

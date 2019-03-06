@@ -3,9 +3,9 @@ package io.golos.cyber4j.model;
 public class ResultDiscussionId {
     private CyberName author;
     private String permlink;
-    private int ref_block_num;
+    private long ref_block_num;
 
-    public ResultDiscussionId(CyberName author, String permlink, int ref_block_num) {
+    public ResultDiscussionId(CyberName author, String permlink, long ref_block_num) {
         this.author = author;
         this.permlink = permlink;
         this.ref_block_num = ref_block_num;
@@ -19,7 +19,7 @@ public class ResultDiscussionId {
         return permlink;
     }
 
-    public int getRef_block_num() {
+    public long getRef_block_num() {
         return ref_block_num;
     }
 
