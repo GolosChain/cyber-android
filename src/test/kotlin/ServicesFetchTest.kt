@@ -25,14 +25,14 @@ class ServicesFetchTest {
         val post = posts.last()
 
         val postResponse = client.getPost(
-                post.contentId.userId.toCommunName(),
+                post.contentId.userId.toCyberName(),
                 post.contentId.permlink,
                 post.contentId.refBlockNum)
 
         assertTrue(postResponse is Either.Success)
 
         val comments = client.getCommentsOfPost(
-                post.author.userId.name.toCommunName(), post.contentId.permlink, post.contentId.refBlockNum,
+                post.author.userId.name.toCyberName(), post.contentId.permlink, post.contentId.refBlockNum,
                 10,
                 DiscussionTimeSort.INVERTED,
                 null)
@@ -40,7 +40,7 @@ class ServicesFetchTest {
         assertTrue(comments is Either.Success)
 
         val commentsOfUser = client.getCommentsOfUser(
-                post.author.userId.name.toCommunName(),
+                post.author.userId.name.toCyberName(),
                 10,
                 DiscussionTimeSort.INVERTED,
                 null)
@@ -48,7 +48,7 @@ class ServicesFetchTest {
         assertTrue(commentsOfUser is Either.Success)
 
         val subscriptionsOfUser =  client.getUserSubsriptions(
-                post.author.userId.name.toCommunName(),
+                post.author.userId.name.toCyberName(),
                 10,
                 DiscussionTimeSort.INVERTED,
                 null)
@@ -56,7 +56,7 @@ class ServicesFetchTest {
         assertTrue(subscriptionsOfUser is Either.Success)
 
         val postsOfUser =  client.getUserPosts(
-                post.author.userId.name.toCommunName(),
+                post.author.userId.name.toCyberName(),
                 10,
                 DiscussionTimeSort.INVERTED,
                 null)
@@ -67,7 +67,7 @@ class ServicesFetchTest {
 
     @Test
     fun userMetadataFetchTest() {
-        val response = client.getUserMetadata("destroyer2k".toCommunName())
+        val response = client.getUserMetadata("destroyer2k".toCyberName())
         assertTrue(response is Either.Success)
     }
 }

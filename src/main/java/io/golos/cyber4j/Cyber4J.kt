@@ -18,10 +18,7 @@ import com.squareup.moshi.Moshi
 import io.golos.cyber4j.model.*
 import io.golos.cyber4j.services.CyberServicesApiService
 import io.golos.cyber4j.services.model.ApiResponseError
-import io.golos.cyber4j.utils.AuthUtils
-import io.golos.cyber4j.utils.CyberNameAdapter
-import io.golos.cyber4j.utils.Either
-import io.golos.cyber4j.utils.checkArgument
+import io.golos.cyber4j.utils.*
 import net.gcardone.junidecode.Junidecode
 import java.net.SocketTimeoutException
 import java.util.*
@@ -39,7 +36,8 @@ private enum class CyberActions : CyberContract.CyberAction {
     DOWN_VOTE, UN_VOTE,
     NEW_ACCOUNT, OPEN_VESTING,
     UPDATE_META, DELETE_METADATA, TRANSFER, PIN,
-    UN_PIN, BLOCK, UN_BLOCK;
+    UN_PIN, BLOCK, UN_BLOCK,
+    ISSUE;
 
     override fun toString(): String {
         return when (this) {
@@ -58,12 +56,13 @@ private enum class CyberActions : CyberContract.CyberAction {
             UN_PIN -> "unpin"
             BLOCK -> "block"
             UN_BLOCK -> "unblock"
+            ISSUE -> "issue"
         }
     }
 }
 
 private enum class CyberContracts : CyberContract {
-    PUBLICATION, CYBER, VESTING, SOCIAL, TOKEN;
+    PUBLICATION, CYBER, VESTING, SOCIAL, TOKEN, CYBER_TOKEN;
 
     override fun getActions(): List<CyberContract.CyberAction> {
         return when (this) {
@@ -85,6 +84,7 @@ private enum class CyberContracts : CyberContract {
                     CyberActions.BLOCK,
                     CyberActions.UN_BLOCK)
             TOKEN -> listOf(CyberActions.TRANSFER)
+            CYBER_TOKEN -> listOf(CyberActions.ISSUE, CyberActions.OPEN_VESTING)
         }
     }
 
@@ -92,6 +92,7 @@ private enum class CyberContracts : CyberContract {
         return when (this) {
             PUBLICATION -> "gls.publish"
             CYBER -> "cyber"
+            CYBER_TOKEN -> "cyber.token"
             VESTING -> "gls.vesting"
             SOCIAL -> "gls.social"
             TOKEN -> "cyber.token"
@@ -669,6 +670,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
      * @param postOrCommentPermlink permlink of post or comment
      * @param postOrCommentRefBlockNum ref_block_num of post or comment
      * @param voteStrength voting strength. Might be [-10_000..10_000]. Set 0 to unvote
+     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
     fun vote(fromAccount: CyberName,
              userActiveKey: String,
@@ -698,14 +700,15 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
     }
 
     /** method for account creation.
-     * currently it consists of two steps - creating and @see startVesting() beggining vesting for new account
+     * currently it consists of two steps - creating and @see openVesting() beggining vesting for new account
      * @param newAccountName account name of new account. must be [CyberName] compatible. Format - "[a-z0-5.]{0,12}"
      * @param newAccountMasterPassword master password for generating keys for newly created account.
      * method uses [AuthUtils.generatePrivateWiFs] for generating private key - so can you. Also
      * [AuthUtils.generatePublicWiFs] for acquiring public keys
      * @param cyberCreatePermissionKey key of "cyber" for "newaccount" action with "createuser" permission
-     * @throws IllegalStateException if method failed to start vesting for new account. You can call [startVesting] manually.
+     * @throws IllegalStateException if method failed to start vesting for new account. You can call [openVesting] manually.
      * Or ask core team for troubleshooting
+     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
     fun createAccount(newAccountName: String,
                       newAccountMasterPassword: String,
@@ -736,39 +739,83 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
 
         if (createAnswer is Either.Failure) return createAnswer
 
-        val result = startVesting(newAccountName, cyberCreatePermissionKey)
+        val result = openVesting(newAccountName.toCyberName(), cyberCreatePermissionKey)
 
         if (result is Either.Failure) throw IllegalStateException("error happened during initialization of account," +
-                "сall startVesting(newAccountName, cyberCreatePermissionKey) to fully init new account $newAccountName")
+                "сall openVesting(newAccountName, cyberCreatePermissionKey) to fully init new account $newAccountName")
         return createAnswer
     }
 
-    /** method for start vesting for account. Operation is needed to activate
-     * vestingShares accrual for account.
-     * @param newAccountName account name
-     * @param cyberCreatePermissionKey   key of cyber for "open" action with "createuser"
-     * permission
+    /** method for opening vesting balance of account. used in [createAccount] as one of the steps of
+     * new account creation
+     * @param forUser account name
+     * @param cyberKey key of "cyber" with "createuser" permission
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
 
-    fun startVesting(newAccountName: String,
-                     cyberCreatePermissionKey: String): Either<TransactionSuccessful<Any>, GolosEosError> {
+    fun openVesting(forUser: CyberName,
+                    cyberKey: String) = openBalance(forUser, UserBalance.VESTING, cyberKey)
+
+    /** method for opening token balance of account. used in [createAccount] as one of the steps of
+     * new account creation
+     * @param forUser account name
+     * @param cyberKey key of "cyber" with "createuser" permission
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
+
+    fun openTokenBalance(forUser: CyberName,
+                         cyberCreatePermissionKey: String) =
+            openBalance(forUser, UserBalance.TOKEN, cyberCreatePermissionKey)
+
+    enum class UserBalance { VESTING, TOKEN }
+
+    private fun openBalance(newAccountName: CyberName,
+                            type: UserBalance,
+                            cyberCreatePermissionKey: String): Either<TransactionSuccessful<VestingReponse>, GolosEosError> {
         val creatorAccountName = CyberContracts.CYBER.toString()
 
         val createVestingCallable = Callable {
             val writer = createBinaryConverter()
-            val request = VestingStartRequestAbi(CyberName(newAccountName), CyberName(creatorAccountName))
+            val request = VestingStartRequestAbi(newAccountName, CyberName(creatorAccountName))
 
             val result = writer.squishVestingStartRequestAbi(request)
 
             val hex = result.toHex()
 
-            pushTransaction<Any>(CyberContracts.VESTING,
+            pushTransaction<VestingReponse>(if (type == UserBalance.VESTING) CyberContracts.VESTING else CyberContracts.CYBER_TOKEN,
                     CyberActions.OPEN_VESTING, MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
                     hex,
                     cyberCreatePermissionKey)
         }
 
         return callTilTimeoutExceptionVanishes(createVestingCallable)
+    }
+
+
+    /** method for issuing tokens to [forUser]. Also, used as part of new account creation in [createAccount]
+     * @param forUser account name
+     * @param issuerKey key of "gls.issuer" with "issue" permission
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
+    fun issueTokens(forUser: CyberName,
+                    issuerKey: String,
+                    memo: String = ""): Either<TransactionSuccessful<Any>, GolosEosError> {
+
+        val issuerTokenCallable = Callable {
+            val writer = createBinaryConverter()
+            val request = IssueRequestAbi(forUser, "1000000.000 GLS", memo)
+
+            val result = writer.squishIssueRequestAbi(request)
+
+            val hex = result.toHex()
+
+            pushTransaction<Any>(CyberContracts.CYBER_TOKEN,
+                    CyberActions.ISSUE, MyTransactionAuthorizationAbi("gls.issuer", "issue"),
+                    hex,
+                    issuerKey)
+        }
+
+        return callTilTimeoutExceptionVanishes(issuerTokenCallable)
     }
 
     /** method for fetching posts of certain community from cyberway microservices.
@@ -779,6 +826,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
      * @param sequenceKey paging key for querying next page of discussions. is from [DiscussionsResult.getSequenceKey]
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
 
 
@@ -835,7 +883,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
 
     fun getPost(user: CyberName,
                 permlink: String,
-                refBlockNum: Int) = apiService.getDiscussion(user.name, permlink, refBlockNum)
+                refBlockNum: Long) = apiService.getDiscussion(user.name, permlink, refBlockNum)
 
     /** method for fetching comments particular post
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]

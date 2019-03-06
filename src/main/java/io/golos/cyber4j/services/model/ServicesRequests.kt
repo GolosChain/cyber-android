@@ -11,7 +11,7 @@ internal class DiscussionsRequests(val type: String,
 
 internal class DiscussionRequests(val userId: String,
                                   val permlink: String,
-                                  val refBlockNum: Int)
+                                  val refBlockNum: Long)
 
 internal class UserMetaDataRequest(val userId: String)
 

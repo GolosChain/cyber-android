@@ -140,7 +140,7 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
                         communityId), DiscussionsResult::class.java)
     }
 
-    override fun getDiscussion(userId: String, permlink: String, refBlockNum: Int): Either<CyberDiscussion, ApiResponseError> {
+    override fun getDiscussion(userId: String, permlink: String, refBlockNum: Long): Either<CyberDiscussion, ApiResponseError> {
         lockIfNeeded()
         return apiClient.send(ServicesGateMethods.GET_POST.toString(), DiscussionRequests(userId, permlink, refBlockNum), CyberDiscussion::class.java)
     }

@@ -78,7 +78,7 @@ interface ApiService {
 
     fun getDiscussion(userId: String,
                       permlink: String,
-                      refBlockNum: Int): Either<CyberDiscussion, ApiResponseError>
+                      refBlockNum: Long): Either<CyberDiscussion, ApiResponseError>
 
 //    content.getComments:                // Получение ленты комментариев
 //    params:                         // Параметры запроса из гейта

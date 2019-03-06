@@ -14,12 +14,31 @@ class AccountCreationTest {
 
     @Test
     fun testAccountCreationOnMainnet() {
-        val commun = io.golos.cyber4j.Cyber4J(mainTestNetConfig)
+        val client = io.golos.cyber4j.Cyber4J(mainTestNetConfig)
         val pass = UUID.randomUUID().toString()
         val newUser = generateRandomCommunName()
-        val accReationResult = commun.createAccount(newUser, pass, eosCreateKey)
+        val accCreationResult = client.createAccount(newUser, pass, eosCreateKey)
 
-        assertTrue("account creation failure on main net for user $newUser", accReationResult is Either.Success)
+        assertTrue("account creation failure on main net for user $newUser", accCreationResult is Either.Success)
+
+    }
+
+    @Test
+    fun testAccreation() {
+        val client = io.golos.cyber4j.Cyber4J(Cyber4JConfig(blockChainHttpApiUrl = "http://46.4.96.246:8888/"))
+        val pass = UUID.randomUUID().toString()
+        val newUser = generateRandomCommunName()
+        val accCreationResult = client.createAccount(newUser, pass, eosCreateKey)
+
+        assertTrue("account creation failure on main net for user $newUser", accCreationResult is Either.Success)
+
+        val result = client.openTokenBalance(newUser.toCyberName(), eosCreateKey)
+        println((result as Either.Success).value.extractResult())
+
+        val issuseResult = client.issueTokens(newUser.toCyberName(), eosCreateKey)
+
+        issuseResult as Either.Success
+
     }
 
 

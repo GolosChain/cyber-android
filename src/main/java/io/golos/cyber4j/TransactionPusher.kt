@@ -46,7 +46,7 @@ internal class TransactionPusherImpl(private val chainApi: ChainApi,
 
         val signedTransaction = MySignedTransactionAbi(info.chain_id, transaction, emptyList())
 
-        print("signed transaction = ${Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter()).build().adapter<MySignedTransactionAbi>(MySignedTransactionAbi::class.java).toJson(signedTransaction)}")
+        println("signed transaction = ${Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter()).build().adapter<MySignedTransactionAbi>(MySignedTransactionAbi::class.java).toJson(signedTransaction)}")
 
         val signature = PrivateKeySigning()
                 .sign(

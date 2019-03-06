@@ -7,4 +7,4 @@ internal fun checkArgument(assertion: Boolean, errorMessage: String) {
     if (!assertion) throw IllegalArgumentException(errorMessage)
 }
 
-fun String.toCommunName() = CyberName(this)
+fun String.toCyberName() = CyberName(this)

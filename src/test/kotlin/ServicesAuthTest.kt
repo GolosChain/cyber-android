@@ -34,16 +34,16 @@ class ServicesAuthTest {
         })
 
 
-        commun4J.getUserPosts("destroyer2k".toCommunName(), 20, DiscussionTimeSort.INVERTED)
+        commun4J.getUserPosts("destroyer2k".toCyberName(), 20, DiscussionTimeSort.INVERTED)
 
 
         val commun4JWithoutKeys = Cyber4J(Cyber4JConfig(servicesUrl = "ws://116.203.98.241:8080"))
 
-        commun4JWithoutKeys.getUserPosts("qraf".toCommunName(), 20, DiscussionTimeSort.INVERTED)
+        commun4JWithoutKeys.getUserPosts("qraf".toCyberName(), 20, DiscussionTimeSort.INVERTED)
 
-        commun4JWithoutKeys.keyStorage.addAccountKeys("destroyer2k".toCommunName(), setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
+        commun4JWithoutKeys.keyStorage.addAccountKeys("destroyer2k".toCyberName(), setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
 
-        commun4JWithoutKeys.getUserPosts("asfasf".toCommunName(), 20, DiscussionTimeSort.INVERTED)
+        commun4JWithoutKeys.getUserPosts("asfasf".toCyberName(), 20, DiscussionTimeSort.INVERTED)
 
         Thread.sleep(3000)
 
@@ -61,8 +61,8 @@ class ServicesAuthTest {
                 fail("auth failed")
             }
         })
-        commun4JWithoutKeys.keyStorage.addAccountKeys("destroyer2k".toCommunName(), setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
-        commun4JWithoutKeys.getUserPosts("asfasf".toCommunName(), 20, DiscussionTimeSort.INVERTED)
+        commun4JWithoutKeys.keyStorage.addAccountKeys("destroyer2k".toCyberName(), setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
+        commun4JWithoutKeys.getUserPosts("asfasf".toCyberName(), 20, DiscussionTimeSort.INVERTED)
 
         Thread.sleep(3000)
     }
