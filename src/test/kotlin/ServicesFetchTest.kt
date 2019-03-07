@@ -47,7 +47,7 @@ class ServicesFetchTest {
 
         assertTrue(commentsOfUser is Either.Success)
 
-        val subscriptionsOfUser =  client.getUserSubsriptions(
+        val subscriptionsOfUser =  client.getUserSubscriptions(
                 post.author.userId.name.toCyberName(),
                 10,
                 DiscussionTimeSort.INVERTED,
