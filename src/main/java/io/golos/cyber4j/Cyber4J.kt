@@ -713,8 +713,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
      * method uses [AuthUtils.generatePrivateWiFs] for generating private key - so can you. Also
      * [AuthUtils.generatePublicWiFs] for acquiring public keys
      * @param cyberCreatePermissionKey key of "cyber" for "newaccount" action with "createuser" permission
-     * @throws IllegalStateException if method failed to start vesting for new account. You can call [openVestingBalance] manually.
-     * Or ask core team for troubleshooting
+     * @throws IllegalStateException if method failed to open vesting or token balance, issue tokens or transfer it to "gls.vesting
      *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
     fun createAccount(newAccountName: String,
