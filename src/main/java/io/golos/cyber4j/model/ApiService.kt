@@ -34,7 +34,7 @@ enum class DiscussionTimeSort {
     override fun toString(): String {
         return when (this) {
             SEQUENTIALLY -> "time"
-            INVERTED -> "timeInverted"
+            INVERTED -> "timeDesc"
         }
     }
 }
