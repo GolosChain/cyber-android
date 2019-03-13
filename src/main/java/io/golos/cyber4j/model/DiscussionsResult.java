@@ -6,14 +6,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class DiscussionsResult {
-    @NonNls private List<CyberDiscussion> items;
-    @Nullable private String sequenceKey;
+    @NonNls
+    private List<CyberDiscussion> items;
+    @NonNls
+    private String sequenceKey;
 
-    public DiscussionsResult(List<CyberDiscussion> items, @Nullable String sequenceKey) {
+    public DiscussionsResult(@NonNls List<CyberDiscussion> items, @NonNls String sequenceKey) {
         this.items = items;
         this.sequenceKey = sequenceKey;
     }
 
+    @NonNls
     public List<CyberDiscussion> getItems() {
         return items;
     }
@@ -22,7 +25,7 @@ public class DiscussionsResult {
         this.items = items;
     }
 
-    @Nullable
+    @NonNls
     public String getSequenceKey() {
         return sequenceKey;
     }
