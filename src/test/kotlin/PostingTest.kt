@@ -1,6 +1,7 @@
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.model.AuthType
 import io.golos.cyber4j.model.CyberName
+import io.golos.cyber4j.model.DiscussionCreateMetadata
 import io.golos.cyber4j.model.Tag
 import io.golos.cyber4j.utils.Either
 import io.golos.cyber4j.utils.Pair
@@ -21,11 +22,13 @@ class PostingTest {
         secondAccount = testInMainTestNetAccountSecond
     }
 
+    val testMetadata = DiscussionCreateMetadata(listOf(DiscussionCreateMetadata.EmbedmentsUrl("test_url")))
+
     @Test
     fun testPostOnPrivateTestNet() {
 
         val postResponse = client.createPost("тестовый заголовок-${UUID.randomUUID()}",
-                "тестовое тело поста", listOf(Tag("test")))
+                "тестовое тело поста", listOf(Tag("test")), testMetadata)
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
@@ -33,13 +36,13 @@ class PostingTest {
 
         val commentCreationResult = client.createComment("тестовый коммент",
                 postResult.message_id.author, postResult.message_id.permlink, postResult.message_id.ref_block_num,
-                Tag("test"))
+                Tag("test"), testMetadata)
 
         assertTrue("comment creation fail on test net", commentCreationResult is Either.Success)
 
 
         val secondPostResponse = client.createPost(secondAccount.first, secondAccount.second, "тестовый заголовок-${UUID.randomUUID()}",
-                "тестовое тело поста", listOf(Tag("test")))
+                "тестовое тело поста", listOf(Tag("test")), testMetadata)
         assertTrue("post creation fail on test net", secondPostResponse is Either.Success)
 
         val secondPostResult = (secondPostResponse as Either.Success).value.extractResult()
@@ -47,7 +50,7 @@ class PostingTest {
         val secondCommentCreationResult = client.createComment(secondAccount.first, secondAccount.second,
                 "тестовый коммент",
                 secondPostResult.message_id.author, secondPostResult.message_id.permlink, secondPostResult.message_id.ref_block_num,
-                Tag("test"))
+                Tag("test"), testMetadata)
 
         assertTrue("comment creation fail on test net", secondCommentCreationResult is Either.Success)
 
@@ -57,7 +60,7 @@ class PostingTest {
     fun updatePostTest() {
 
         val postResponse = client.createPost("тестовый заголовок-${UUID.randomUUID()}",
-                "тестовое тело поста", listOf(Tag("test")))
+                "тестовое тело поста", listOf(Tag("test")), testMetadata)
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
@@ -90,7 +93,7 @@ class PostingTest {
     @Test
     fun updateComment() {
         val postResponse = client.createPost("тестовый заголовок-${UUID.randomUUID()}",
-                "тестовое тело поста", listOf(Tag("test")))
+                "тестовое тело поста", listOf(Tag("test")), testMetadata)
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
@@ -98,7 +101,7 @@ class PostingTest {
 
         val commentCreationResponse = client.createComment("тестовый коммент",
                 postResult.message_id.author, postResult.message_id.permlink, postResult.message_id.ref_block_num,
-                Tag("test"))
+                Tag("test"), testMetadata)
 
         assertTrue("comment creation fail on test net", commentCreationResponse is Either.Success)
 
@@ -130,7 +133,7 @@ class PostingTest {
     fun deleteTest() {
 
         val postResponse = client.createPost("тестовый заголовок-${UUID.randomUUID()}",
-                "тестовое тело поста", listOf(Tag("test")))
+                "тестовое тело поста", listOf(Tag("test")), testMetadata)
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
@@ -141,7 +144,7 @@ class PostingTest {
 
         val postResponseSecond = client.createPost(secondAccount.first, secondAccount.second,
                 "тестовый заголовок-${UUID.randomUUID()}",
-                "тестовое тело поста", listOf(Tag("test")))
+                "тестовое тело поста", listOf(Tag("test")), testMetadata)
 
         assertTrue("post creation fail on test net", postResponseSecond is Either.Success)
 

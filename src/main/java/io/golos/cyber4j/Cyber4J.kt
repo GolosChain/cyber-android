@@ -131,6 +131,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
      * @param title title of post. Currently must be fewer, then 256 symbols
      * @param body body test of post. Currently must be not empty
      * @param tags tags list for post. Must be not empty
+     * @param metadata metadata of a post. Can be empty
      * @param beneficiaries beneficiaries of a post. Can be empty
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
@@ -142,6 +143,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
     fun createPost(title: String,
                    body: String,
                    tags: List<io.golos.cyber4j.model.Tag>,
+                   metadata: DiscussionCreateMetadata,
                    beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
                    vestPayment: Boolean = true,
                    tokenProp: Long = 0L): Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError> {
@@ -154,6 +156,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
                 title,
                 body,
                 tags,
+                metadata,
                 beneficiaries,
                 vestPayment,
                 tokenProp)
@@ -166,6 +169,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
      * @param body body test of post. Currently must be not empty
      * @param tags tags list for post. Must be not empty
      * @param beneficiaries beneficiaries of a post. Can be empty
+     * @param metadata metadata of a post. Can be empty
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
@@ -178,13 +182,14 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
                    title: String,
                    body: String,
                    tags: List<io.golos.cyber4j.model.Tag>,
+                   metadata: DiscussionCreateMetadata,
                    beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
                    vestPayment: Boolean = true,
                    tokenProp: Long = 0L): Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError> {
 
         return createPostOrComment(fromAccount, userActiveKey,
                 title, body, formatPostPermlink(title),
-                "", CyberName(), 0L, tags, beneficiaries, vestPayment, tokenProp)
+                "", CyberName(), 0L, tags, beneficiaries, metadata, vestPayment, tokenProp)
     }
 
     private fun isStateError(callResult: Either<out Any?, GolosEosError>): Boolean {
@@ -244,6 +249,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
                                     parentDiscussionRefBlockId: Long,
                                     tags: List<io.golos.cyber4j.model.Tag>,
                                     beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
+                                    metadata: DiscussionCreateMetadata = DiscussionCreateMetadata(emptyList()),
                                     vestPayment: Boolean = true,
                                     tokenProp: Long = 0L): Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError> {
 
@@ -262,7 +268,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
                     tokenProp,
                     vestPayment,
                     "ru",
-                    "")
+                    moshi.adapter(DiscussionCreateMetadata::class.java).toJson(metadata))
 
             println("createPostRequest = ${moshi.adapter(CreateDiscussionRequestAbi::class.java).toJson(createPostRequest)}")
 
@@ -285,6 +291,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
      * @param parentPermlink parentPermlink of parent post. must be not blank
      * @param parentDiscussionRefBlockNum ref_block_num of parent post. must be not 0
      * @param category first tag of parent post
+     * @param metadata metadata of a comment. Can be empty
      * @param beneficiaries beneficiaries of a post. Can be empty
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
@@ -297,6 +304,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
                       parentPermlink: String,
                       parentDiscussionRefBlockNum: Long,
                       category: Tag,
+                      metadata: DiscussionCreateMetadata,
                       beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
                       vestPayment: Boolean = true,
                       tokenProp: Long = 0L): Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError> {
@@ -311,6 +319,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
                 parentPermlink,
                 parentDiscussionRefBlockNum,
                 category,
+                metadata,
                 beneficiaries,
                 vestPayment,
                 tokenProp)
@@ -465,6 +474,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
      * @param parentPermlink parentPermlink of parent post. Must be not blank
      * @param parentDiscussionRefBlockNum ref_block_num of parent post. Must be not 0
      * @param category first tag of parent post
+     * @param metadata metadata of a comment. Can be empty
      * @param beneficiaries beneficiaries of a post. Can be empty
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
@@ -478,6 +488,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
                       parentPermlink: String,
                       parentDiscussionRefBlockNum: Long,
                       category: Tag,
+                      metadata: DiscussionCreateMetadata,
                       beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = listOf(),
                       vestPayment: Boolean = true,
                       tokenProp: Long = 0L): Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError> {
@@ -489,7 +500,7 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
 
         return createPostOrComment(fromAccount, userActiveKey, "", body,
                 commentPermlink, parentPermlink,
-                parentAccount, parentDiscussionRefBlockNum, listOf(category), beneficiaries, vestPayment, tokenProp)
+                parentAccount, parentDiscussionRefBlockNum, listOf(category), beneficiaries, metadata, vestPayment, tokenProp)
     }
 
     /** @hide method for updating post or comment

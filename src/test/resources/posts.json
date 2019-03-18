@@ -1,8 +1,10 @@
 {
-  "owner": "tijqdavdobqi",
-  "symbol": {
-    "decs": 3,
-    "sym": "GLS"
+  "author": {
+    "name": "vasya"
   },
-  "ram_payer": "cyber"
+  "content": {
+    "full": "sdgsdg",
+    "preview": "sdgsdg"
+  },
+  "metadata": "\"some json\""
 }

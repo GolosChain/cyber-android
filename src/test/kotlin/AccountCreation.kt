@@ -1,3 +1,4 @@
+import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.Cyber4JConfig
 import io.golos.cyber4j.model.AuthType
 import io.golos.cyber4j.model.CyberName
@@ -52,7 +53,7 @@ class AccountCreationTest {
 
 
     companion object {
-        private val eosCreateKey = (AuthUtils::class.java).getResource("/eoscreateacckey.txt").readText(Charset.defaultCharset())
+        private val eosCreateKey =  (Cyber4J::class.java).getResource("/eoscreateacckey.txt").readText(Charset.defaultCharset())
 
         fun createNewAccount(forConfig: Cyber4JConfig = mainTestNetConfig): Pair<CyberName, String> {
             val commun = io.golos.cyber4j.Cyber4J(forConfig)

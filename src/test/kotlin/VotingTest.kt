@@ -1,8 +1,5 @@
 import io.golos.cyber4j.Cyber4J
-import io.golos.cyber4j.model.AuthType
-import io.golos.cyber4j.model.CyberName
-import io.golos.cyber4j.model.CreateDiscussionResult
-import io.golos.cyber4j.model.Tag
+import io.golos.cyber4j.model.*
 import io.golos.cyber4j.utils.Either
 import io.golos.cyber4j.utils.Pair
 import org.junit.Assert.assertTrue
@@ -19,7 +16,7 @@ class VotingTest {
     fun before() {
         client.keyStorage.addAccountKeys(testInMainTestNetAccount.first,
                 setOf(Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)))
-        postCreateResult = (client.createPost("sdgsdg", "gdssdg", listOf(Tag("test")))
+        postCreateResult = (client.createPost("sdgsdg", "gdssdg", listOf(Tag("test")), DiscussionCreateMetadata(emptyList()))
                 as Either.Success).value.processed.action_traces.first().act.data
 
         secndTestAccount = testInMainTestNetAccountSecond
