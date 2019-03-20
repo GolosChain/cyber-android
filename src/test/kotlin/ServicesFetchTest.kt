@@ -32,7 +32,7 @@ class ServicesFetchTest {
         assertTrue(postResponse is Either.Success)
 
         val comments = client.getCommentsOfPost(
-                post.author.userId.name.toCyberName(), post.contentId.permlink, post.contentId.refBlockNum,
+                post.author!!.userId.name.toCyberName(), post.contentId.permlink, post.contentId.refBlockNum,
                 10,
                 DiscussionTimeSort.INVERTED,
                 null)
@@ -40,7 +40,7 @@ class ServicesFetchTest {
         assertTrue(comments is Either.Success)
 
         val commentsOfUser = client.getCommentsOfUser(
-                post.author.userId.name.toCyberName(),
+                post.author!!.userId.name.toCyberName(),
                 10,
                 DiscussionTimeSort.INVERTED,
                 null)
@@ -48,7 +48,7 @@ class ServicesFetchTest {
         assertTrue(commentsOfUser is Either.Success)
 
         val subscriptionsOfUser =  client.getUserSubscriptions(
-                post.author.userId.name.toCyberName(),
+                post.author!!.userId.name.toCyberName(),
                 10,
                 DiscussionTimeSort.INVERTED,
                 null)
@@ -56,7 +56,7 @@ class ServicesFetchTest {
         assertTrue(subscriptionsOfUser is Either.Success)
 
         val postsOfUser =  client.getUserPosts(
-                post.author.userId.name.toCyberName(),
+                post.author!!.userId.name.toCyberName(),
                 10,
                 DiscussionTimeSort.INVERTED,
                 null)

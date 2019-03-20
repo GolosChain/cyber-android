@@ -31,6 +31,7 @@ class AccountCreationTest {
         val newUser = generateRandomCommunName()
         val accCreationResult = client.createAccount(newUser, pass, eosCreateKey)
         val activeKey = AuthUtils.generatePrivateWiFs(newUser, pass, arrayOf(AuthType.ACTIVE))[AuthType.ACTIVE]!!
+        print("name = $newUser activeKey = $activeKey")
 
 //        assertTrue("account creation failure on main net for user $newUser", accCreationResult is Either.Success)
 //
@@ -45,9 +46,9 @@ class AccountCreationTest {
 //
 //        transferToIssuer as Either.Success
 
-        val transferResult = client.transfer(activeKey, newUser.toCyberName(), "destroyer2k".toCyberName(), "0.010", "GLS")
-
-        transferResult as Either.Success
+//        val transferResult = client.transfer(activeKey, newUser.toCyberName(), "destroyer2k".toCyberName(), "0.010", "GLS")
+//
+//        transferResult as Either.Success
 
     }
 

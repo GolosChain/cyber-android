@@ -42,7 +42,9 @@ data class DiscussionPayout(val rShares: BigInteger)
 
 data class DiscussionVotes(
     val hasUpVote: Boolean,
-    val hasDownVote: Boolean
+    val hasDownVote: Boolean,
+    val upCount: Int,
+    val downCount: Int
 )
 
 data class ParentId(val userId: CyberName, val permlink: String, val refBlockNum: Int)
