@@ -8,10 +8,10 @@ import java.util.List;
 public class DiscussionsResult {
     @NonNls
     private List<CyberDiscussion> items;
-    @NonNls
+    @Nullable
     private String sequenceKey;
 
-    public DiscussionsResult(@NonNls List<CyberDiscussion> items, @NonNls String sequenceKey) {
+    public DiscussionsResult(@NonNls List<CyberDiscussion> items, @Nullable String sequenceKey) {
         this.items = items;
         this.sequenceKey = sequenceKey;
     }
@@ -25,7 +25,7 @@ public class DiscussionsResult {
         this.items = items;
     }
 
-    @NonNls
+    @Nullable
     public String getSequenceKey() {
         return sequenceKey;
     }
