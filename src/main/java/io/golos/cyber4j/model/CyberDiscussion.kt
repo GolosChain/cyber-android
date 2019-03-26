@@ -6,13 +6,12 @@ import java.util.*
 data class CyberDiscussion(
     val contentId: DiscussionId,
     val author: DiscussionAuthor?,
-    val community: CyberCommunity,
+    val community: CyberCommunity?,
     val content: DiscussionContent,
     val votes: DiscussionVotes,
-    val stats: DiscussionStats,
+    val stats: DiscussionStats?,
     val payout: DiscussionPayout,
-    val postId: ParentId?,
-    val parentCommentId: ParentId?,
+    val parent: Parent?,
     val meta: DiscussionMetadata
 )
 
@@ -29,7 +28,7 @@ data class DiscussionStats(val commentsCount: Long, val wilson: DiscussionWilson
 
 data class DiscussionWilson(val hot: Double, val trending: Double)
 
-data class DiscussionContent(val title: String, val body: ContentBody, val metadata: Any?)
+data class DiscussionContent(val title: String?, val body: ContentBody, val metadata: Any?)
 
 data class ContentBody(
     val preview: String?,
@@ -47,4 +46,6 @@ data class DiscussionVotes(
     val downCount: Int
 )
 
-data class ParentId(val userId: CyberName, val permlink: String, val refBlockNum: Int)
+data class Parent(val post: ParentContentId?, val comment: ParentContentId?)
+
+data class ParentContentId(val contentId: DiscussionId)
