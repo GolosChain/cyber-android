@@ -36,7 +36,7 @@ private enum class CyberActions : CyberContract.CyberAction {
     NEW_ACCOUNT, OPEN_VESTING,
     UPDATE_META, DELETE_METADATA, TRANSFER, PIN,
     UN_PIN, BLOCK, UN_BLOCK,
-    ISSUE;
+    ISSUE, REBLOG;
 
     override fun toString(): String {
         return when (this) {
@@ -56,6 +56,7 @@ private enum class CyberActions : CyberContract.CyberAction {
             BLOCK -> "block"
             UN_BLOCK -> "unblock"
             ISSUE -> "issue"
+            REBLOG -> "reblog"
         }
     }
 }
@@ -70,7 +71,8 @@ private enum class CyberContracts : CyberContract {
                     CyberActions.DELETE_DISCUSSION,
                     CyberActions.UP_VOTE,
                     CyberActions.DOWN_VOTE,
-                    CyberActions.UN_VOTE)
+                    CyberActions.UN_VOTE,
+                    CyberActions.REBLOG)
 
             CYBER -> listOf(CyberActions.NEW_ACCOUNT)
 
@@ -655,6 +657,61 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
         return deletePostOrComment(activeAccountKey, activeAccountName, postOrCommentPermlink, postOrCommentRefBlockNum)
     }
 
+
+    /** method reblogging post or comment
+     * This method assumes that you have added account with keys to [keyStorage]
+     * @param authorOfPostToReblog author of entity to reblog
+     * @param permlinkOfPostToReblog permlink of entity to reblog
+     * @param refBlockNumOfPostToReblog ref_block_num of entity to  reblog
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @throws IllegalStateException if active account not set
+     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     */
+
+    fun reblog(authorOfPostToReblog: CyberName,
+               permlinkOfPostToReblog: String,
+               refBlockNumOfPostToReblog: Long): Either<TransactionSuccessful<ReblogResult>, GolosEosError> {
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+
+        return reblog(activeAccountKey, activeAccountName, authorOfPostToReblog, permlinkOfPostToReblog, refBlockNumOfPostToReblog)
+    }
+
+
+    /** method reblogging post or comment
+     * @param userActiveKey active key of perso, who want to reblog [authorOfPostToReblog]'s entity
+     * @param reblogger name of a person, who want to reblog entity
+     * @param authorOfPostToReblog author of entity to reblog
+     * @param permlinkOfPostToReblog permlink of entity to reblog
+     * @param refBlockNumOfPostToReblog ref_block_num of entity to  reblog
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @throws IllegalStateException if active account not set
+     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     */
+    fun reblog(userActiveKey: String,
+               reblogger: CyberName,
+               authorOfPostToReblog: CyberName,
+               permlinkOfPostToReblog: String,
+               refBlockNumOfPostToReblog: Long): Either<TransactionSuccessful<ReblogResult>, GolosEosError> {
+        val callable = Callable {
+            val squisher = createBinaryConverter()
+
+            val reblogRequest = ReblogRequestAbi(reblogger, DiscussionIdAbi(authorOfPostToReblog, permlinkOfPostToReblog, refBlockNumOfPostToReblog))
+
+            val operationHex = squisher.squishReblogRequestAbi(reblogRequest).toHex()
+
+            pushTransaction<ReblogResult>(CyberContracts.PUBLICATION,
+                    CyberActions.REBLOG,
+                    MyTransactionAuthorizationAbi(reblogger.name),
+                    operationHex,
+                    userActiveKey)
+
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+
+    }
+
     /**vote for post or comment, using credentials of active account from [keyStorage]
      * @param postOrCommentAuthor author of post or comment
      * @param postOrCommentPermlink permlink of post or comment
@@ -935,8 +992,8 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
     /** method for fetching particular post
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
      * in [CyberDiscussion] returned by this method, in [ContentBody] [ContentBody.full] is not empty
-     * @param user user, which subscriptions to fetch
-     * @param permlink permlink if post to fetch
+     * @param user user, which post to fetch
+     * @param permlink permlink of post to fetch
      * @param refBlockNum ref_block_num of post to fetch
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
@@ -945,7 +1002,21 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
 
     fun getPost(user: CyberName,
                 permlink: String,
-                refBlockNum: Long) = apiService.getDiscussion(user.name, permlink, refBlockNum)
+                refBlockNum: Long) = apiService.getPost(user.name, permlink, refBlockNum)
+
+
+    /** method for fetching particular comment
+     * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
+     * @param user user, which comment to fetch
+     * @param permlink permlink of comment to fetch
+     * @param refBlockNum ref_block_num of comment to fetch
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
+     */
+
+    fun getComment(user: CyberName,
+                   permlink: String,
+                   refBlockNum: Long) = apiService.getComment(user.name, permlink, refBlockNum)
 
     /** method for fetching comments particular post
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]

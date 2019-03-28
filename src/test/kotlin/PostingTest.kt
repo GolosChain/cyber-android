@@ -1,8 +1,5 @@
 import io.golos.cyber4j.Cyber4J
-import io.golos.cyber4j.model.AuthType
-import io.golos.cyber4j.model.CyberName
-import io.golos.cyber4j.model.DiscussionCreateMetadata
-import io.golos.cyber4j.model.Tag
+import io.golos.cyber4j.model.*
 import io.golos.cyber4j.utils.Either
 import io.golos.cyber4j.utils.Pair
 import org.junit.Assert.assertEquals
@@ -155,5 +152,19 @@ class PostingTest {
                 postResultSecond.message_id.permlink,
                 postResultSecond.message_id.ref_block_num)
         assertTrue("post deleteReponse fail on test net", deleteReponseSecond is Either.Success)
+    }
+
+    @Test
+    fun testReblog() {
+        val postFeed = client.getCommunityPosts("gls", 100, DiscussionTimeSort.SEQUENTIALLY, null)
+
+        val post = (postFeed as Either.Success).value.items[(Math.random() * 99).toInt()]
+
+        val reblogResult = client.reblog(post.contentId.userId.toCyberName(), post.contentId.permlink, post.contentId.refBlockNum)
+
+        assertTrue(reblogResult is Either.Success)
+
+        println(reblogResult)
+
     }
 }

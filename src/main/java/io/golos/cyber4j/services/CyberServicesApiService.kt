@@ -13,12 +13,13 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 private enum class ServicesGateMethods {
-    GET_FEED, GET_POST, GET_COMMENTS, GET_USER_METADATA, GET_SECRET, AUTH;
+    GET_FEED, GET_POST, GET_COMMENT, GET_COMMENTS, GET_USER_METADATA, GET_SECRET, AUTH;
 
     override fun toString(): String {
         return when (this) {
             GET_FEED -> "content.getFeed"
             GET_POST -> "content.getPost"
+            GET_COMMENT -> "content.getComment"
             GET_COMMENTS -> "content.getComments"
             GET_USER_METADATA -> "content.getProfile"
             GET_SECRET -> "auth.generateSecret"
@@ -140,9 +141,14 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
                         communityId), DiscussionsResult::class.java)
     }
 
-    override fun getDiscussion(userId: String, permlink: String, refBlockNum: Long): Either<CyberDiscussion, ApiResponseError> {
+    override fun getPost(userId: String, permlink: String, refBlockNum: Long): Either<CyberDiscussion, ApiResponseError> {
         lockIfNeeded()
         return apiClient.send(ServicesGateMethods.GET_POST.toString(), DiscussionRequests(userId, permlink, refBlockNum), CyberDiscussion::class.java)
+    }
+
+    override fun getComment(userId: String, permlink: String, refBlockNum: Long): Either<CyberDiscussion, ApiResponseError> {
+        lockIfNeeded()
+        return apiClient.send(ServicesGateMethods.GET_COMMENT.toString(), DiscussionRequests(userId, permlink, refBlockNum), CyberDiscussion::class.java)
     }
 
     override fun getComments(sort: DiscussionTimeSort, sequenceKey: String?,

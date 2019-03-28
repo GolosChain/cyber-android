@@ -47,7 +47,7 @@ class ServicesFetchTest {
 
         assertTrue(commentsOfUser is Either.Success)
 
-        val subscriptionsOfUser =  client.getUserSubscriptions(
+        val subscriptionsOfUser = client.getUserSubscriptions(
                 post.author!!.userId.name.toCyberName(),
                 10,
                 DiscussionTimeSort.INVERTED,
@@ -55,13 +55,43 @@ class ServicesFetchTest {
 
         assertTrue(subscriptionsOfUser is Either.Success)
 
-        val postsOfUser =  client.getUserPosts(
+        val postsOfUser = client.getUserPosts(
                 post.author!!.userId.name.toCyberName(),
                 10,
                 DiscussionTimeSort.INVERTED,
                 null)
 
         assertTrue(postsOfUser is Either.Success)
+
+    }
+
+    @Test
+    fun getCommentTest() {
+        val postsResponse = client.getCommunityPosts(
+                "gls",
+                20,
+                DiscussionTimeSort.INVERTED,
+                null)
+
+        assertTrue(postsResponse is Either.Success)
+
+        val posts = (postsResponse as Either.Success).value.items
+
+        val postWithComments = posts.find { it.stats?.commentsCount ?: 0 > 0 }!!
+
+        val comments = client.getCommentsOfPost(postWithComments.contentId.userId.toCyberName(),
+                postWithComments.contentId.permlink,
+                postWithComments.contentId.refBlockNum, 1, DiscussionTimeSort.SEQUENTIALLY, null)
+
+        assertTrue(comments is Either.Success)
+
+        val comment = (comments as Either.Success).value.items.first()
+
+        val fetchedComment = client.getComment(comment.contentId.userId.toCyberName(),
+                comment.contentId.permlink, comment.contentId.refBlockNum)
+
+        assertTrue(fetchedComment is Either.Success)
+
 
     }
 

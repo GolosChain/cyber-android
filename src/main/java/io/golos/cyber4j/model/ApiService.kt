@@ -76,7 +76,11 @@ interface ApiService {
 //    permlink <string>           // Пермлинк поста
 //    refBlockNum <number>        // Привязанный блок поста
 
-    fun getDiscussion(userId: String,
+    fun getPost(userId: String,
+                permlink: String,
+                refBlockNum: Long): Either<CyberDiscussion, ApiResponseError>
+
+    fun getComment(userId: String,
                       permlink: String,
                       refBlockNum: Long): Either<CyberDiscussion, ApiResponseError>
 
