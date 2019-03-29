@@ -2,6 +2,8 @@ package io.golos.cyber4j.model;
 
 import kotlin.text.Regex;
 
+import java.util.Objects;
+
 public class CyberName {
 
     private static final Regex pattern = new Regex("[a-z0-5.]{0,12}");
@@ -34,5 +36,17 @@ public class CyberName {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CyberName cyberName = (CyberName) o;
+        return Objects.equals(name, cyberName.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
 
 }

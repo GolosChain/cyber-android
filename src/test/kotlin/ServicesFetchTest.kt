@@ -92,7 +92,6 @@ class ServicesFetchTest {
 
         assertTrue(fetchedComment is Either.Success)
 
-
     }
 
     @Test
