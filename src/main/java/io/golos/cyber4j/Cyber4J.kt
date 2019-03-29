@@ -11,6 +11,8 @@ import com.memtrip.eos.core.block.BlockIdDetails
 import com.memtrip.eos.core.crypto.EosPrivateKey
 import com.memtrip.eos.core.hex.DefaultHexWriter
 import com.memtrip.eos.http.rpc.ChainApi
+import com.memtrip.eos.http.rpc.model.account.request.AccountName
+import com.memtrip.eos.http.rpc.model.account.response.Account
 import com.memtrip.eos.http.rpc.model.info.Info
 import com.squareup.moshi.Moshi
 import io.golos.cyber4j.model.*
@@ -1065,6 +1067,22 @@ class Cyber4J @JvmOverloads constructor(private val config: io.golos.cyber4j.Cyb
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      */
     fun getUserMetadata(user: CyberName): Either<UserMetadata, ApiResponseError> = apiService.getUserMetadata(user.name)
+
+
+    /** method for fetching  account of some user
+     * @param user name of user, which account is  fetched
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     */
+    fun getUserAccount(user: CyberName): Either<Account, ApiResponseError> {
+        return try {
+            val acc = chainApi.getAccount(AccountName(user.name))
+            Either.Success(acc.blockingGet().body()!!)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Either.Failure(ApiResponseError(0L, ApiResponseError.Error(0L, e.message
+                    ?: toString())))
+        }
+    }
 
     /** method adds listener of authorization state in cyber microservices.
      *  If  instance of this [Cyber4J] is created with  [keyStorage], that

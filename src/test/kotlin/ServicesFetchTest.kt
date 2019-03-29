@@ -100,4 +100,10 @@ class ServicesFetchTest {
         val response = client.getUserMetadata("destroyer2k".toCyberName())
         assertTrue(response is Either.Success)
     }
+
+    @Test
+    fun userProfileTest() {
+        val response = client.getUserAccount("destroyer2k".toCyberName())
+        assertTrue(response is Either.Success)
+    }
 }
