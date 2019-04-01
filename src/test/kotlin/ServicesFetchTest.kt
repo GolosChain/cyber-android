@@ -105,4 +105,13 @@ class ServicesFetchTest {
         val response = client.getUserAccount("destroyer2k".toCyberName())
         assertTrue(response is Either.Success)
     }
+
+    @Test
+    fun getEmbedTest() {
+        val response = client.getEmbedIframely("https://www.rbc.ru/society/01/04/2019/5c9e1edd9a7947bbb2295c8a?from=from_main")
+        assertTrue(response is Either.Success)
+
+        val oembedResponse = client.getEmbedOembed("https://www.rbc.ru/society/01/04/2019/5c9e1edd9a7947bbb2295c8a?from=from_main")
+        assertTrue(oembedResponse is Either.Success)
+    }
 }

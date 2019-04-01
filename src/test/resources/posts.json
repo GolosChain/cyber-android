@@ -1,10 +1,13 @@
 {
-  "author": {
-    "name": "vasya"
-  },
-  "content": {
-    "full": "sdgsdg",
-    "preview": "sdgsdg"
-  },
-  "metadata": "\"some json\""
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "type": "link",
+    "version": "1.0",
+    "title": "Организатор лотереи назвал самые удачливые и невезучие регионы России",
+    "url": "https://www.rbc.ru/society/01/04/2019/5c9e1edd9a7947bbb2295c8a",
+    "provider_name": "РБК",
+    "description": "Чтобы выяснить, жителям какого региона больше всего везет в «Русское лото», распространители проанализировали, сколько «лотерейных миллионеров» проживают в каждом из субъектов Российской Федерации",
+    "thumbnail_url": "https://s0.rbk.ru/v6_top_pics/media/img/1/64/755538711048641.jpeg"
+  }
 }

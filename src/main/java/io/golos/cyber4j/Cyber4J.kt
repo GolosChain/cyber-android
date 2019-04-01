@@ -68,13 +68,13 @@ private enum class CyberContracts : CyberContract {
     override fun getActions(): List<CyberContract.CyberAction> {
         return when (this) {
             PUBLICATION -> listOf(
-                CyberActions.CREATE_DISCUSSION,
-                CyberActions.UPDATE_DISCUSSION,
-                CyberActions.DELETE_DISCUSSION,
-                CyberActions.UP_VOTE,
-                CyberActions.DOWN_VOTE,
-                CyberActions.UN_VOTE,
-                CyberActions.REBLOG
+                    CyberActions.CREATE_DISCUSSION,
+                    CyberActions.UPDATE_DISCUSSION,
+                    CyberActions.DELETE_DISCUSSION,
+                    CyberActions.UP_VOTE,
+                    CyberActions.DOWN_VOTE,
+                    CyberActions.UN_VOTE,
+                    CyberActions.REBLOG
             )
 
             CYBER -> listOf(CyberActions.NEW_ACCOUNT)
@@ -82,12 +82,12 @@ private enum class CyberContracts : CyberContract {
             VESTING -> listOf(CyberActions.OPEN_VESTING)
 
             SOCIAL -> listOf(
-                CyberActions.UPDATE_META,
-                CyberActions.DELETE_METADATA,
-                CyberActions.PIN,
-                CyberActions.UN_PIN,
-                CyberActions.BLOCK,
-                CyberActions.UN_BLOCK
+                    CyberActions.UPDATE_META,
+                    CyberActions.DELETE_METADATA,
+                    CyberActions.PIN,
+                    CyberActions.UN_PIN,
+                    CyberActions.BLOCK,
+                    CyberActions.UN_BLOCK
             )
             TOKEN -> listOf(CyberActions.TRANSFER)
             CYBER_TOKEN -> listOf(CyberActions.ISSUE, CyberActions.OPEN_VESTING)
@@ -111,19 +111,19 @@ private enum class CyberContracts : CyberContract {
 }
 
 class Cyber4J @JvmOverloads constructor(
-    private val config: io.golos.cyber4j.Cyber4JConfig = io.golos.cyber4j.Cyber4JConfig(),
-    chainApiProvider: io.golos.cyber4j.ChainApiProvider? = null,
-    val keyStorage: KeyStorage = KeyStorage(),
-    private val apiService: ApiService = CyberServicesApiService(config, keyStorage)
+        private val config: io.golos.cyber4j.Cyber4JConfig = io.golos.cyber4j.Cyber4JConfig(),
+        chainApiProvider: io.golos.cyber4j.ChainApiProvider? = null,
+        val keyStorage: KeyStorage = KeyStorage(),
+        private val apiService: ApiService = CyberServicesApiService(config, keyStorage)
 ) {
     private val staleTransactionErrorCode = 3080006
     private val transactionPusher: io.golos.cyber4j.TransactionPusher
     private val chainApi: ChainApi
     private val moshi: Moshi = Moshi
-        .Builder()
-        .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
-        .add(CyberNameAdapter())
-        .build()
+            .Builder()
+            .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
+            .add(CyberNameAdapter())
+            .build()
 
     init {
         if (chainApiProvider == null) {
@@ -150,28 +150,28 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun createPost(
-        title: String,
-        body: String,
-        tags: List<io.golos.cyber4j.model.Tag>,
-        metadata: DiscussionCreateMetadata,
-        beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
-        vestPayment: Boolean = true,
-        tokenProp: Long = 0L
+            title: String,
+            body: String,
+            tags: List<io.golos.cyber4j.model.Tag>,
+            metadata: DiscussionCreateMetadata,
+            beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
+            vestPayment: Boolean = true,
+            tokenProp: Long = 0L
     ): Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError> {
 
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-            ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
         return createPost(
-            activeAccountName,
-            activeAccountKey,
-            title,
-            body,
-            tags,
-            metadata,
-            beneficiaries,
-            vestPayment,
-            tokenProp
+                activeAccountName,
+                activeAccountKey,
+                title,
+                body,
+                tags,
+                metadata,
+                beneficiaries,
+                vestPayment,
+                tokenProp
         )
     }
 
@@ -191,21 +191,21 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun createPost(
-        fromAccount: CyberName,
-        userActiveKey: String,
-        title: String,
-        body: String,
-        tags: List<io.golos.cyber4j.model.Tag>,
-        metadata: DiscussionCreateMetadata,
-        beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
-        vestPayment: Boolean = true,
-        tokenProp: Long = 0L
+            fromAccount: CyberName,
+            userActiveKey: String,
+            title: String,
+            body: String,
+            tags: List<io.golos.cyber4j.model.Tag>,
+            metadata: DiscussionCreateMetadata,
+            beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
+            vestPayment: Boolean = true,
+            tokenProp: Long = 0L
     ): Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError> {
 
         return createPostOrComment(
-            fromAccount, userActiveKey,
-            title, body, formatPostPermlink(title),
-            "", CyberName(), 0L, tags, beneficiaries, metadata, vestPayment, tokenProp
+                fromAccount, userActiveKey,
+                title, body, formatPostPermlink(title),
+                "", CyberName(), 0L, tags, beneficiaries, metadata, vestPayment, tokenProp
         )
     }
 
@@ -215,7 +215,7 @@ class Cyber4J @JvmOverloads constructor(
 
     private fun formatPostPermlink(permlinkToFormat: String): String {
         val workingCopy =
-            if (permlinkToFormat.length < 12) permlinkToFormat + UUID.randomUUID().toString() else permlinkToFormat
+                if (permlinkToFormat.length < 12) permlinkToFormat + UUID.randomUUID().toString() else permlinkToFormat
         var unicodePermlink = Junidecode.unidecode(workingCopy).toLowerCase().replace(Regex("((?![a-z0-9-]).)"), "")
         if (unicodePermlink.length < 12) unicodePermlink += (UUID.randomUUID().toString().toLowerCase())
         if (unicodePermlink.length > 256) unicodePermlink.substring(0, 257)
@@ -225,8 +225,8 @@ class Cyber4J @JvmOverloads constructor(
     // sometimes blockain refuses to transact proper transaction due to some inner problems.
     // It return TimeoutException - and i try to push transaction again
     private fun <T> callTilTimeoutExceptionVanishes(
-        callable: Callable<Either<TransactionSuccessful<T>,
-                GolosEosError>>
+            callable: Callable<Either<TransactionSuccessful<T>,
+                    GolosEosError>>
     ): Either<TransactionSuccessful<T>, GolosEosError> {
         var result: Either<TransactionSuccessful<T>, GolosEosError>
         do {
@@ -241,24 +241,24 @@ class Cyber4J @JvmOverloads constructor(
      * helper method for creating [MyActionAbi] and return properly typed response
      * */
     private inline fun <reified T> pushTransaction(
-        contractAccount: CyberContract,
-        actionName: CyberContract.CyberAction,
-        authorization: MyTransactionAuthorizationAbi,
-        data: String,
-        key: String,
-        prefetchedChainInfo: Info? = null
+            contractAccount: CyberContract,
+            actionName: CyberContract.CyberAction,
+            authorization: MyTransactionAuthorizationAbi,
+            data: String,
+            key: String,
+            prefetchedChainInfo: Info? = null
     ): Either<TransactionSuccessful<T>, GolosEosError> {
 
         return transactionPusher.pushTransaction(
-            listOf(
-                MyActionAbi(
-                    contractAccount.toString(),
-                    actionName.toString(), listOf(authorization), data
-                )
-            ),
-            EosPrivateKey(key),
-            T::class.java,
-            prefetchedChainInfo
+                listOf(
+                        MyActionAbi(
+                                contractAccount.toString(),
+                                actionName.toString(), listOf(authorization), data
+                        )
+                ),
+                EosPrivateKey(key),
+                T::class.java,
+                prefetchedChainInfo
         )
     }
 
@@ -268,19 +268,19 @@ class Cyber4J @JvmOverloads constructor(
      * @see createComment
      * */
     private fun createPostOrComment(
-        fromAccount: CyberName,
-        userActiveKey: String,
-        title: String,
-        body: String,
-        permlink: String,
-        parentPermlink: String,
-        parentAccount: CyberName,
-        parentDiscussionRefBlockId: Long,
-        tags: List<io.golos.cyber4j.model.Tag>,
-        beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
-        metadata: DiscussionCreateMetadata = DiscussionCreateMetadata(emptyList()),
-        vestPayment: Boolean = true,
-        tokenProp: Long = 0L
+            fromAccount: CyberName,
+            userActiveKey: String,
+            title: String,
+            body: String,
+            permlink: String,
+            parentPermlink: String,
+            parentAccount: CyberName,
+            parentDiscussionRefBlockId: Long,
+            tags: List<io.golos.cyber4j.model.Tag>,
+            beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
+            metadata: DiscussionCreateMetadata = DiscussionCreateMetadata(emptyList()),
+            vestPayment: Boolean = true,
+            tokenProp: Long = 0L
     ): Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError> {
 
         val callable = Callable<Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError>> {
@@ -289,30 +289,30 @@ class Cyber4J @JvmOverloads constructor(
 
 
             val createPostRequest = io.golos.cyber4j.model.CreateDiscussionRequestAbi(
-                DiscussionIdAbi(fromAccount, permlink, BlockIdDetails(chainInfo.head_block_id).blockNum.toLong()),
-                DiscussionIdAbi(parentAccount, parentPermlink, parentDiscussionRefBlockId),
-                beneficiaries,
-                title,
-                body,
-                tags,
-                tokenProp,
-                vestPayment,
-                "ru",
-                moshi.adapter(DiscussionCreateMetadata::class.java).toJson(metadata)
+                    DiscussionIdAbi(fromAccount, permlink, BlockIdDetails(chainInfo.head_block_id).blockNum.toLong()),
+                    DiscussionIdAbi(parentAccount, parentPermlink, parentDiscussionRefBlockId),
+                    beneficiaries,
+                    title,
+                    body,
+                    tags,
+                    tokenProp,
+                    vestPayment,
+                    "ru",
+                    moshi.adapter(DiscussionCreateMetadata::class.java).toJson(metadata)
             )
 
             println(
-                "createPostRequest = ${moshi.adapter(CreateDiscussionRequestAbi::class.java).toJson(
-                    createPostRequest
-                )}"
+                    "createPostRequest = ${moshi.adapter(CreateDiscussionRequestAbi::class.java).toJson(
+                            createPostRequest
+                    )}"
             )
 
             val result = createBinaryConverter().squishCreateDiscussionRequestAbi(createPostRequest)
             pushTransaction(
-                CyberContracts.PUBLICATION, CyberActions.CREATE_DISCUSSION,
-                MyTransactionAuthorizationAbi(fromAccount.name), result.toHex(),
-                userActiveKey,
-                chainInfo
+                    CyberContracts.PUBLICATION, CyberActions.CREATE_DISCUSSION,
+                    MyTransactionAuthorizationAbi(fromAccount.name), result.toHex(),
+                    userActiveKey,
+                    chainInfo
             )
         }
 
@@ -337,32 +337,32 @@ class Cyber4J @JvmOverloads constructor(
      *
      */
     fun createComment(
-        body: String,
-        parentAccount: CyberName,
-        parentPermlink: String,
-        parentDiscussionRefBlockNum: Long,
-        category: Tag,
-        metadata: DiscussionCreateMetadata,
-        beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
-        vestPayment: Boolean = true,
-        tokenProp: Long = 0L
+            body: String,
+            parentAccount: CyberName,
+            parentPermlink: String,
+            parentDiscussionRefBlockNum: Long,
+            category: Tag,
+            metadata: DiscussionCreateMetadata,
+            beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
+            vestPayment: Boolean = true,
+            tokenProp: Long = 0L
     ): Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-            ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
         return createComment(
-            activeAccountName,
-            activeAccountKey,
-            body,
-            parentAccount,
-            parentPermlink,
-            parentDiscussionRefBlockNum,
-            category,
-            metadata,
-            beneficiaries,
-            vestPayment,
-            tokenProp
+                activeAccountName,
+                activeAccountKey,
+                body,
+                parentAccount,
+                parentPermlink,
+                parentDiscussionRefBlockNum,
+                category,
+                metadata,
+                beneficiaries,
+                vestPayment,
+                tokenProp
         )
     }
 
@@ -375,48 +375,48 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun setUserMetadata(
-        type: String? = null,
-        app: String? = null,
-        email: String? = null,
-        phone: String? = null,
-        facebook: String? = null,
-        instagram: String? = null,
-        telegram: String? = null,
-        vk: String? = null,
-        website: String? = null,
-        first_name: String? = null,
-        last_name: String? = null,
-        name: String? = null,
-        birthDate: String? = null,
-        gender: String? = null,
-        location: String? = null,
-        city: String? = null,
-        about: String? = null,
-        occupation: String? = null,
-        iCan: String? = null,
-        lookingFor: String? = null,
-        businessCategory: String? = null,
-        backgroundImage: String? = null,
-        coverImage: String? = null,
-        profileImage: String? = null,
-        userImage: String? = null,
-        icoAddress: String? = null,
-        targetDate: String? = null,
-        targetPlan: String? = null,
-        targetPointA: String? = null,
-        targetPointB: String? = null
+            type: String? = null,
+            app: String? = null,
+            email: String? = null,
+            phone: String? = null,
+            facebook: String? = null,
+            instagram: String? = null,
+            telegram: String? = null,
+            vk: String? = null,
+            website: String? = null,
+            first_name: String? = null,
+            last_name: String? = null,
+            name: String? = null,
+            birthDate: String? = null,
+            gender: String? = null,
+            location: String? = null,
+            city: String? = null,
+            about: String? = null,
+            occupation: String? = null,
+            iCan: String? = null,
+            lookingFor: String? = null,
+            businessCategory: String? = null,
+            backgroundImage: String? = null,
+            coverImage: String? = null,
+            profileImage: String? = null,
+            userImage: String? = null,
+            icoAddress: String? = null,
+            targetDate: String? = null,
+            targetPlan: String? = null,
+            targetPointA: String? = null,
+            targetPointB: String? = null
     ): Either<TransactionSuccessful<ProfileMetadataUpdateResult>, GolosEosError> {
 
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-            ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
         return setUserMetadata(
-            activeAccountName, activeAccountKey, type, app, email, phone,
-            facebook, instagram, telegram, vk, website, first_name, last_name, name, birthDate, gender,
-            location, city, about, occupation, iCan, lookingFor, businessCategory, backgroundImage,
-            coverImage, profileImage, userImage, icoAddress, targetDate, targetPlan, targetPointA,
-            targetPointB
+                activeAccountName, activeAccountKey, type, app, email, phone,
+                facebook, instagram, telegram, vk, website, first_name, last_name, name, birthDate, gender,
+                location, city, about, occupation, iCan, lookingFor, businessCategory, backgroundImage,
+                coverImage, profileImage, userImage, icoAddress, targetDate, targetPlan, targetPointA,
+                targetPointB
         )
     }
 
@@ -429,58 +429,58 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun setUserMetadata(
-        fromAccount: CyberName,
-        userActiveKey: String,
-        type: String? = null,
-        app: String? = null,
-        email: String? = null,
-        phone: String? = null,
-        facebook: String? = null,
-        instagram: String? = null,
-        telegram: String? = null,
-        vk: String? = null,
-        website: String? = null,
-        first_name: String? = null,
-        last_name: String? = null,
-        name: String? = null,
-        birthDate: String? = null,
-        gender: String? = null,
-        location: String? = null,
-        city: String? = null,
-        about: String? = null,
-        occupation: String? = null,
-        iCan: String? = null,
-        lookingFor: String? = null,
-        businessCategory: String? = null,
-        backgroundImage: String? = null,
-        coverImage: String? = null,
-        profileImage: String? = null,
-        userImage: String? = null,
-        icoAddress: String? = null,
-        targetDate: String? = null,
-        targetPlan: String? = null,
-        targetPointA: String? = null,
-        targetPointB: String? = null
+            fromAccount: CyberName,
+            userActiveKey: String,
+            type: String? = null,
+            app: String? = null,
+            email: String? = null,
+            phone: String? = null,
+            facebook: String? = null,
+            instagram: String? = null,
+            telegram: String? = null,
+            vk: String? = null,
+            website: String? = null,
+            first_name: String? = null,
+            last_name: String? = null,
+            name: String? = null,
+            birthDate: String? = null,
+            gender: String? = null,
+            location: String? = null,
+            city: String? = null,
+            about: String? = null,
+            occupation: String? = null,
+            iCan: String? = null,
+            lookingFor: String? = null,
+            businessCategory: String? = null,
+            backgroundImage: String? = null,
+            coverImage: String? = null,
+            profileImage: String? = null,
+            userImage: String? = null,
+            icoAddress: String? = null,
+            targetDate: String? = null,
+            targetPlan: String? = null,
+            targetPointA: String? = null,
+            targetPointB: String? = null
     ): Either<TransactionSuccessful<ProfileMetadataUpdateResult>, GolosEosError> {
 
         val callable = Callable {
             val request = ProfileMetadataUpdateRequestAbi(
-                fromAccount,
-                ProfileMetadataAbi(
-                    type, app, email, phone, facebook, instagram,
-                    telegram, vk, website, first_name, last_name, name, birthDate, gender, location,
-                    city, about, occupation, iCan, lookingFor, businessCategory, backgroundImage, coverImage,
-                    profileImage, userImage, icoAddress, targetDate, targetPlan, targetPointA, targetPointB
-                )
+                    fromAccount,
+                    ProfileMetadataAbi(
+                            type, app, email, phone, facebook, instagram,
+                            telegram, vk, website, first_name, last_name, name, birthDate, gender, location,
+                            city, about, occupation, iCan, lookingFor, businessCategory, backgroundImage, coverImage,
+                            profileImage, userImage, icoAddress, targetDate, targetPlan, targetPointA, targetPointB
+                    )
             )
 
 
             val hex = createBinaryConverter().squishProfileMetadataUpdateRequestAbi(request).toHex()
 
             pushTransaction<ProfileMetadataUpdateResult>(
-                CyberContracts.SOCIAL,
-                CyberActions.UPDATE_META, MyTransactionAuthorizationAbi(fromAccount),
-                hex, userActiveKey
+                    CyberContracts.SOCIAL,
+                    CyberActions.UPDATE_META, MyTransactionAuthorizationAbi(fromAccount),
+                    hex, userActiveKey
             )
         }
         return callTilTimeoutExceptionVanishes(callable)
@@ -492,16 +492,16 @@ class Cyber4J @JvmOverloads constructor(
      * @throws IllegalStateException if active account not set
      */
     fun deleteUserMetadata(
-        ofUser: CyberName,
-        userActiveKey: String
+            ofUser: CyberName,
+            userActiveKey: String
     ): Either<TransactionSuccessful<ProfileMetadataDeleteResult>, GolosEosError> {
 
         val callable = Callable {
             pushTransaction<ProfileMetadataDeleteResult>(
-                CyberContracts.SOCIAL, CyberActions.DELETE_METADATA,
-                MyTransactionAuthorizationAbi(ofUser),
-                createBinaryConverter().squishProfileMetadataDeleteRequestAbi(ProfileMetadataDeleteRequestAbi(ofUser)).toHex(),
-                userActiveKey
+                    CyberContracts.SOCIAL, CyberActions.DELETE_METADATA,
+                    MyTransactionAuthorizationAbi(ofUser),
+                    createBinaryConverter().squishProfileMetadataDeleteRequestAbi(ProfileMetadataDeleteRequestAbi(ofUser)).toHex(),
+                    userActiveKey
             )
         }
         return callTilTimeoutExceptionVanishes(callable)
@@ -516,7 +516,7 @@ class Cyber4J @JvmOverloads constructor(
 
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-            ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
         return deleteUserMetadata(activeAccountName, activeAccountKey)
     }
 
@@ -537,41 +537,41 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun createComment(
-        fromAccount: CyberName,
-        userActiveKey: String,
-        body: String,
-        parentAccount: CyberName,
-        parentPermlink: String,
-        parentDiscussionRefBlockNum: Long,
-        category: Tag,
-        metadata: DiscussionCreateMetadata,
-        beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = listOf(),
-        vestPayment: Boolean = true,
-        tokenProp: Long = 0L
+            fromAccount: CyberName,
+            userActiveKey: String,
+            body: String,
+            parentAccount: CyberName,
+            parentPermlink: String,
+            parentDiscussionRefBlockNum: Long,
+            category: Tag,
+            metadata: DiscussionCreateMetadata,
+            beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = listOf(),
+            vestPayment: Boolean = true,
+            tokenProp: Long = 0L
     ): Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError> {
 
         checkArgument(parentAccount.name.isNotEmpty(), "parentAccount cannot be empty")
         checkArgument(parentPermlink.isNotEmpty(), "parentPermlink cannot be empty")
 
         val commentPermlink = "re-${if (parentPermlink.length > 200) parentPermlink.substring(
-            0,
-            200
+                0,
+                200
         ) else parentPermlink}-${System.currentTimeMillis()}"
 
         return createPostOrComment(
-            fromAccount,
-            userActiveKey,
-            "",
-            body,
-            commentPermlink,
-            parentPermlink,
-            parentAccount,
-            parentDiscussionRefBlockNum,
-            listOf(category),
-            beneficiaries,
-            metadata,
-            vestPayment,
-            tokenProp
+                fromAccount,
+                userActiveKey,
+                "",
+                body,
+                commentPermlink,
+                parentPermlink,
+                parentAccount,
+                parentDiscussionRefBlockNum,
+                listOf(category),
+                beneficiaries,
+                metadata,
+                vestPayment,
+                tokenProp
         )
     }
 
@@ -579,29 +579,29 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     private fun updateDiscussion(
-        discussionAuthor: CyberName,
-        discussionPermlink: String,
-        discussionRefBlockNum: Long,
-        userActiveKey: String,
-        newTitle: String,
-        newBody: String,
-        newLanguage: String,
-        newTags: List<Tag>,
-        newJsonMetadata: String
+            discussionAuthor: CyberName,
+            discussionPermlink: String,
+            discussionRefBlockNum: Long,
+            userActiveKey: String,
+            newTitle: String,
+            newBody: String,
+            newLanguage: String,
+            newTags: List<Tag>,
+            newJsonMetadata: String
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
 
         val callable = Callable {
             val updateRequest = UpdateDiscussionRequestAbi(
-                DiscussionIdAbi(discussionAuthor, discussionPermlink, discussionRefBlockNum),
-                newTitle, newBody, newTags,
-                newLanguage, newJsonMetadata
+                    DiscussionIdAbi(discussionAuthor, discussionPermlink, discussionRefBlockNum),
+                    newTitle, newBody, newTags,
+                    newLanguage, newJsonMetadata
             )
             pushTransaction<UpdateDiscussionResult>(
-                CyberContracts.PUBLICATION,
-                CyberActions.UPDATE_DISCUSSION,
-                MyTransactionAuthorizationAbi(discussionAuthor.name),
-                createBinaryConverter().squishUpdateDiscussionRequestAbi(updateRequest).toHex(),
-                userActiveKey
+                    CyberContracts.PUBLICATION,
+                    CyberActions.UPDATE_DISCUSSION,
+                    MyTransactionAuthorizationAbi(discussionAuthor.name),
+                    createBinaryConverter().squishUpdateDiscussionRequestAbi(updateRequest).toHex(),
+                    userActiveKey
             )
         }
         return callTilTimeoutExceptionVanishes(callable)
@@ -619,24 +619,24 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun updatePost(
-        userActiveKey: String,
-        postAuthor: CyberName,
-        postPermlink: String,
-        postRefBlockNum: Long,
-        newTitle: String,
-        newBody: String,
-        newTags: List<Tag>
+            userActiveKey: String,
+            postAuthor: CyberName,
+            postPermlink: String,
+            postRefBlockNum: Long,
+            newTitle: String,
+            newBody: String,
+            newTags: List<Tag>
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
         return updateDiscussion(
-            postAuthor,
-            postPermlink,
-            postRefBlockNum,
-            userActiveKey,
-            newTitle,
-            newBody,
-            "ru",
-            newTags,
-            ""
+                postAuthor,
+                postPermlink,
+                postRefBlockNum,
+                userActiveKey,
+                newTitle,
+                newBody,
+                "ru",
+                newTags,
+                ""
         )
     }
 
@@ -650,17 +650,17 @@ class Cyber4J @JvmOverloads constructor(
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
     fun updateComment(
-        userActiveKey: String,
-        commentAuthor: CyberName,
-        commentPermlink: String,
-        commentRefBlockNum: Long,
-        newBody: String,
-        newCategory: Tag
+            userActiveKey: String,
+            commentAuthor: CyberName,
+            commentPermlink: String,
+            commentRefBlockNum: Long,
+            newBody: String,
+            newCategory: Tag
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
 
         return updateDiscussion(
-            commentAuthor, commentPermlink, commentRefBlockNum, userActiveKey,
-            "", newBody, "ru", listOf(newCategory), ""
+                commentAuthor, commentPermlink, commentRefBlockNum, userActiveKey,
+                "", newBody, "ru", listOf(newCategory), ""
         )
     }
 
@@ -675,17 +675,17 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun updatePost(
-        postPermlink: String,
-        postRefBlockNum: Long,
-        newTitle: String,
-        newBody: String,
-        newTags: List<Tag>
+            postPermlink: String,
+            postRefBlockNum: Long,
+            newTitle: String,
+            newBody: String,
+            newTags: List<Tag>
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
 
         val postAuthor = keyStorage.getActiveAccount()
         val key = (keyStorage
-            .getAccountKeys(postAuthor)?.find { it.first == AuthType.ACTIVE }
-            ?: throw IllegalStateException("could not find active keys for user $postAuthor")).second
+                .getAccountKeys(postAuthor)?.find { it.first == AuthType.ACTIVE }
+                ?: throw IllegalStateException("could not find active keys for user $postAuthor")).second
 
         return updateDiscussion(postAuthor, postPermlink, postRefBlockNum, key, newTitle, newBody, "ru", newTags, "")
     }
@@ -699,26 +699,26 @@ class Cyber4J @JvmOverloads constructor(
      * @throws IllegalStateException if active account not set
      */
     fun updateComment(
-        commentPermlink: String,
-        commentRefBlockNum: Long,
-        newBody: String,
-        newCategory: Tag
+            commentPermlink: String,
+            commentRefBlockNum: Long,
+            newBody: String,
+            newCategory: Tag
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
         val commentAuthor = keyStorage.getActiveAccount()
         val key = (keyStorage
-            .getAccountKeys(commentAuthor)?.find { it.first == AuthType.ACTIVE }
-            ?: throw IllegalStateException("could not find active keys for user $commentAuthor")).second
+                .getAccountKeys(commentAuthor)?.find { it.first == AuthType.ACTIVE }
+                ?: throw IllegalStateException("could not find active keys for user $commentAuthor")).second
 
         return updateDiscussion(
-            commentAuthor,
-            commentPermlink,
-            commentRefBlockNum,
-            key,
-            "",
-            newBody,
-            "ru",
-            listOf(newCategory),
-            ""
+                commentAuthor,
+                commentPermlink,
+                commentRefBlockNum,
+                key,
+                "",
+                newBody,
+                "ru",
+                listOf(newCategory),
+                ""
         )
     }
 
@@ -729,26 +729,26 @@ class Cyber4J @JvmOverloads constructor(
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
     fun deletePostOrComment(
-        userActiveKey: String,
-        postOrCommentAuthor: CyberName,
-        postOrCommentPermlink: String,
-        postOrCommentRefBlockNum: Long
+            userActiveKey: String,
+            postOrCommentAuthor: CyberName,
+            postOrCommentPermlink: String,
+            postOrCommentRefBlockNum: Long
     ): Either<TransactionSuccessful<DeleteResult>, GolosEosError> {
         val callable = Callable {
             pushTransaction<DeleteResult>(
-                CyberContracts.PUBLICATION,
-                CyberActions.DELETE_DISCUSSION,
-                MyTransactionAuthorizationAbi(postOrCommentAuthor),
-                createBinaryConverter().squishDeleteDiscussionRequestAbi(
-                    DeleteDiscussionRequestAbi(
-                        DiscussionIdAbi(
-                            postOrCommentAuthor,
-                            postOrCommentPermlink,
-                            postOrCommentRefBlockNum
-                        )
-                    )
-                ).toHex(),
-                userActiveKey
+                    CyberContracts.PUBLICATION,
+                    CyberActions.DELETE_DISCUSSION,
+                    MyTransactionAuthorizationAbi(postOrCommentAuthor),
+                    createBinaryConverter().squishDeleteDiscussionRequestAbi(
+                            DeleteDiscussionRequestAbi(
+                                    DiscussionIdAbi(
+                                            postOrCommentAuthor,
+                                            postOrCommentPermlink,
+                                            postOrCommentRefBlockNum
+                                    )
+                            )
+                    ).toHex(),
+                    userActiveKey
             )
         }
 
@@ -763,14 +763,14 @@ class Cyber4J @JvmOverloads constructor(
      *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
     fun deletePostOrComment(
-        postOrCommentPermlink: String,
-        postOrCommentRefBlockNum: Long
+            postOrCommentPermlink: String,
+            postOrCommentRefBlockNum: Long
     ):
             Either<TransactionSuccessful<DeleteResult>, GolosEosError> {
 
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-            ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
         return deletePostOrComment(activeAccountKey, activeAccountName, postOrCommentPermlink, postOrCommentRefBlockNum)
     }
@@ -787,20 +787,20 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun reblog(
-        authorOfPostToReblog: CyberName,
-        permlinkOfPostToReblog: String,
-        refBlockNumOfPostToReblog: Long
+            authorOfPostToReblog: CyberName,
+            permlinkOfPostToReblog: String,
+            refBlockNumOfPostToReblog: Long
     ): Either<TransactionSuccessful<ReblogResult>, GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-            ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
         return reblog(
-            activeAccountKey,
-            activeAccountName,
-            authorOfPostToReblog,
-            permlinkOfPostToReblog,
-            refBlockNumOfPostToReblog
+                activeAccountKey,
+                activeAccountName,
+                authorOfPostToReblog,
+                permlinkOfPostToReblog,
+                refBlockNumOfPostToReblog
         )
     }
 
@@ -816,28 +816,28 @@ class Cyber4J @JvmOverloads constructor(
      *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
     fun reblog(
-        userActiveKey: String,
-        reblogger: CyberName,
-        authorOfPostToReblog: CyberName,
-        permlinkOfPostToReblog: String,
-        refBlockNumOfPostToReblog: Long
+            userActiveKey: String,
+            reblogger: CyberName,
+            authorOfPostToReblog: CyberName,
+            permlinkOfPostToReblog: String,
+            refBlockNumOfPostToReblog: Long
     ): Either<TransactionSuccessful<ReblogResult>, GolosEosError> {
         val callable = Callable {
             val squisher = createBinaryConverter()
 
             val reblogRequest = ReblogRequestAbi(
-                reblogger,
-                DiscussionIdAbi(authorOfPostToReblog, permlinkOfPostToReblog, refBlockNumOfPostToReblog)
+                    reblogger,
+                    DiscussionIdAbi(authorOfPostToReblog, permlinkOfPostToReblog, refBlockNumOfPostToReblog)
             )
 
             val operationHex = squisher.squishReblogRequestAbi(reblogRequest).toHex()
 
             pushTransaction<ReblogResult>(
-                CyberContracts.PUBLICATION,
-                CyberActions.REBLOG,
-                MyTransactionAuthorizationAbi(reblogger.name),
-                operationHex,
-                userActiveKey
+                    CyberContracts.PUBLICATION,
+                    CyberActions.REBLOG,
+                    MyTransactionAuthorizationAbi(reblogger.name),
+                    operationHex,
+                    userActiveKey
             )
 
         }
@@ -854,18 +854,18 @@ class Cyber4J @JvmOverloads constructor(
      *   @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
     fun vote(
-        postOrCommentAuthor: CyberName,
-        postOrCommentPermlink: String,
-        postOrCommentRefBlockNum: Long,
-        voteStrength: Short
+            postOrCommentAuthor: CyberName,
+            postOrCommentPermlink: String,
+            postOrCommentRefBlockNum: Long,
+            voteStrength: Short
     ): Either<TransactionSuccessful<VoteResult>, GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-            ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
         return vote(
-            activeAccountName, activeAccountKey, postOrCommentAuthor, postOrCommentPermlink,
-            postOrCommentRefBlockNum, voteStrength
+                activeAccountName, activeAccountKey, postOrCommentAuthor, postOrCommentPermlink,
+                postOrCommentRefBlockNum, voteStrength
         )
     }
 
@@ -879,12 +879,12 @@ class Cyber4J @JvmOverloads constructor(
      *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
     fun vote(
-        fromAccount: CyberName,
-        userActiveKey: String,
-        postOrCommentAuthor: CyberName,
-        postOrCommentPermlink: String,
-        postOrCommentRefBlockNum: Long,
-        voteStrength: Short
+            fromAccount: CyberName,
+            userActiveKey: String,
+            postOrCommentAuthor: CyberName,
+            postOrCommentPermlink: String,
+            postOrCommentRefBlockNum: Long,
+            voteStrength: Short
     ): Either<TransactionSuccessful<VoteResult>, GolosEosError> {
         val callable = Callable {
             val squisher = createBinaryConverter()
@@ -892,20 +892,20 @@ class Cyber4J @JvmOverloads constructor(
             val discussionId = DiscussionIdAbi(postOrCommentAuthor, postOrCommentPermlink, postOrCommentRefBlockNum)
 
             val operationHex = if (voteStrength == 0.toShort()) squisher
-                .squishUnVoteRequestAbi(UnVoteRequestAbi(fromAccount, discussionId)).toHex()
+                    .squishUnVoteRequestAbi(UnVoteRequestAbi(fromAccount, discussionId)).toHex()
             else squisher.squishVoteRequestAbi(
-                VoteRequestAbi(
-                    fromAccount, discussionId,
-                    Math.abs(voteStrength.toInt()).toShort()
-                )
+                    VoteRequestAbi(
+                            fromAccount, discussionId,
+                            Math.abs(voteStrength.toInt()).toShort()
+                    )
             ).toHex()
 
             pushTransaction<VoteResult>(
-                CyberContracts.PUBLICATION,
-                if (voteStrength == 0.toShort()) CyberActions.UN_VOTE else if (voteStrength > 0) CyberActions.UP_VOTE else CyberActions.DOWN_VOTE,
-                MyTransactionAuthorizationAbi(fromAccount.name),
-                operationHex,
-                userActiveKey
+                    CyberContracts.PUBLICATION,
+                    if (voteStrength == 0.toShort()) CyberActions.UN_VOTE else if (voteStrength > 0) CyberActions.UP_VOTE else CyberActions.DOWN_VOTE,
+                    MyTransactionAuthorizationAbi(fromAccount.name),
+                    operationHex,
+                    userActiveKey
             )
 
         }
@@ -930,9 +930,9 @@ class Cyber4J @JvmOverloads constructor(
      *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
     fun createAccount(
-        newAccountName: String,
-        newAccountMasterPassword: String,
-        cyberCreatePermissionKey: String
+            newAccountName: String,
+            newAccountMasterPassword: String,
+            cyberCreatePermissionKey: String
     ): Either<TransactionSuccessful<AccountCreationResult>, GolosEosError> {
         CyberName(newAccountName)
         val creatorAccountName = CyberContracts.CYBER.toString()
@@ -943,27 +943,27 @@ class Cyber4J @JvmOverloads constructor(
             val writer = AbiBinaryGenTransactionWriter(CompressionType.NONE)
 
             val newAccArgs = NewAccountArgs(
-                CyberContracts.CYBER.toString(),
-                newAccountName,
-                AccountRequiredAuthAbi(
-                    1,
-                    listOf(AccountKeyAbi(keys[AuthType.OWNER]!!.replaceFirst("GLS", "EOS"), 1)),
-                    emptyList(), emptyList()
-                ),
-                AccountRequiredAuthAbi(
-                    1,
-                    listOf(AccountKeyAbi(keys[AuthType.ACTIVE]!!.replaceFirst("GLS", "EOS"), 1)),
-                    emptyList(),
-                    emptyList()
-                )
+                    CyberContracts.CYBER.toString(),
+                    newAccountName,
+                    AccountRequiredAuthAbi(
+                            1,
+                            listOf(AccountKeyAbi(keys[AuthType.OWNER]!!.replaceFirst("GLS", "EOS"), 1)),
+                            emptyList(), emptyList()
+                    ),
+                    AccountRequiredAuthAbi(
+                            1,
+                            listOf(AccountKeyAbi(keys[AuthType.ACTIVE]!!.replaceFirst("GLS", "EOS"), 1)),
+                            emptyList(),
+                            emptyList()
+                    )
             )
             val newAccBody = NewAccountBody(newAccArgs)
             val hex = writer.squishNewAccountBody(newAccBody).toHex()
             pushTransaction<AccountCreationResult>(
-                CyberContracts.CYBER,
-                CyberActions.NEW_ACCOUNT, MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
-                hex,
-                cyberCreatePermissionKey
+                    CyberContracts.CYBER,
+                    CyberActions.NEW_ACCOUNT, MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
+                    hex,
+                    cyberCreatePermissionKey
             )
         }
         val createAnswer = callTilTimeoutExceptionVanishes(callable)
@@ -973,40 +973,40 @@ class Cyber4J @JvmOverloads constructor(
         val openVestingResult = openVestingBalance(newAccountName.toCyberName(), cyberCreatePermissionKey)
 
         if (openVestingResult is Either.Failure) throw IllegalStateException(
-            "error initializing of account $newAccountName" +
-                    "during openVestingBalance()"
+                "error initializing of account $newAccountName" +
+                        "during openVestingBalance()"
         )
 
         val openTokenResult = openTokenBalance(newAccountName.toCyberName(), cyberCreatePermissionKey)
 
         if (openTokenResult is Either.Failure) throw IllegalStateException(
-            "error initializing of account $newAccountName" +
-                    "during openTokenBalance()"
+                "error initializing of account $newAccountName" +
+                        "during openTokenBalance()"
         )
 
         val issueResult = issueTokens(newAccountName.toCyberName(), cyberCreatePermissionKey, "3.000 GLS")
 
         if (issueResult is Either.Failure) throw IllegalStateException(
-            "error initializing of account $newAccountName" +
-                    "during issueTokens()"
+                "error initializing of account $newAccountName" +
+                        "during issueTokens()"
         )
 
         val activeKey = AuthUtils.generatePrivateWiFs(
-            newAccountName,
-            newAccountMasterPassword,
-            arrayOf(AuthType.ACTIVE)
+                newAccountName,
+                newAccountMasterPassword,
+                arrayOf(AuthType.ACTIVE)
         )[AuthType.ACTIVE]!!
 
         val transferResult = transfer(
-            activeKey,
-            newAccountName.toCyberName(),
-            CyberContracts.VESTING.toString().toCyberName(),
-            "0.100", "GLS"
+                activeKey,
+                newAccountName.toCyberName(),
+                CyberContracts.VESTING.toString().toCyberName(),
+                "0.100", "GLS"
         )
 
         if (transferResult is Either.Failure) throw IllegalStateException(
-            "error initializing of account $newAccountName" +
-                    "during transfer() to ${CyberContracts.VESTING}"
+                "error initializing of account $newAccountName" +
+                        "during transfer() to ${CyberContracts.VESTING}"
         )
 
         return createAnswer
@@ -1020,8 +1020,8 @@ class Cyber4J @JvmOverloads constructor(
      * */
 
     fun openVestingBalance(
-        forUser: CyberName,
-        cyberKey: String
+            forUser: CyberName,
+            cyberKey: String
     ) = openBalance(forUser, UserBalance.VESTING, cyberKey)
 
     /** method for opening token balance of account. used in [createAccount] as one of the steps of
@@ -1032,28 +1032,28 @@ class Cyber4J @JvmOverloads constructor(
      * */
 
     fun openTokenBalance(
-        forUser: CyberName,
-        cyberCreatePermissionKey: String
+            forUser: CyberName,
+            cyberCreatePermissionKey: String
     ) =
-        openBalance(forUser, UserBalance.TOKEN, cyberCreatePermissionKey)
+            openBalance(forUser, UserBalance.TOKEN, cyberCreatePermissionKey)
 
     enum class UserBalance { VESTING, TOKEN }
 
     private fun openBalance(
-        newAccountName: CyberName,
-        type: UserBalance,
-        cyberCreatePermissionKey: String
+            newAccountName: CyberName,
+            type: UserBalance,
+            cyberCreatePermissionKey: String
     ): Either<TransactionSuccessful<VestingReponse>, GolosEosError> {
         val creatorAccountName = CyberContracts.CYBER.toString()
 
         val createVestingCallable = Callable {
             val writer = createBinaryConverter()
             val request = VestingStartRequestAbi(
-                newAccountName, CyberName(creatorAccountName),
-                when (type) {
-                    UserBalance.TOKEN -> 3
-                    UserBalance.VESTING -> 6
-                }
+                    newAccountName, CyberName(creatorAccountName),
+                    when (type) {
+                        UserBalance.TOKEN -> 3
+                        UserBalance.VESTING -> 6
+                    }
             )
 
             val result = writer.squishVestingStartRequestAbi(request)
@@ -1061,14 +1061,14 @@ class Cyber4J @JvmOverloads constructor(
             val hex = result.toHex()
 
             pushTransaction<VestingReponse>(
-                when (type) {
-                    UserBalance.TOKEN -> CyberContracts.CYBER_TOKEN
-                    UserBalance.VESTING -> CyberContracts.VESTING
-                },
-                CyberActions.OPEN_VESTING,
-                MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
-                hex,
-                cyberCreatePermissionKey
+                    when (type) {
+                        UserBalance.TOKEN -> CyberContracts.CYBER_TOKEN
+                        UserBalance.VESTING -> CyberContracts.VESTING
+                    },
+                    CyberActions.OPEN_VESTING,
+                    MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
+                    hex,
+                    cyberCreatePermissionKey
             )
         }
 
@@ -1083,10 +1083,10 @@ class Cyber4J @JvmOverloads constructor(
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
     fun issueTokens(
-        forUser: CyberName,
-        issuerKey: String,
-        amount: String,
-        memo: String = ""
+            forUser: CyberName,
+            issuerKey: String,
+            amount: String,
+            memo: String = ""
     ): Either<TransactionSuccessful<Any>, GolosEosError> {
 
         val issuerTokenCallable = Callable {
@@ -1099,22 +1099,22 @@ class Cyber4J @JvmOverloads constructor(
             var hex = result.toHex()
 
             actionAbis.add(
-                MyActionAbi(
-                    CyberContracts.CYBER_TOKEN.toString(), CyberActions.ISSUE.toString(),
-                    listOf(MyTransactionAuthorizationAbi(CyberContracts.ISSUER.toString(), "issue")), hex
-                )
+                    MyActionAbi(
+                            CyberContracts.CYBER_TOKEN.toString(), CyberActions.ISSUE.toString(),
+                            listOf(MyTransactionAuthorizationAbi(CyberContracts.ISSUER.toString(), "issue")), hex
+                    )
             )
 
 
             hex = createBinaryConverter().squishMyTransferArgsAbi(
-                MyTransferArgsAbi(CyberContracts.ISSUER.toString(), forUser.name, amount, memo)
+                    MyTransferArgsAbi(CyberContracts.ISSUER.toString(), forUser.name, amount, memo)
             ).toHex()
 
             actionAbis.add(
-                MyActionAbi(
-                    CyberContracts.CYBER_TOKEN.toString(), CyberActions.TRANSFER.toString(),
-                    listOf(MyTransactionAuthorizationAbi(CyberContracts.ISSUER.toString(), "issue")), hex
-                )
+                    MyActionAbi(
+                            CyberContracts.CYBER_TOKEN.toString(), CyberActions.TRANSFER.toString(),
+                            listOf(MyTransactionAuthorizationAbi(CyberContracts.ISSUER.toString(), "issue")), hex
+                    )
             )
 
 
@@ -1139,10 +1139,10 @@ class Cyber4J @JvmOverloads constructor(
 
 
     fun getCommunityPosts(
-        communityId: String,
-        limit: Int,
-        sort: DiscussionTimeSort,
-        sequenceKey: String? = null
+            communityId: String,
+            limit: Int,
+            sort: DiscussionTimeSort,
+            sequenceKey: String? = null
     ) = apiService.getDiscussions(PostsFeedType.COMMUNITY, sort, sequenceKey, limit, null, communityId)
 
 
@@ -1158,13 +1158,13 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun getUserSubscriptions(
-        user: CyberName,
-        limit: Int,
-        sort: DiscussionTimeSort,
-        sequenceKey: String?
+            user: CyberName,
+            limit: Int,
+            sort: DiscussionTimeSort,
+            sequenceKey: String?
     ) = apiService.getDiscussions(
-        PostsFeedType.SUBSCRIPTIONS,
-        sort, sequenceKey, limit, user.name, null
+            PostsFeedType.SUBSCRIPTIONS,
+            sort, sequenceKey, limit, user.name, null
     )
 
     /** method for fetching posts of certain user
@@ -1180,12 +1180,12 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun getUserPosts(
-        user: CyberName,
-        limit: Int,
-        sort: DiscussionTimeSort,
-        sequenceKey: String? = null
+            user: CyberName,
+            limit: Int,
+            sort: DiscussionTimeSort,
+            sequenceKey: String? = null
     ) =
-        apiService.getDiscussions(PostsFeedType.USER_POSTS, sort, sequenceKey, limit, user.name, null)
+            apiService.getDiscussions(PostsFeedType.USER_POSTS, sort, sequenceKey, limit, user.name, null)
 
 
     /** method for fetching particular post
@@ -1200,9 +1200,9 @@ class Cyber4J @JvmOverloads constructor(
 
 
     fun getPost(
-        user: CyberName,
-        permlink: String,
-        refBlockNum: Long
+            user: CyberName,
+            permlink: String,
+            refBlockNum: Long
     ) = apiService.getPost(user.name, permlink, refBlockNum)
 
 
@@ -1216,9 +1216,9 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun getComment(
-        user: CyberName,
-        permlink: String,
-        refBlockNum: Long
+            user: CyberName,
+            permlink: String,
+            refBlockNum: Long
     ) = apiService.getComment(user.name, permlink, refBlockNum)
 
     /** method for fetching comments particular post
@@ -1235,18 +1235,18 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun getCommentsOfPost(
-        user: CyberName,
-        permlink: String,
-        refBlockNum: Long,
-        limit: Int,
-        sort: DiscussionTimeSort,
-        sequenceKey: String? = null
+            user: CyberName,
+            permlink: String,
+            refBlockNum: Long,
+            limit: Int,
+            sort: DiscussionTimeSort,
+            sequenceKey: String? = null
     ) =
 
-        apiService.getComments(
-            sort, sequenceKey, limit,
-            CommentsOrigin.COMMENTS_OF_POST, user.name, permlink, refBlockNum
-        )
+            apiService.getComments(
+                    sort, sequenceKey, limit,
+                    CommentsOrigin.COMMENTS_OF_POST, user.name, permlink, refBlockNum
+            )
 
     /** method for fetching comments particular user
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
@@ -1260,15 +1260,15 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun getCommentsOfUser(
-        user: CyberName,
-        limit: Int,
-        sort: DiscussionTimeSort,
-        sequenceKey: String? = null
+            user: CyberName,
+            limit: Int,
+            sort: DiscussionTimeSort,
+            sequenceKey: String? = null
     ): Either<DiscussionsResult, ApiResponseError> =
-        apiService.getComments(
-            sort, sequenceKey, limit,
-            CommentsOrigin.COMMENTS_OF_USER, user.name, null, null
-        )
+            apiService.getComments(
+                    sort, sequenceKey, limit,
+                    CommentsOrigin.COMMENTS_OF_USER, user.name, null, null
+            )
 
 
     /** method for fetching  metedata of some user
@@ -1277,6 +1277,17 @@ class Cyber4J @JvmOverloads constructor(
      */
     fun getUserMetadata(user: CyberName): Either<UserMetadata, ApiResponseError> = apiService.getUserMetadata(user.name)
 
+    /**get processed embed link for some raw "https://site.com/content" using iframely service
+     * @param forLink raw link of site content
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * */
+    fun getEmbedIframely(forLink: String): Either<IFramelyEmbedResult, ApiResponseError> = apiService.getIframelyEmbed(forLink)
+
+    /**get processed embed link for some raw "https://site.com/content" using oembed service
+     * @param forLink raw link of site content
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * */
+    fun getEmbedOembed(forLink: String): Either<OEmbedResult, ApiResponseError> = apiService.getOEmdedEmbed(forLink)
 
     /** method for fetching  account of some user
      * @param user name of user, which account is  fetched
@@ -1286,41 +1297,41 @@ class Cyber4J @JvmOverloads constructor(
         return try {
             val acc = chainApi.getAccount(AccountName(user.name)).blockingGet().body()!!
             return Either.Success(
-                UserProfile(acc.account_name,
-                    acc.head_block_num,
-                    acc.head_block_time,
-                    acc.privileged,
-                    acc.last_code_update,
-                    acc.created,
-                    acc.core_liquid_balance,
-                    acc.ram_quota,
-                    acc.net_weight,
-                    acc.cpu_weight,
-                    acc.ram_usage,
-                    acc.permissions.map { accountPermission ->
-                        UserProfile.AccountPermission(accountPermission.perm_name, accountPermission.parent,
-                            UserProfile.AccountRequiredAuth(
-                                accountPermission.required_auth.threshold,
-                                accountPermission.required_auth.keys.map { accountKey ->
-                                    UserProfile.AccountKey(accountKey.key, accountKey.weight)
-                                },
-                                accountPermission.required_auth.accounts.map { accountAuth ->
-                                    UserProfile.AccountAuth(accountAuth.permission.run {
-                                        UserProfile.AccountAuthPermission(actor, permission)
-                                    }, accountAuth.weight)
-                                }
-                            ))
-                    })
+                    UserProfile(acc.account_name,
+                            acc.head_block_num,
+                            acc.head_block_time,
+                            acc.privileged,
+                            acc.last_code_update,
+                            acc.created,
+                            acc.core_liquid_balance,
+                            acc.ram_quota,
+                            acc.net_weight,
+                            acc.cpu_weight,
+                            acc.ram_usage,
+                            acc.permissions.map { accountPermission ->
+                                UserProfile.AccountPermission(accountPermission.perm_name, accountPermission.parent,
+                                        UserProfile.AccountRequiredAuth(
+                                                accountPermission.required_auth.threshold,
+                                                accountPermission.required_auth.keys.map { accountKey ->
+                                                    UserProfile.AccountKey(accountKey.key, accountKey.weight)
+                                                },
+                                                accountPermission.required_auth.accounts.map { accountAuth ->
+                                                    UserProfile.AccountAuth(accountAuth.permission.run {
+                                                        UserProfile.AccountAuthPermission(actor, permission)
+                                                    }, accountAuth.weight)
+                                                }
+                                        ))
+                            })
             )
         } catch (e: Exception) {
             e.printStackTrace()
             Either.Failure(
-                ApiResponseError(
-                    0L, ApiResponseError.Error(
-                        0L, e.message
+                    ApiResponseError(
+                            0L, ApiResponseError.Error(
+                            0L, e.message
                             ?: toString()
                     )
-                )
+                    )
             )
 
         }
@@ -1346,28 +1357,28 @@ class Cyber4J @JvmOverloads constructor(
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      */
     fun transfer(
-        key: String,
-        from: CyberName,
-        to: CyberName,
-        amount: String,
-        currency: String,
-        memo: String = ""
+            key: String,
+            from: CyberName,
+            to: CyberName,
+            amount: String,
+            currency: String,
+            memo: String = ""
     ): Either<TransactionSuccessful<TransferResult>, GolosEosError> {
 
         if (!amount.matches("([0-9]+\\.[0-9]{3})".toRegex())) throw IllegalArgumentException("wrong currency format. Must have 3 points precision, like 12.000 or 0.001")
 
         val callable = Callable {
             val hex = createBinaryConverter().squishMyTransferArgsAbi(
-                MyTransferArgsAbi(
-                    from.name,
-                    to.name,
-                    "$amount $currency",
-                    memo
-                )
+                    MyTransferArgsAbi(
+                            from.name,
+                            to.name,
+                            "$amount $currency",
+                            memo
+                    )
             ).toHex()
             pushTransaction<TransferResult>(
-                CyberContracts.TOKEN, CyberActions.TRANSFER,
-                MyTransactionAuthorizationAbi(from), hex, key
+                    CyberContracts.TOKEN, CyberActions.TRANSFER,
+                    MyTransactionAuthorizationAbi(from), hex, key
             )
         }
 
@@ -1382,18 +1393,18 @@ class Cyber4J @JvmOverloads constructor(
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      */
     fun transfer(
-        to: CyberName,
-        amount: String,
-        currency: String,
-        memo: String = ""
+            to: CyberName,
+            amount: String,
+            currency: String,
+            memo: String = ""
     ): Either<TransactionSuccessful<TransferResult>, GolosEosError> {
         return transfer(
-            keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }!!.second,
-            keyStorage.getActiveAccount(),
-            to,
-            amount,
-            currency,
-            memo
+                keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }!!.second,
+                keyStorage.getActiveAccount(),
+                to,
+                amount,
+                currency,
+                memo
         )
     }
 
@@ -1404,7 +1415,7 @@ class Cyber4J @JvmOverloads constructor(
     fun pin(pinning: CyberName): Either<TransactionSuccessful<PinResult>, GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-            ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
         return pin(activeAccountKey, activeAccountName, pinning)
     }
 
@@ -1414,19 +1425,19 @@ class Cyber4J @JvmOverloads constructor(
      * @param pinning user to pin to [pinner]
      */
     fun pin(
-        activeKey: String,
-        pinner: CyberName,
-        pinning: CyberName
+            activeKey: String,
+            pinner: CyberName,
+            pinning: CyberName
     ): Either<TransactionSuccessful<PinResult>, GolosEosError> {
 
         val callable = Callable {
             val hex = createBinaryConverter().squishPinRequestAbi(PinRequestAbi(pinner, pinning)).toHex()
             pushTransaction<PinResult>(
-                CyberContracts.SOCIAL,
-                CyberActions.PIN,
-                pinner.toTransactionAuthAbi(),
-                hex,
-                activeKey
+                    CyberContracts.SOCIAL,
+                    CyberActions.PIN,
+                    pinner.toTransactionAuthAbi(),
+                    hex,
+                    activeKey
             )
         }
         return callTilTimeoutExceptionVanishes(callable = callable)
@@ -1439,7 +1450,7 @@ class Cyber4J @JvmOverloads constructor(
     fun unPin(pinning: CyberName): Either<TransactionSuccessful<PinResult>, GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-            ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
         return unPin(activeAccountKey, activeAccountName, pinning)
     }
 
@@ -1450,19 +1461,19 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun unPin(
-        activeKey: String,
-        pinner: CyberName,
-        pinning: CyberName
+            activeKey: String,
+            pinner: CyberName,
+            pinning: CyberName
     ): Either<TransactionSuccessful<PinResult>, GolosEosError> {
 
         val callable = Callable {
             val hex = createBinaryConverter().squishPinRequestAbi(PinRequestAbi(pinner, pinning)).toHex()
             pushTransaction<PinResult>(
-                CyberContracts.SOCIAL,
-                CyberActions.UN_PIN,
-                pinner.toTransactionAuthAbi(),
-                hex,
-                activeKey
+                    CyberContracts.SOCIAL,
+                    CyberActions.UN_PIN,
+                    pinner.toTransactionAuthAbi(),
+                    hex,
+                    activeKey
             )
         }
         return callTilTimeoutExceptionVanishes(callable = callable)
@@ -1475,7 +1486,7 @@ class Cyber4J @JvmOverloads constructor(
     fun block(user: CyberName): Either<TransactionSuccessful<BlockUserResult>, GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-            ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
         return block(activeAccountKey, activeAccountName, user)
     }
 
@@ -1485,17 +1496,17 @@ class Cyber4J @JvmOverloads constructor(
      * @param blocking user to block
      */
     fun block(
-        blockerActiveKey: String,
-        blocker: CyberName,
-        blocking: CyberName
+            blockerActiveKey: String,
+            blocker: CyberName,
+            blocking: CyberName
     ): Either<TransactionSuccessful<BlockUserResult>, GolosEosError> {
 
         val callable = Callable {
             pushTransaction<BlockUserResult>(
-                CyberContracts.SOCIAL, CyberActions.BLOCK,
-                blocker.toTransactionAuthAbi(),
-                createBinaryConverter().squishBlockUserRequestAbi(BlockUserRequestAbi(blocker, blocking)).toHex(),
-                blockerActiveKey
+                    CyberContracts.SOCIAL, CyberActions.BLOCK,
+                    blocker.toTransactionAuthAbi(),
+                    createBinaryConverter().squishBlockUserRequestAbi(BlockUserRequestAbi(blocker, blocking)).toHex(),
+                    blockerActiveKey
             )
         }
         return callTilTimeoutExceptionVanishes(callable)
@@ -1508,7 +1519,7 @@ class Cyber4J @JvmOverloads constructor(
     fun unBlock(user: CyberName): Either<TransactionSuccessful<BlockUserResult>, GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-            ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
         return unBlock(activeAccountKey, activeAccountName, user)
     }
 
@@ -1518,17 +1529,17 @@ class Cyber4J @JvmOverloads constructor(
      * @param blocking user that gets unblocked
      */
     fun unBlock(
-        blockerActiveKey: String,
-        blocker: CyberName,
-        blocking: CyberName
+            blockerActiveKey: String,
+            blocker: CyberName,
+            blocking: CyberName
     ): Either<TransactionSuccessful<BlockUserResult>, GolosEosError> {
 
         val callable = Callable {
             pushTransaction<BlockUserResult>(
-                CyberContracts.SOCIAL, CyberActions.UN_BLOCK,
-                blocker.toTransactionAuthAbi(),
-                createBinaryConverter().squishBlockUserRequestAbi(BlockUserRequestAbi(blocker, blocking)).toHex(),
-                blockerActiveKey
+                    CyberContracts.SOCIAL, CyberActions.UN_BLOCK,
+                    blocker.toTransactionAuthAbi(),
+                    createBinaryConverter().squishBlockUserRequestAbi(BlockUserRequestAbi(blocker, blocking)).toHex(),
+                    blockerActiveKey
             )
         }
         return callTilTimeoutExceptionVanishes(callable)

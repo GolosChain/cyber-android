@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 private enum class ServicesGateMethods {
-    GET_FEED, GET_POST, GET_COMMENT, GET_COMMENTS, GET_USER_METADATA, GET_SECRET, AUTH;
+    GET_FEED, GET_POST, GET_COMMENT, GET_COMMENTS, GET_USER_METADATA, GET_SECRET, AUTH, GET_EMBED;
 
     override fun toString(): String {
         return when (this) {
@@ -23,6 +23,7 @@ private enum class ServicesGateMethods {
             GET_COMMENTS -> "content.getComments"
             GET_USER_METADATA -> "content.getProfile"
             GET_SECRET -> "auth.generateSecret"
+            GET_EMBED -> "frame.getEmbed"
             AUTH -> "auth.authorize"
         }
     }
@@ -159,8 +160,17 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
                 CommentsRequest(sort.toString(), sequenceKey, limit, origin.toString(), userId, permlink, refBlockNum), DiscussionsResult::class.java)
     }
 
+    override fun getIframelyEmbed(forLink: String): Either<IFramelyEmbedResult, ApiResponseError> {
+        return apiClient.send(ServicesGateMethods.GET_EMBED.toString(),
+                EmbedRequest(EmbedService.IFRAMELY.toString(), forLink), IFramelyEmbedResult::class.java)
+    }
+
+    override fun getOEmdedEmbed(forLink: String): Either<OEmbedResult, ApiResponseError> {
+        return apiClient.send(ServicesGateMethods.GET_EMBED.toString(),
+                EmbedRequest(EmbedService.OEMBED.toString(), forLink), OEmbedResult::class.java)
+    }
+
     override fun getUserMetadata(userId: String): Either<UserMetadata, ApiResponseError> {
-        lockIfNeeded()
         return apiClient.send(ServicesGateMethods.GET_USER_METADATA.toString(),
                 UserMetaDataRequest(userId), UserMetadata::class.java)
     }

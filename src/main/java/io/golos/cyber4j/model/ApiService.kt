@@ -38,6 +38,7 @@ enum class DiscussionTimeSort {
         }
     }
 }
+
 /** listener interface for auth state in cyber microservices.
  *
  * */
@@ -81,8 +82,8 @@ interface ApiService {
                 refBlockNum: Long): Either<CyberDiscussion, ApiResponseError>
 
     fun getComment(userId: String,
-                      permlink: String,
-                      refBlockNum: Long): Either<CyberDiscussion, ApiResponseError>
+                   permlink: String,
+                   refBlockNum: Long): Either<CyberDiscussion, ApiResponseError>
 
 //    content.getComments:                // Получение ленты комментариев
 //    params:                         // Параметры запроса из гейта
@@ -117,5 +118,9 @@ interface ApiService {
     fun getUserMetadata(userId: String): Either<UserMetadata, ApiResponseError>
 
     fun addOnAuthListener(listener: AuthListener)
+
+    fun getIframelyEmbed(forLink: String): Either<IFramelyEmbedResult, ApiResponseError>
+
+    fun getOEmdedEmbed(forLink: String): Either<OEmbedResult, ApiResponseError>
 }
 
