@@ -108,10 +108,10 @@ class ServicesFetchTest {
 
     @Test
     fun getEmbedTest() {
-        val response = client.getEmbedIframely("https://www.reddit.com/")
+        val response = client.getEmbedIframely("https://www.reddit.com/r/RoastMe/comments/b6n9k7/my_boyfriend_hasnt_had_sex_with_me_in_7_months/")
         assertTrue(response is Either.Success)
 
-        val oembedResponse = client.getEmbedOembed("https://www.reddit.com/")
+        val oembedResponse = client.getEmbedOembed("https://www.rbc.ru/business/01/04/2019/5ca1e5719a7947645980c6c5?from=from_main")
         assertTrue(oembedResponse is Either.Success)
     }
 }

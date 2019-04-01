@@ -198,12 +198,15 @@ public class IFramelyEmbedResult {
         private String href;
         private String type;
         private List<String> rel;
+        private Media media;
 
-        public ThumbNail(String href, String type, List<String> rel) {
+        public ThumbNail(String href, String type, List<String> rel, Media media) {
             this.href = href;
             this.type = type;
             this.rel = rel;
+            this.media = media;
         }
+
 
         public String getHref() {
             return href;
