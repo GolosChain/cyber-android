@@ -19,7 +19,7 @@ class PostingTest {
         secondAccount = testInMainTestNetAccountSecond
     }
 
-    val testMetadata = DiscussionCreateMetadata(listOf(DiscussionCreateMetadata.EmbedmentsUrl("test_url")))
+    val testMetadata = DiscussionCreateMetadata(listOf(DiscussionCreateMetadata.EmbedmentsUrl("test_url")), listOf("тээст"))
 
     @Test
     fun testPostOnPrivateTestNet() {
@@ -33,7 +33,7 @@ class PostingTest {
 
         val commentCreationResult = client.createComment("тестовый коммент",
                 postResult.message_id.author, postResult.message_id.permlink, postResult.message_id.ref_block_num,
-                Tag("test"), testMetadata)
+                listOf(), testMetadata)
 
         assertTrue("comment creation fail on test net", commentCreationResult is Either.Success)
 
@@ -47,7 +47,7 @@ class PostingTest {
         val secondCommentCreationResult = client.createComment(secondAccount.first, secondAccount.second,
                 "тестовый коммент",
                 secondPostResult.message_id.author, secondPostResult.message_id.permlink, secondPostResult.message_id.ref_block_num,
-                Tag("test"), testMetadata)
+                listOf(), testMetadata)
 
         assertTrue("comment creation fail on test net", secondCommentCreationResult is Either.Success)
 
@@ -64,7 +64,7 @@ class PostingTest {
         val postResult = (postResponse as Either.Success).value.extractResult()
 
         val updateResponse = client.updatePost(postResult.message_id.permlink, postResult.message_id.ref_block_num,
-                "new title", "new body", listOf(Tag("test")))
+                "new title", "new body", listOf(Tag("test")), testMetadata)
 
         assertTrue("post update fail on test net", updateResponse is Either.Success)
         val updateResult = (updateResponse as Either.Success).value.extractResult()
@@ -75,7 +75,7 @@ class PostingTest {
 
         val updateResponseSecond = client.updatePost(testInMainTestNetAccount.second,
                 testInMainTestNetAccount.first, postResult.message_id.permlink, postResult.message_id.ref_block_num,
-                "new title1", "new body1", listOf(Tag("test")))
+                "new title1", "new body1", listOf(Tag("test")), testMetadata)
 
         assertTrue("post update fail on test net", updateResponseSecond is Either.Success)
         val updateResultSecond = (updateResponseSecond as Either.Success).value.extractResult()
@@ -98,7 +98,7 @@ class PostingTest {
 
         val commentCreationResponse = client.createComment("тестовый коммент",
                 postResult.message_id.author, postResult.message_id.permlink, postResult.message_id.ref_block_num,
-                Tag("test"), testMetadata)
+                listOf(), testMetadata)
 
         assertTrue("comment creation fail on test net", commentCreationResponse is Either.Success)
 
@@ -106,7 +106,7 @@ class PostingTest {
 
 
         val updateResponse = client.updateComment(commentCreationResult.message_id.permlink, commentCreationResult.message_id.ref_block_num,
-                "new body", Tag("test"))
+                "new body", listOf(Tag("test")), testMetadata)
 
         assertTrue("comment update fail on test net", updateResponse is Either.Success)
         val updateResult = (updateResponse as Either.Success).value.extractResult()
@@ -117,7 +117,7 @@ class PostingTest {
 
         val updateResponseSecond = client.updateComment(testInMainTestNetAccount.second,
                 testInMainTestNetAccount.first, commentCreationResult.message_id.permlink, commentCreationResult.message_id.ref_block_num,
-                "new body1", Tag("test"))
+                "new body1", listOf(Tag("test")), testMetadata)
 
         assertTrue("comment update fail on test net", updateResponseSecond is Either.Success)
         val updateResultSecond = (updateResponseSecond as Either.Success).value.extractResult()

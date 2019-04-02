@@ -278,7 +278,7 @@ class Cyber4J @JvmOverloads constructor(
             parentDiscussionRefBlockId: Long,
             tags: List<io.golos.cyber4j.model.Tag>,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
-            metadata: DiscussionCreateMetadata = DiscussionCreateMetadata(emptyList()),
+            metadata: DiscussionCreateMetadata = DiscussionCreateMetadata(emptyList(), emptyList()),
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
     ): Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError> {
@@ -341,7 +341,7 @@ class Cyber4J @JvmOverloads constructor(
             parentAccount: CyberName,
             parentPermlink: String,
             parentDiscussionRefBlockNum: Long,
-            category: Tag,
+            categories: List<Tag>,
             metadata: DiscussionCreateMetadata,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             vestPayment: Boolean = true,
@@ -358,7 +358,7 @@ class Cyber4J @JvmOverloads constructor(
                 parentAccount,
                 parentPermlink,
                 parentDiscussionRefBlockNum,
-                category,
+                categories,
                 metadata,
                 beneficiaries,
                 vestPayment,
@@ -528,7 +528,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param parentAccount user name of author of parent post. Must be not blank
      * @param parentPermlink parentPermlink of parent post. Must be not blank
      * @param parentDiscussionRefBlockNum ref_block_num of parent post. Must be not 0
-     * @param category first tag of parent post
+     * @param categories list of tags of comments
      * @param metadata metadata of a comment. Can be empty
      * @param beneficiaries beneficiaries of a post. Can be empty
      * @param vestPayment true to allow vestPayment of author to for a post
@@ -543,7 +543,7 @@ class Cyber4J @JvmOverloads constructor(
             parentAccount: CyberName,
             parentPermlink: String,
             parentDiscussionRefBlockNum: Long,
-            category: Tag,
+            categories: List<Tag>,
             metadata: DiscussionCreateMetadata,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = listOf(),
             vestPayment: Boolean = true,
@@ -567,7 +567,7 @@ class Cyber4J @JvmOverloads constructor(
                 parentPermlink,
                 parentAccount,
                 parentDiscussionRefBlockNum,
-                listOf(category),
+                categories,
                 beneficiaries,
                 metadata,
                 vestPayment,
@@ -587,14 +587,14 @@ class Cyber4J @JvmOverloads constructor(
             newBody: String,
             newLanguage: String,
             newTags: List<Tag>,
-            newJsonMetadata: String
+            newJsonMetadata: DiscussionCreateMetadata
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
 
         val callable = Callable {
             val updateRequest = UpdateDiscussionRequestAbi(
                     DiscussionIdAbi(discussionAuthor, discussionPermlink, discussionRefBlockNum),
                     newTitle, newBody, newTags,
-                    newLanguage, newJsonMetadata
+                    newLanguage, moshi.adapter(DiscussionCreateMetadata::class.java).toJson(newJsonMetadata)
             )
             pushTransaction<UpdateDiscussionResult>(
                     CyberContracts.PUBLICATION,
@@ -615,6 +615,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param newTitle new title of a post. Currently must be fewer, then 256 symbols
      * @param newBody new body a of post. Must be not blank
      * @param newTags new tags a of post
+     * @param newJsonMetadata updated  metadata of a post
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
 
@@ -625,7 +626,8 @@ class Cyber4J @JvmOverloads constructor(
             postRefBlockNum: Long,
             newTitle: String,
             newBody: String,
-            newTags: List<Tag>
+            newTags: List<Tag>,
+            newJsonMetadata: DiscussionCreateMetadata
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
         return updateDiscussion(
                 postAuthor,
@@ -636,7 +638,7 @@ class Cyber4J @JvmOverloads constructor(
                 newBody,
                 "ru",
                 newTags,
-                ""
+                newJsonMetadata
         )
     }
 
@@ -655,12 +657,13 @@ class Cyber4J @JvmOverloads constructor(
             commentPermlink: String,
             commentRefBlockNum: Long,
             newBody: String,
-            newCategory: Tag
+            categories: List<Tag>,
+            newJsonMetadata: DiscussionCreateMetadata
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
 
         return updateDiscussion(
                 commentAuthor, commentPermlink, commentRefBlockNum, userActiveKey,
-                "", newBody, "ru", listOf(newCategory), ""
+                "", newBody, "ru", categories, newJsonMetadata
         )
     }
 
@@ -670,6 +673,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param newTitle new title of a post. Currently must be fewer, then 256 symbols
      * @param newBody new body a of post. Must be not blank
      * @param newTags new tags a of post
+     * @param newJsonMetadata updated metadata of a post
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * @throws IllegalStateException if active account not set
      */
@@ -679,7 +683,8 @@ class Cyber4J @JvmOverloads constructor(
             postRefBlockNum: Long,
             newTitle: String,
             newBody: String,
-            newTags: List<Tag>
+            newTags: List<Tag>,
+            newJsonMetadata: DiscussionCreateMetadata
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
 
         val postAuthor = keyStorage.getActiveAccount()
@@ -687,7 +692,7 @@ class Cyber4J @JvmOverloads constructor(
                 .getAccountKeys(postAuthor)?.find { it.first == AuthType.ACTIVE }
                 ?: throw IllegalStateException("could not find active keys for user $postAuthor")).second
 
-        return updateDiscussion(postAuthor, postPermlink, postRefBlockNum, key, newTitle, newBody, "ru", newTags, "")
+        return updateDiscussion(postAuthor, postPermlink, postRefBlockNum, key, newTitle, newBody, "ru", newTags, newJsonMetadata)
     }
 
     /** method updating comment using credentials of active account from [keyStorage]
@@ -702,7 +707,8 @@ class Cyber4J @JvmOverloads constructor(
             commentPermlink: String,
             commentRefBlockNum: Long,
             newBody: String,
-            newCategory: Tag
+            newCategories: List<Tag>,
+            newJsonMetadata: DiscussionCreateMetadata
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
         val commentAuthor = keyStorage.getActiveAccount()
         val key = (keyStorage
@@ -717,8 +723,8 @@ class Cyber4J @JvmOverloads constructor(
                 "",
                 newBody,
                 "ru",
-                listOf(newCategory),
-                ""
+                newCategories,
+                newJsonMetadata
         )
     }
 
