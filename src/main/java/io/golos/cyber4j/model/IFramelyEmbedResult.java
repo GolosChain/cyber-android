@@ -163,6 +163,24 @@ public class IFramelyEmbedResult {
     public static class Links {
         private List<ThumbNail> thumbnail;
         private List<Icon> icon;
+        private List<Player> player;
+        private List<App> app;
+
+        public List<App> getApp() {
+            return app;
+        }
+
+        public void setApp(List<App> app) {
+            this.app = app;
+        }
+
+        public List<Player> getPlayer() {
+            return player;
+        }
+
+        public void setPlayer(List<Player> player) {
+            this.player = player;
+        }
 
         public List<ThumbNail> getThumbnail() {
             return thumbnail;
@@ -190,6 +208,136 @@ public class IFramelyEmbedResult {
             return "Links{" +
                     "thumbnail=" + thumbnail +
                     ", icon=" + icon +
+                    '}';
+        }
+    }
+
+    public static class App{
+        private List<String> rel;
+        private String type;
+        private String html;
+
+        public List<String> getRel() {
+            return rel;
+        }
+
+        public void setRel(List<String> rel) {
+            this.rel = rel;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getHtml() {
+            return html;
+        }
+
+        public void setHtml(String html) {
+            this.html = html;
+        }
+
+        @Override
+        public String toString() {
+            return "App{" +
+                    "rel=" + rel +
+                    ", type='" + type + '\'' +
+                    ", html='" + html + '\'' +
+                    '}';
+        }
+    }
+
+    public static class Player {
+        private String type;
+        private List<String> rel;
+        private String href;
+        private PlayerMedia media;
+        private String html;
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public List<String> getRel() {
+            return rel;
+        }
+
+        public void setRel(List<String> rel) {
+            this.rel = rel;
+        }
+
+        public String getHref() {
+            return href;
+        }
+
+        public void setHref(String href) {
+            this.href = href;
+        }
+
+        public PlayerMedia getMedia() {
+            return media;
+        }
+
+        public void setMedia(PlayerMedia media) {
+            this.media = media;
+        }
+
+        public String getHtml() {
+            return html;
+        }
+
+        public void setHtml(String html) {
+            this.html = html;
+        }
+
+        @Override
+        public String toString() {
+            return "Player{" +
+                    "type='" + type + '\'' +
+                    ", rel=" + rel +
+                    ", href='" + href + '\'' +
+                    ", media=" + media +
+                    ", html='" + html + '\'' +
+                    '}';
+        }
+    }
+
+    static class PlayerMedia {
+        @Json(name = "aspect-ratio")
+        private double aspect;
+        private String scrolling;
+
+
+
+        public double getAspect() {
+            return aspect;
+        }
+
+        public void setAspect(double aspect) {
+            this.aspect = aspect;
+        }
+
+        public String getScrolling() {
+            return scrolling;
+        }
+
+        public void setScrolling(String scrolling) {
+            this.scrolling = scrolling;
+        }
+
+        @Override
+        public String toString() {
+            return "PlayerMedia{" +
+                    "aspect=" + aspect +
+                    ", scrolling='" + scrolling + '\'' +
                     '}';
         }
     }

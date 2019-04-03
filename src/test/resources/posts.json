@@ -1,13 +1,66 @@
 {
   "jsonrpc": "2.0",
-  "id": 1,
+  "id": 2,
   "result": {
-    "type": "link",
-    "version": "1.0",
-    "title": "Организатор лотереи назвал самые удачливые и невезучие регионы России",
-    "url": "https://www.rbc.ru/society/01/04/2019/5c9e1edd9a7947bbb2295c8a",
-    "provider_name": "РБК",
-    "description": "Чтобы выяснить, жителям какого региона больше всего везет в «Русское лото», распространители проанализировали, сколько «лотерейных миллионеров» проживают в каждом из субъектов Российской Федерации",
-    "thumbnail_url": "https://s0.rbk.ru/v6_top_pics/media/img/1/64/755538711048641.jpeg"
+    "meta": {
+      "title": "Old Town Road (I Got The Horses In The Back) [Prod. YoungKio] by Lil Nas X",
+      "site": "SoundCloud",
+      "author": "Lil Nas X",
+      "author_url": "http://soundcloud.com/secret-service-862007284",
+      "description": "can't nobody tell me nonthin",
+      "canonical": "https://soundcloud.com/secret-service-862007284/old-town-road",
+      "media": "player"
+    },
+    "links": {
+      "player": [
+        {
+          "href": "https://w.soundcloud.com/player/?visual=true&url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F539018871&show_artwork=true",
+          "type": "text/html",
+          "rel": [
+            "player",
+            "audio",
+            "html5",
+            "ssl"
+          ],
+          "media": {
+            "height": 400
+          },
+          "html": "<div><div style=\"left: 0; width: 100%; height: 400px; position: relative;\"><iframe src=\"https://w.soundcloud.com/player/?visual=true&amp;url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F539018871&amp;show_artwork=true\" style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" allowfullscreen></iframe></div></div>"
+        },
+        {
+          "href": "https://w.soundcloud.com/player/?visual=true&url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F539018871&show_artwork=true&auto_play=true",
+          "type": "text/html",
+          "rel": [
+            "player",
+            "audio",
+            "html5",
+            "ssl",
+            "autoplay"
+          ],
+          "media": {
+            "height": 400
+          },
+          "html": "<div><div style=\"left: 0; width: 100%; height: 400px; position: relative;\"><iframe src=\"https://w.soundcloud.com/player/?visual=true&amp;url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F539018871&amp;show_artwork=true&amp;auto_play=true\" style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" allowfullscreen></iframe></div></div>"
+        }
+      ],
+      "thumbnail": [
+        {
+          "href": "//i1.sndcdn.com/artworks-000452241642-zoz2uc-t500x500.jpg",
+          "type": "image/jpeg",
+          "rel": [
+            "thumbnail",
+            "oembed",
+            "ssl"
+          ]
+        }
+      ]
+    },
+    "rel": [
+      "player",
+      "audio",
+      "html5",
+      "ssl"
+    ],
+    "html": "<div><div style=\"left: 0; width: 100%; height: 400px; position: relative;\"><iframe src=\"https://w.soundcloud.com/player/?visual=true&amp;url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F539018871&amp;show_artwork=true\" style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" allowfullscreen></iframe></div></div>"
   }
 }
