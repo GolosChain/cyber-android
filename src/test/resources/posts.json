@@ -1,66 +1,123 @@
 {
   "jsonrpc": "2.0",
-  "id": 2,
+  "id": 4,
   "result": {
     "meta": {
-      "title": "Old Town Road (I Got The Horses In The Back) [Prod. YoungKio] by Lil Nas X",
-      "site": "SoundCloud",
-      "author": "Lil Nas X",
-      "author_url": "http://soundcloud.com/secret-service-862007284",
-      "description": "can't nobody tell me nonthin",
-      "canonical": "https://soundcloud.com/secret-service-862007284/old-town-road",
-      "media": "player"
+      "description": "Слушайте на Яндекс.Музыке: Into a strange new world, into the after All your tears might find you\"ve fallen too far Take another look, take another ride Can\"t we make them leave the hate behind",
+      "title": "Believe in Nothing — Nevermore",
+      "duration": 220,
+      "canonical": "https://music.yandex.ru/album/3100408/track/3869231",
+      "site": "Яндекс.Музыка"
     },
     "links": {
-      "player": [
-        {
-          "href": "https://w.soundcloud.com/player/?visual=true&url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F539018871&show_artwork=true",
-          "type": "text/html",
-          "rel": [
-            "player",
-            "audio",
-            "html5",
-            "ssl"
-          ],
-          "media": {
-            "height": 400
-          },
-          "html": "<div><div style=\"left: 0; width: 100%; height: 400px; position: relative;\"><iframe src=\"https://w.soundcloud.com/player/?visual=true&amp;url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F539018871&amp;show_artwork=true\" style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" allowfullscreen></iframe></div></div>"
-        },
-        {
-          "href": "https://w.soundcloud.com/player/?visual=true&url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F539018871&show_artwork=true&auto_play=true",
-          "type": "text/html",
-          "rel": [
-            "player",
-            "audio",
-            "html5",
-            "ssl",
-            "autoplay"
-          ],
-          "media": {
-            "height": 400
-          },
-          "html": "<div><div style=\"left: 0; width: 100%; height: 400px; position: relative;\"><iframe src=\"https://w.soundcloud.com/player/?visual=true&amp;url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F539018871&amp;show_artwork=true&amp;auto_play=true\" style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" allowfullscreen></iframe></div></div>"
-        }
-      ],
       "thumbnail": [
         {
-          "href": "//i1.sndcdn.com/artworks-000452241642-zoz2uc-t500x500.jpg",
-          "type": "image/jpeg",
+          "href": "https://avatars.yandex.net/get-music-content/42108/b8dba01f.a.3100408-1/m1000x1000?webp=false",
+          "type": "image",
           "rel": [
             "thumbnail",
-            "oembed",
+            "og",
             "ssl"
           ]
         }
+      ],
+      "icon": [
+        {
+          "href": "https://music.yandex.ru/blocks/common/apple-touch.180x180.ico",
+          "rel": [
+            "apple-touch-icon",
+            "icon",
+            "ssl"
+          ],
+          "type": "image/icon",
+          "media": {
+            "width": 180,
+            "height": 180
+          }
+        },
+        {
+          "href": "https://music.yandex.ru/blocks/common/apple-touch.152x152.ico",
+          "rel": [
+            "apple-touch-icon",
+            "icon",
+            "ssl"
+          ],
+          "type": "image/icon",
+          "media": {
+            "width": 152,
+            "height": 152
+          }
+        },
+        {
+          "href": "https://music.yandex.ru/blocks/common/apple-touch.120x120.ico",
+          "rel": [
+            "apple-touch-icon",
+            "icon",
+            "ssl"
+          ],
+          "type": "image/icon",
+          "media": {
+            "width": 120,
+            "height": 120
+          }
+        },
+        {
+          "href": "https://music.yandex.ru/blocks/common/apple-touch.76x76.ico",
+          "rel": [
+            "apple-touch-icon",
+            "icon",
+            "ssl"
+          ],
+          "type": "image/icon",
+          "media": {
+            "width": 76,
+            "height": 76
+          }
+        },
+        {
+          "href": "https://music.yandex.ru/favicon32.png",
+          "rel": [
+            "icon",
+            "ssl"
+          ],
+          "type": "image/png",
+          "media": {
+            "width": 32,
+            "height": 32
+          }
+        },
+        {
+          "href": "https://music.yandex.ru/favicon16.png",
+          "rel": [
+            "icon",
+            "ssl"
+          ],
+          "type": "image/png",
+          "media": {
+            "width": 16,
+            "height": 16
+          }
+        },
+        {
+          "href": "https://music.yandex.ru/blocks/common/apple-touch.60x60.ico",
+          "rel": [
+            "apple-touch-icon",
+            "icon",
+            "ssl"
+          ],
+          "type": "image/icon"
+        },
+        {
+          "href": "https://music.yandex.ru/blocks/common/website.svg",
+          "rel": [
+            "mask-icon",
+            "icon",
+            "ssl"
+          ],
+          "type": "image/svg"
+        }
       ]
     },
-    "rel": [
-      "player",
-      "audio",
-      "html5",
-      "ssl"
-    ],
-    "html": "<div><div style=\"left: 0; width: 100%; height: 400px; position: relative;\"><iframe src=\"https://w.soundcloud.com/player/?visual=true&amp;url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F539018871&amp;show_artwork=true\" style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" allowfullscreen></iframe></div></div>"
+    "rel": []
   }
 }

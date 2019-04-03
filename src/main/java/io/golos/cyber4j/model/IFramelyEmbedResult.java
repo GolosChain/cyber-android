@@ -8,11 +8,14 @@ public class IFramelyEmbedResult {
     private Meta meta;
     private Links links;
     private List<String> rel;
+    private String html;
 
-    public IFramelyEmbedResult(Meta meta, Links links, List<String> rel) {
-        this.meta = meta;
-        this.links = links;
-        this.rel = rel;
+    public String getHtml() {
+        return html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
     }
 
     public Meta getMeta() {
@@ -45,6 +48,7 @@ public class IFramelyEmbedResult {
                 "meta=" + meta +
                 ", links=" + links +
                 ", rel=" + rel +
+                ", html='" + html + '\'' +
                 '}';
     }
 
@@ -165,9 +169,27 @@ public class IFramelyEmbedResult {
         private List<Icon> icon;
         private List<Player> player;
         private List<App> app;
+        private List<Image> image;
+        private List<Reader> reader;
 
         public List<App> getApp() {
             return app;
+        }
+
+        public List<Image> getImage() {
+            return image;
+        }
+
+        public void setImage(List<Image> image) {
+            this.image = image;
+        }
+
+        public List<Reader> getReader() {
+            return reader;
+        }
+
+        public void setReader(List<Reader> reader) {
+            this.reader = reader;
         }
 
         public void setApp(List<App> app) {
@@ -212,10 +234,200 @@ public class IFramelyEmbedResult {
         }
     }
 
-    public static class App{
+    public static class Reader {
+        private String html;
+        private String rel;
+        private String type;
+        private ReaderMedia media;
+
+        public String getHtml() {
+            return html;
+        }
+
+        public void setHtml(String html) {
+            this.html = html;
+        }
+
+        public String getRel() {
+            return rel;
+        }
+
+        public void setRel(String rel) {
+            this.rel = rel;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public ReaderMedia getMedia() {
+            return media;
+        }
+
+        public void setMedia(ReaderMedia media) {
+            this.media = media;
+        }
+
+
+        @Override
+        public String toString() {
+            return "Reader{" +
+                    "html='" + html + '\'' +
+                    ", rel='" + rel + '\'' +
+                    ", type='" + type + '\'' +
+                    ", media=" + media +
+                    '}';
+        }
+    }
+
+    public static class ReaderMedia {
+        @Json(name = "max-widt")
+        private int maxWidth;
+
+        public int getMaxWidth() {
+            return maxWidth;
+        }
+
+        public void setMaxWidth(int maxWidth) {
+            this.maxWidth = maxWidth;
+        }
+
+
+        @Override
+        public String toString() {
+            return "ReaderMedia{" +
+                    "maxWidth=" + maxWidth +
+                    '}';
+        }
+    }
+
+    public static class Image {
+        private String type;
+        private List<String> rel;
+        private ImageMedia media;
+        private String html;
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public List<String> getRel() {
+            return rel;
+        }
+
+        public void setRel(List<String> rel) {
+            this.rel = rel;
+        }
+
+        public ImageMedia getMedia() {
+            return media;
+        }
+
+        public void setMedia(ImageMedia media) {
+            this.media = media;
+        }
+
+        public String getHtml() {
+            return html;
+        }
+
+        public void setHtml(String html) {
+            this.html = html;
+        }
+
+        @Override
+        public String toString() {
+            return "Image{" +
+                    "type='" + type + '\'' +
+                    ", rel=" + rel +
+                    ", media=" + media +
+                    ", html='" + html + '\'' +
+                    '}';
+        }
+    }
+
+    public static class ImageMedia {
+        @Json(name = "aspect-ratio")
+        private double ratio;
+        private int width;
+        private int height;
+
+        public double getRatio() {
+            return ratio;
+        }
+
+        public void setRatio(double ratio) {
+            this.ratio = ratio;
+        }
+
+        public int getWidth() {
+            return width;
+        }
+
+        public void setWidth(int width) {
+            this.width = width;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public void setHeight(int height) {
+            this.height = height;
+        }
+
+        @Override
+        public String toString() {
+            return "ImageMedia{" +
+                    "ratio=" + ratio +
+                    '}';
+        }
+    }
+
+    public static class AppMedia {
+        @Json(name = "max-width")
+        private int maxWidth;
+        @Json(name = "aspect-ratio")
+        private int aspectRatio;
+
+        public int getMaxWidth() {
+            return maxWidth;
+        }
+
+        public void setMaxWidth(int maxWidth) {
+            this.maxWidth = maxWidth;
+        }
+
+        public int getAspectRatio() {
+            return aspectRatio;
+        }
+
+        public void setAspectRatio(int aspectRatio) {
+            this.aspectRatio = aspectRatio;
+        }
+
+        @Override
+        public String toString() {
+            return "AppMedia{" +
+                    "maxWidth=" + maxWidth +
+                    ", aspectRatio=" + aspectRatio +
+                    '}';
+        }
+    }
+
+    public static class App {
         private List<String> rel;
         private String type;
         private String html;
+        private AppMedia media;
 
         public List<String> getRel() {
             return rel;
@@ -241,12 +453,21 @@ public class IFramelyEmbedResult {
             this.html = html;
         }
 
+        public AppMedia getMedia() {
+            return media;
+        }
+
+        public void setMedia(AppMedia media) {
+            this.media = media;
+        }
+
         @Override
         public String toString() {
             return "App{" +
                     "rel=" + rel +
                     ", type='" + type + '\'' +
                     ", html='" + html + '\'' +
+                    ", media=" + media +
                     '}';
         }
     }
@@ -314,7 +535,6 @@ public class IFramelyEmbedResult {
         @Json(name = "aspect-ratio")
         private double aspect;
         private String scrolling;
-
 
 
         public double getAspect() {
