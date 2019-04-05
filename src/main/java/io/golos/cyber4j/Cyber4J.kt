@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package io.golos.cyber4j
 
 import com.memtrip.eos.abi.writer.bytewriter.DefaultByteWriter
@@ -9,6 +11,7 @@ import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewA
 import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewAccountBody
 import com.memtrip.eos.core.block.BlockIdDetails
 import com.memtrip.eos.core.crypto.EosPrivateKey
+import com.memtrip.eos.core.crypto.EosPublicKey
 import com.memtrip.eos.core.hex.DefaultHexWriter
 import com.memtrip.eos.http.rpc.ChainApi
 import com.memtrip.eos.http.rpc.model.account.request.AccountName
@@ -37,7 +40,8 @@ private enum class CyberActions : CyberContract.CyberAction {
     NEW_ACCOUNT, OPEN_VESTING,
     UPDATE_META, DELETE_METADATA, TRANSFER, PIN,
     UN_PIN, BLOCK, UN_BLOCK,
-    ISSUE, REBLOG;
+    ISSUE, REBLOG, VOTE_FOR_WITNESS, UNVOTE_WITNESS,
+    REGISTER_WITNESS, UNREGISTER_WITNESS;
 
     override fun toString(): String {
         return when (this) {
@@ -58,12 +62,16 @@ private enum class CyberActions : CyberContract.CyberAction {
             UN_BLOCK -> "unblock"
             ISSUE -> "issue"
             REBLOG -> "reblog"
+            VOTE_FOR_WITNESS -> "votewitness"
+            UNVOTE_WITNESS -> "unvotewitn"
+            REGISTER_WITNESS -> "regwitness"
+            UNREGISTER_WITNESS -> "unregwitness"
         }
     }
 }
 
 private enum class CyberContracts : CyberContract {
-    PUBLICATION, CYBER, VESTING, SOCIAL, TOKEN, CYBER_TOKEN, ISSUER;
+    PUBLICATION, CYBER, VESTING, SOCIAL, TOKEN, CYBER_TOKEN, ISSUER, CTRL;
 
     override fun getActions(): List<CyberContract.CyberAction> {
         return when (this) {
@@ -92,6 +100,7 @@ private enum class CyberContracts : CyberContract {
             TOKEN -> listOf(CyberActions.TRANSFER)
             CYBER_TOKEN -> listOf(CyberActions.ISSUE, CyberActions.OPEN_VESTING)
             ISSUER -> emptyList()
+            CTRL -> listOf(CyberActions.VOTE_FOR_WITNESS, CyberActions.UNVOTE_WITNESS)
         }
     }
 
@@ -104,10 +113,9 @@ private enum class CyberContracts : CyberContract {
             SOCIAL -> "gls.social"
             TOKEN -> "cyber.token"
             ISSUER -> "gls.issuer"
+            CTRL -> "gls.ctrl"
         }
     }
-
-
 }
 
 class Cyber4J @JvmOverloads constructor(
@@ -327,7 +335,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param parentAccount user name of author of parent post. must be not blank
      * @param parentPermlink parentPermlink of parent post. must be not blank
      * @param parentDiscussionRefBlockNum ref_block_num of parent post. must be not 0
-     * @param category first tag of parent post
+     * @param categories categories (tags) of a comment
      * @param metadata metadata of a comment. Can be empty
      * @param beneficiaries beneficiaries of a post. Can be empty
      * @param vestPayment true to allow vestPayment of author to for a post
@@ -648,7 +656,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param commentPermlink permlink of comment
      * @param commentRefBlockNum ref_block_num of comment to update
      * @param newBody new body a of post. Must be not blank
-     * @param newCategory new category of comment. Conception of golos assumes, that category of comment is a first tag (community) of parent post
+     * @param categories new categories of comment.
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
     fun updateComment(
@@ -699,7 +707,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param commentPermlink permlink of comment.
      * @param commentRefBlockNum ref_block_num of comment to update
      * @param newBody new body a of post. Must be not blank
-     * @param newCategory new category of comment. Conception of golos assumes, that category of comment is a first tag (community) of parent post
+     * @param newCategories new list of categories of a comment
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * @throws IllegalStateException if active account not set
      */
@@ -766,7 +774,6 @@ class Cyber4J @JvmOverloads constructor(
      * @param postOrCommentRefBlockNum ref_block_num of entity to delete
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * @throws IllegalStateException if active account not set
-     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
     fun deletePostOrComment(
             postOrCommentPermlink: String,
@@ -789,7 +796,6 @@ class Cyber4J @JvmOverloads constructor(
      * @param refBlockNumOfPostToReblog ref_block_num of entity to  reblog
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * @throws IllegalStateException if active account not set
-     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
 
     fun reblog(
@@ -818,10 +824,8 @@ class Cyber4J @JvmOverloads constructor(
      * @param permlinkOfPostToReblog permlink of entity to reblog
      * @param refBlockNumOfPostToReblog ref_block_num of entity to  reblog
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
-     * @throws IllegalStateException if active account not set
-     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
-    fun reblog(
+    private fun reblog(
             userActiveKey: String,
             reblogger: CyberName,
             authorOfPostToReblog: CyberName,
@@ -849,6 +853,197 @@ class Cyber4J @JvmOverloads constructor(
         }
         return callTilTimeoutExceptionVanishes(callable)
 
+    }
+
+    /** vote for a witness
+     * @param userActiveKey active key of perso, who want to vote for a [witness]
+     * @param voter name of a person, who wants to vote
+     * @param witness name of witness to vote to
+     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     */
+
+    private fun voteForAWitness(userActiveKey: String,
+                                voter: CyberName,
+                                witness: CyberName,
+                                weight: Short): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
+        val callable = Callable {
+            val squisher = createBinaryConverter()
+
+            val voteRequest = WitnessVoteRequestAbi(
+                    voter, witness, weight
+            )
+
+            val operationHex = squisher.squishWitnessVoteRequestAbi(voteRequest).toHex()
+
+            pushTransaction<WitnessVoteResult>(
+                    CyberContracts.CTRL,
+                    CyberActions.VOTE_FOR_WITNESS,
+                    MyTransactionAuthorizationAbi(voter.name),
+                    operationHex,
+                    userActiveKey
+            )
+
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
+    /** vote for a witness
+     * This method assumes that you have added account with keys to [keyStorage]
+     * @param witness name of witness to vote to
+     * @param weight weight of vote
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @throws IllegalStateException if active account not set
+     */
+
+    fun voteForAWitness(
+            witness: CyberName, weight: Short): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+
+        return voteForAWitness(activeAccountKey, activeAccountName, witness, weight)
+    }
+
+    /** cancel vote for a witness
+     * @param userActiveKey active key of perso, who want to vote for a [witness]
+     * @param voter name of a person, who wants to vote
+     * @param witness name of witness to vote to
+     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     */
+
+    private fun unVoteForAWitness(userActiveKey: String,
+                                  voter: CyberName,
+                                  witness: CyberName): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
+        val callable = Callable {
+            val squisher = createBinaryConverter()
+
+            val voteRequest = WitnessUnVoteRequestAbi(
+                    voter, witness
+            )
+
+            val operationHex = squisher.squishWitnessUnVoteRequestAbi(voteRequest).toHex()
+
+            pushTransaction<WitnessVoteResult>(
+                    CyberContracts.CTRL,
+                    CyberActions.UNVOTE_WITNESS,
+                    MyTransactionAuthorizationAbi(voter.name),
+                    operationHex,
+                    userActiveKey
+            )
+
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
+
+    /** cancel vote for a witness
+     * This method assumes that you have added account with keys to [keyStorage]
+     * @param witness name of witness to vote to
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @throws IllegalStateException if active account not set
+     */
+
+    fun unVoteForAWitness(
+            witness: CyberName): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+
+        return unVoteForAWitness(activeAccountKey, activeAccountName, witness)
+    }
+
+    /** register a witness
+     * @param userActiveKey active key of a [witness]
+     * @param websiteUrl url of [witness] proposals
+     * @param witness name of witness who's [userActiveKey] you provide
+     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     */
+
+    private fun registerAWitness(userActiveKey: String,
+                                 witness: CyberName,
+                                 websiteUrl: String): Either<TransactionSuccessful<Any>, GolosEosError> {
+        val callable = Callable {
+            val squisher = createBinaryConverter()
+
+            val witnessAccount = chainApi.getAccount(AccountName(witness.name)).blockingGet().body()!!
+
+            val activeKey = witnessAccount.permissions.find { it.perm_name == "active" }!!.required_auth.keys.first().key
+
+            val witnessRegisterRequest = RegWitnessRequestAbi(
+                    witness,
+                    activeKey.replace("GLS", "EOS"),
+                    websiteUrl)
+
+
+            val operationHex = squisher.squishRegWitnessRequestAbi(witnessRegisterRequest).toHex()
+
+            pushTransaction<Any>(
+                    CyberContracts.CTRL,
+                    CyberActions.REGISTER_WITNESS,
+                    MyTransactionAuthorizationAbi(witness.name),
+                    operationHex,
+                    userActiveKey
+            )
+
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
+    /** register a witness. This method assumes that you have active account in [keyStorage]. method
+     * will try to create witness of active account
+     * @param websiteUrl url of proposals of active account as witness
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *@throws IllegalStateException if active account not set*/
+
+
+    fun registerAWitness(websiteUrl: String): Either<TransactionSuccessful<Any>, GolosEosError> {
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+
+        return registerAWitness(activeAccountKey, activeAccountName, websiteUrl)
+    }
+
+    /** unregister a witness
+     * @param userActiveKey active key of [witness], who wants to unregister
+     * @param witness name of witness to unregister
+     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     */
+
+    private fun unRegisterWitness(userActiveKey: String,
+                                  witness: CyberName): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
+        val callable = Callable {
+            val squisher = createBinaryConverter()
+
+            val witnessRequest = UnRegWitnessRequestAbi(witness)
+
+            val operationHex = squisher.squishUnRegWitnessRequestAbi(witnessRequest).toHex()
+
+            pushTransaction<WitnessVoteResult>(
+                    CyberContracts.CTRL,
+                    CyberActions.UNREGISTER_WITNESS,
+                    MyTransactionAuthorizationAbi(witness.name),
+                    operationHex,
+                    userActiveKey
+            )
+
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
+
+    /** unregister a witness
+     * This method assumes that you have added account with keys to [keyStorage]
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @throws IllegalStateException if active account not set
+     */
+
+    fun unRegisterWitness(): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+
+        return unRegisterWitness(activeAccountKey, activeAccountName)
     }
 
     /**vote for post or comment, using credentials of active account from [keyStorage]
@@ -1025,7 +1220,7 @@ class Cyber4J @JvmOverloads constructor(
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
 
-    fun openVestingBalance(
+    private fun openVestingBalance(
             forUser: CyberName,
             cyberKey: String
     ) = openBalance(forUser, UserBalance.VESTING, cyberKey)
@@ -1033,11 +1228,11 @@ class Cyber4J @JvmOverloads constructor(
     /** method for opening token balance of account. used in [createAccount] as one of the steps of
      * new account creation
      * @param forUser account name
-     * @param cyberKey key of "cyber" with "createuser" permission
+     * @param cyberCreatePermissionKey key of "cyber" with "createuser" permission
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
 
-    fun openTokenBalance(
+    private fun openTokenBalance(
             forUser: CyberName,
             cyberCreatePermissionKey: String
     ) =
@@ -1088,7 +1283,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param amount amount of tokens to issue.  Must have 3 points precision, like 12.000 or 0.001
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
-    fun issueTokens(
+    private fun issueTokens(
             forUser: CyberName,
             issuerKey: String,
             amount: String,

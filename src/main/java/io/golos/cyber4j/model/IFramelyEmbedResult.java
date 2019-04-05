@@ -236,7 +236,7 @@ public class IFramelyEmbedResult {
 
     public static class Reader {
         private String html;
-        private String rel;
+        private List<String> rel;
         private String type;
         private ReaderMedia media;
 
@@ -248,11 +248,11 @@ public class IFramelyEmbedResult {
             this.html = html;
         }
 
-        public String getRel() {
+        public List<String> getRel() {
             return rel;
         }
 
-        public void setRel(String rel) {
+        public void setRel(List<String> rel) {
             this.rel = rel;
         }
 
