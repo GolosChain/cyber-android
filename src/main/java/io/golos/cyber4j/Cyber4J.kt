@@ -1219,7 +1219,7 @@ class Cyber4J @JvmOverloads constructor(
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
 
-    private fun openVestingBalance(
+     fun openVestingBalance(
             forUser: CyberName,
             cyberKey: String
     ) = openBalance(forUser, UserBalance.VESTING, cyberKey)
@@ -1231,7 +1231,7 @@ class Cyber4J @JvmOverloads constructor(
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
 
-    private fun openTokenBalance(
+     fun openTokenBalance(
             forUser: CyberName,
             cyberCreatePermissionKey: String
     ) =
@@ -1282,7 +1282,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param amount amount of tokens to issue.  Must have 3 points precision, like 12.000 or 0.001
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
-    private fun issueTokens(
+     fun issueTokens(
             forUser: CyberName,
             issuerKey: String,
             amount: String,
