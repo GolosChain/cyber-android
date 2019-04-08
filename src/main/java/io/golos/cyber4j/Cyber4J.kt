@@ -824,7 +824,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param refBlockNumOfPostToReblog ref_block_num of entity to  reblog
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
-    private fun reblog(
+     fun reblog(
             userActiveKey: String,
             reblogger: CyberName,
             authorOfPostToReblog: CyberName,
