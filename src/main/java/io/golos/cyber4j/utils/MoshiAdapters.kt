@@ -5,6 +5,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import io.golos.cyber4j.model.CyberName
+import io.golos.cyber4j.model.UserRegistrationState
 import java.math.BigInteger
 
 
@@ -18,6 +19,7 @@ class CyberNameAdapter : JsonAdapter<CyberName>() {
     override fun toJson(writer: JsonWriter, value: CyberName?) {
         writer.value(value?.name)
     }
+
     @FromJson
     fun fromJson(jsonReader: JsonReader, delegate: JsonAdapter<CyberName>): CyberName? {
         val value = jsonReader.nextString()
@@ -34,5 +36,22 @@ class BigIntegerAdapter : JsonAdapter<BigInteger>() {
 
     override fun toJson(writer: JsonWriter, value: BigInteger?) {
         writer.value(value?.toString() ?: "")
+    }
+}
+
+class UserRegistrationStateAdapter : JsonAdapter<UserRegistrationState>() {
+
+    override fun fromJson(reader: JsonReader): UserRegistrationState {
+        val value = reader.nextString()
+
+        return when (value) {
+            "registered" -> UserRegistrationState.REGISTERED
+            "firstStep" -> UserRegistrationState.FIRST_STEP
+            else -> throw IllegalArgumentException("unknow step $value")
+        }
+    }
+
+    override fun toJson(writer: JsonWriter, value: UserRegistrationState?) {
+        writer.value(value?.name ?: "")
     }
 }

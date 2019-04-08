@@ -122,5 +122,15 @@ interface ApiService {
     fun getIframelyEmbed(forLink: String): Either<IFramelyEmbedResult, ApiResponseError>
 
     fun getOEmdedEmbed(forLink: String): Either<OEmbedResult, ApiResponseError>
+
+    fun getRegistrationStateOf(userId: String?, phone: String?): Either<UserRegistrationStateResult, ApiResponseError>
+
+    fun firstUserRegistrationStep(captcha: String, phone: String, testingPass: String?): Either<Any, ApiResponseError>
+
+    fun verifyPhoneForUserRegistration(phone: String, code: String): Either<Any, ApiResponseError>
+
+    fun setVerifiedUserName(user: String, phone: String): Either<Any, ApiResponseError>
+
+    fun writeUserToBlockchain(userName: String, owner: String, active: String, posting: String, memo: String): Either<Any, ApiResponseError>
 }
 

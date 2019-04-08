@@ -1,18 +1,13 @@
 package io.golos.cyber4j.services
 
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.Rfc3339DateJsonAdapter
 import com.squareup.moshi.Types
 import io.golos.cyber4j.Cyber4JConfig
-import io.golos.cyber4j.model.CyberName
 import io.golos.cyber4j.services.model.*
-import io.golos.cyber4j.utils.BigIntegerAdapter
-import io.golos.cyber4j.utils.CyberNameAdapter
 import io.golos.cyber4j.utils.Either
 import io.golos.cyber4j.utils.LogLevel
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
-import java.math.BigInteger
 import java.net.SocketTimeoutException
 import java.util.*
 import java.util.concurrent.CountDownLatch
@@ -35,14 +30,9 @@ interface AuthRequestListener {
 }
 
 
-internal class CyberServicesWebSocketClient(private val config: Cyber4JConfig) : WebSocketListener(), ApiClient {
+internal class CyberServicesWebSocketClient(private val config: Cyber4JConfig,
+                                            private val moshi: Moshi) : WebSocketListener(), ApiClient {
     private lateinit var webSocket: WebSocket
-    private val moshi =
-            Moshi.Builder()
-                    .add(Date::class.java, Rfc3339DateJsonAdapter())
-                    .add(BigInteger::class.java, BigIntegerAdapter())
-                    .add(CyberName::class.java, CyberNameAdapter())
-                    .build()
     private val latches = Collections.synchronizedMap<Long, CountDownLatch>(hashMapOf())
     private val responseMap = Collections.synchronizedMap<Long, String>(hashMapOf())
 

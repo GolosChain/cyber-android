@@ -11,7 +11,6 @@ import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewA
 import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewAccountBody
 import com.memtrip.eos.core.block.BlockIdDetails
 import com.memtrip.eos.core.crypto.EosPrivateKey
-import com.memtrip.eos.core.crypto.EosPublicKey
 import com.memtrip.eos.core.hex.DefaultHexWriter
 import com.memtrip.eos.http.rpc.ChainApi
 import com.memtrip.eos.http.rpc.model.account.request.AccountName
@@ -1356,6 +1355,7 @@ class Cyber4J @JvmOverloads constructor(
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
 
     fun getUserSubscriptions(
@@ -1378,6 +1378,7 @@ class Cyber4J @JvmOverloads constructor(
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
 
     fun getUserPosts(
@@ -1397,6 +1398,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param refBlockNum ref_block_num of post to fetch
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
 
 
@@ -1414,6 +1416,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param refBlockNum ref_block_num of comment to fetch
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
 
     fun getComment(
@@ -1433,6 +1436,7 @@ class Cyber4J @JvmOverloads constructor(
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
 
     fun getCommentsOfPost(
@@ -1458,6 +1462,7 @@ class Cyber4J @JvmOverloads constructor(
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
 
     fun getCommentsOfUser(
@@ -1475,24 +1480,54 @@ class Cyber4J @JvmOverloads constructor(
     /** method for fetching  metedata of some user
      * @param user name of user, which metadata is  fetched
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
     fun getUserMetadata(user: CyberName): Either<UserMetadata, ApiResponseError> = apiService.getUserMetadata(user.name)
+
 
     /**get processed embed link for some raw "https://site.com/content" using iframely service
      * @param forLink raw link of site content
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
     fun getEmbedIframely(forLink: String): Either<IFramelyEmbedResult, ApiResponseError> = apiService.getIframelyEmbed(forLink)
 
     /**get processed embed link for some raw "https://site.com/content" using oembed service
      * @param forLink raw link of site content
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
     fun getEmbedOembed(forLink: String): Either<OEmbedResult, ApiResponseError> = apiService.getOEmdedEmbed(forLink)
+
+    /**method returns current state of user registration process, user gets identified by [user] or
+     * by [phone]
+     *  @param user name of user, which registration state get fetched.
+     *  @param phone  of user, which registration state get fetched.
+     *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
+    fun getRegistrationState(user: CyberName?,
+                             phone: String?): Either<UserRegistrationStateResult, ApiResponseError> = apiService.getRegistrationStateOf(userId = user?.name, phone = phone)
+
+
+    fun firstUserRegistrationStep(captcha: String, phone: String, testingPass: String?) =
+            apiService.firstUserRegistrationStep(captcha, phone, testingPass)
+
+    fun verifyPhoneForUserRegistration(phone: String, code: String) = apiService.verifyPhoneForUserRegistration(phone, code)
+
+    fun setVerifiedUserName(user: String, phone: String) = apiService.setVerifiedUserName(user, phone)
+
+    fun writeUserToBlockChain(userName: CyberName,
+                              owner: String,
+                              active: String,
+                              posting: String,
+                              memo: String) = apiService.writeUserToBlockchain(userName.name, owner, active, posting, memo)
+
 
     /** method for fetching  account of some user
      * @param user name of user, which account is  fetched
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
     fun getUserAccount(user: CyberName): Either<UserProfile, ApiResponseError> {
         return try {

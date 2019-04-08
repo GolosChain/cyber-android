@@ -1,19 +1,23 @@
 package io.golos.cyber4j.services
 
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Rfc3339DateJsonAdapter
 import io.golos.cyber4j.Cyber4JConfig
 import io.golos.cyber4j.KeyStorage
 import io.golos.cyber4j.OnKeysAddedListener
 import io.golos.cyber4j.model.*
 import io.golos.cyber4j.services.model.*
-import io.golos.cyber4j.utils.Either
-import io.golos.cyber4j.utils.StringSigner
+import io.golos.cyber4j.utils.*
+import java.math.BigInteger
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 private enum class ServicesGateMethods {
-    GET_FEED, GET_POST, GET_COMMENT, GET_COMMENTS, GET_USER_METADATA, GET_SECRET, AUTH, GET_EMBED;
+    GET_FEED, GET_POST, GET_COMMENT, GET_COMMENTS, GET_USER_METADATA, GET_SECRET, AUTH, GET_EMBED,
+    GET_REGISTRATION_STATE, REG_FIRST_STEP, REG_VERIFY_PHONE, REG_SET_USER_NAME, REG_WRITE_TO_BLOCKCHAIN;
 
     override fun toString(): String {
         return when (this) {
@@ -25,6 +29,11 @@ private enum class ServicesGateMethods {
             GET_SECRET -> "auth.generateSecret"
             GET_EMBED -> "frame.getEmbed"
             AUTH -> "auth.authorize"
+            GET_REGISTRATION_STATE -> "registration.getState"
+            REG_FIRST_STEP -> "registration.firstStep"
+            REG_VERIFY_PHONE -> "registration.verify"
+            REG_SET_USER_NAME -> "registration.setUsername"
+            REG_WRITE_TO_BLOCKCHAIN -> "registration.toBlockChain"
         }
     }
 }
@@ -32,7 +41,14 @@ private enum class ServicesGateMethods {
 
 internal class CyberServicesApiService(private val config: Cyber4JConfig,
                                        private val keyStore: KeyStorage,
-                                       private val apiClient: ApiClient = CyberServicesWebSocketClient(config)) :
+                                       private val apiClient: ApiClient = CyberServicesWebSocketClient(config,
+                                               moshi =
+                                               Moshi.Builder()
+                                                       .add(Date::class.java, Rfc3339DateJsonAdapter())
+                                                       .add(BigInteger::class.java, BigIntegerAdapter())
+                                                       .add(CyberName::class.java, CyberNameAdapter())
+                                                       .add(UserRegistrationState::class.java, UserRegistrationStateAdapter())
+                                                       .build())) :
         ApiService, AuthRequestListener, OnKeysAddedListener {
 
     private val authExecutor = Executors.newSingleThreadExecutor()
@@ -173,6 +189,31 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
     override fun getUserMetadata(userId: String): Either<UserMetadata, ApiResponseError> {
         return apiClient.send(ServicesGateMethods.GET_USER_METADATA.toString(),
                 UserMetaDataRequest(userId), UserMetadata::class.java)
+    }
+
+    override fun getRegistrationStateOf(userId: String?, phone: String?): Either<UserRegistrationStateResult, ApiResponseError> {
+        return apiClient.send(ServicesGateMethods.GET_REGISTRATION_STATE.toString(),
+                RegistrationStateRequest(userId, phone), UserRegistrationStateResult::class.java)
+    }
+
+    override fun firstUserRegistrationStep(captcha: String, phone: String, testingPass: String?): Either<Any, ApiResponseError> {
+        return apiClient.send(ServicesGateMethods.REG_FIRST_STEP.toString(),
+                FirstRegistrationStepRequest(captcha, phone, testingPass), Any::class.java)
+    }
+
+    override fun verifyPhoneForUserRegistration(phone: String, code: String): Either<Any, ApiResponseError> {
+        return apiClient.send(ServicesGateMethods.REG_VERIFY_PHONE.toString(),
+                VerifyPhoneRequest(phone, code), Any::class.java)
+    }
+
+    override fun setVerifiedUserName(user: String, phone: String): Either<Any, ApiResponseError> {
+        return apiClient.send(ServicesGateMethods.REG_FIRST_STEP.toString(),
+                RegistrationStateRequest(user, phone), Any::class.java)
+    }
+
+    override fun writeUserToBlockchain(userName: String, owner: String, active: String, posting: String, memo: String): Either<Any, ApiResponseError> {
+        return apiClient.send(ServicesGateMethods.REG_WRITE_TO_BLOCKCHAIN.toString(),
+                WriteUserToBlockchainRequest(userName, owner, active, posting, memo), Any::class.java)
     }
 
     @Synchronized
