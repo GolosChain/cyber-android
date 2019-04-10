@@ -19,7 +19,7 @@ class WitnessVoteTest {
 
         assertTrue(createWitnessResult is Either.Success)
 
-        val voteResult = cyber4j.voteForAWitness(testInMainTestNetAccount.first, 5.toShort())
+        val voteResult = cyber4j.voteForAWitness(testInMainTestNetAccount.first)
 
         assertTrue(voteResult is Either.Success)
 

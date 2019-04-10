@@ -162,7 +162,7 @@ class Cyber4J @JvmOverloads constructor(
             body: String,
             tags: List<io.golos.cyber4j.model.Tag>,
             metadata: DiscussionCreateMetadata,
-            curatorRewardPercentage:Short?,
+            curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
@@ -208,7 +208,7 @@ class Cyber4J @JvmOverloads constructor(
             body: String,
             tags: List<io.golos.cyber4j.model.Tag>,
             metadata: DiscussionCreateMetadata,
-            curatorRewardPercentage:Short?,
+            curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
@@ -364,7 +364,7 @@ class Cyber4J @JvmOverloads constructor(
             parentDiscussionRefBlockNum: Long,
             categories: List<Tag>,
             metadata: DiscussionCreateMetadata,
-            curatorRewardPercentage:Short?,
+            curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
@@ -569,7 +569,7 @@ class Cyber4J @JvmOverloads constructor(
             parentDiscussionRefBlockNum: Long,
             categories: List<Tag>,
             metadata: DiscussionCreateMetadata,
-            curatorRewardPercentage:Short?,
+            curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = listOf(),
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
@@ -882,13 +882,12 @@ class Cyber4J @JvmOverloads constructor(
 
     private fun voteForAWitness(userActiveKey: String,
                                 voter: CyberName,
-                                witness: CyberName,
-                                weight: Short): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
+                                witness: CyberName): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
         val callable = Callable {
             val squisher = createBinaryConverter()
 
             val voteRequest = WitnessVoteRequestAbi(
-                    voter, witness, weight
+                    voter, witness
             )
 
             val operationHex = squisher.squishWitnessVoteRequestAbi(voteRequest).toHex()
@@ -908,18 +907,17 @@ class Cyber4J @JvmOverloads constructor(
     /** vote for a witness
      * This method assumes that you have added account with keys to [keyStorage]
      * @param witness name of witness to vote to
-     * @param weight weight of vote
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * @throws IllegalStateException if active account not set
      */
 
     fun voteForAWitness(
-            witness: CyberName, weight: Short): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
+            witness: CyberName): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
-        return voteForAWitness(activeAccountKey, activeAccountName, witness, weight)
+        return voteForAWitness(activeAccountKey, activeAccountName, witness)
     }
 
     /** cancel vote for a witness
@@ -983,13 +981,8 @@ class Cyber4J @JvmOverloads constructor(
         val callable = Callable {
             val squisher = createBinaryConverter()
 
-            val witnessAccount = chainApi.getAccount(AccountName(witness.name)).blockingGet().body()!!
-
-            val activeKey = witnessAccount.permissions.find { it.perm_name == "active" }!!.required_auth.keys.first().key
-
             val witnessRegisterRequest = RegWitnessRequestAbi(
                     witness,
-                    activeKey.replace("GLS", "EOS"),
                     websiteUrl)
 
 
