@@ -5,6 +5,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import io.golos.cyber4j.model.CyberName
+import io.golos.cyber4j.model.RegistrationStrategy
 import io.golos.cyber4j.model.UserRegistrationState
 import java.math.BigInteger
 
@@ -47,11 +48,31 @@ class UserRegistrationStateAdapter : JsonAdapter<UserRegistrationState>() {
         return when (value) {
             "registered" -> UserRegistrationState.REGISTERED
             "firstStep" -> UserRegistrationState.FIRST_STEP
-            else -> throw IllegalArgumentException("unknow step $value")
+            "verify" -> UserRegistrationState.VERIFY
+            else -> throw IllegalArgumentException("unknown step $value")
         }
     }
 
     override fun toJson(writer: JsonWriter, value: UserRegistrationState?) {
+        writer.value(value?.name ?: "")
+    }
+}
+
+class UserRegistrationStrategyAdapter : JsonAdapter<RegistrationStrategy>() {
+
+    override fun fromJson(reader: JsonReader): RegistrationStrategy {
+        val value = reader.nextString()
+
+        return when (value) {
+            "smsFromUser" ->RegistrationStrategy.SMS_FROM_USER
+            "smsToUser" ->RegistrationStrategy.SMS_TO_USER
+            "mail" ->RegistrationStrategy.MAIL
+            "social" ->RegistrationStrategy.SOCIAL
+            else -> throw IllegalArgumentException("unknown strategy $value")
+        }
+    }
+
+    override fun toJson(writer: JsonWriter, value: RegistrationStrategy?) {
         writer.value(value?.name ?: "")
     }
 }

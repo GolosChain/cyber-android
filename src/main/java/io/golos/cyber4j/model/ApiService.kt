@@ -125,7 +125,7 @@ interface ApiService {
 
     fun getRegistrationStateOf(userId: String?, phone: String?): Either<UserRegistrationStateResult, ApiResponseError>
 
-    fun firstUserRegistrationStep(captcha: String, phone: String, testingPass: String?): Either<Any, ApiResponseError>
+    fun firstUserRegistrationStep(captcha: String, phone: String, testingPass: String?): Either<FirstRegistrationStepResult, ApiResponseError>
 
     fun verifyPhoneForUserRegistration(phone: String, code: String): Either<Any, ApiResponseError>
 

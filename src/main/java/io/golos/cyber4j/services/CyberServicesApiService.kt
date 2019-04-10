@@ -48,6 +48,7 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
                                                        .add(BigInteger::class.java, BigIntegerAdapter())
                                                        .add(CyberName::class.java, CyberNameAdapter())
                                                        .add(UserRegistrationState::class.java, UserRegistrationStateAdapter())
+                                                       .add(RegistrationStrategy::class.java, UserRegistrationStrategyAdapter())
                                                        .build())) :
         ApiService, AuthRequestListener, OnKeysAddedListener {
 
@@ -196,9 +197,9 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
                 RegistrationStateRequest(userId, phone), UserRegistrationStateResult::class.java)
     }
 
-    override fun firstUserRegistrationStep(captcha: String, phone: String, testingPass: String?): Either<Any, ApiResponseError> {
+    override fun firstUserRegistrationStep(captcha: String, phone: String, testingPass: String?): Either<FirstRegistrationStepResult, ApiResponseError> {
         return apiClient.send(ServicesGateMethods.REG_FIRST_STEP.toString(),
-                FirstRegistrationStepRequest(captcha, phone, testingPass), Any::class.java)
+                FirstRegistrationStepRequest(captcha, phone, testingPass), FirstRegistrationStepResult::class.java)
     }
 
     override fun verifyPhoneForUserRegistration(phone: String, code: String): Either<Any, ApiResponseError> {
