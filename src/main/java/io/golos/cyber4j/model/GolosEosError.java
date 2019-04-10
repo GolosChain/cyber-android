@@ -40,7 +40,7 @@ public class GolosEosError {
         this.error = error;
     }
 
-    static class Error {
+  public   static class Error {
         private int code;
         private String name;
         private String what;

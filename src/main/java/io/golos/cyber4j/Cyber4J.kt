@@ -149,6 +149,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param tags tags list for post. Must be not empty
      * @param metadata metadata of a post. Can be empty
      * @param beneficiaries beneficiaries of a post. Can be empty
+     * @param curatorRewardPercentage curation reward percentage, 0..10_000
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
@@ -161,6 +162,7 @@ class Cyber4J @JvmOverloads constructor(
             body: String,
             tags: List<io.golos.cyber4j.model.Tag>,
             metadata: DiscussionCreateMetadata,
+            curatorRewardPercentage:Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
@@ -176,6 +178,7 @@ class Cyber4J @JvmOverloads constructor(
                 body,
                 tags,
                 metadata,
+                curatorRewardPercentage,
                 beneficiaries,
                 vestPayment,
                 tokenProp
@@ -190,6 +193,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param tags tags list for post. Must be not empty
      * @param beneficiaries beneficiaries of a post. Can be empty
      * @param metadata metadata of a post. Can be empty
+     * @param curatorRewardPercentage percentage of curation reward, 0..10_000
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
@@ -204,6 +208,7 @@ class Cyber4J @JvmOverloads constructor(
             body: String,
             tags: List<io.golos.cyber4j.model.Tag>,
             metadata: DiscussionCreateMetadata,
+            curatorRewardPercentage:Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
@@ -212,12 +217,18 @@ class Cyber4J @JvmOverloads constructor(
         return createPostOrComment(
                 fromAccount, userActiveKey,
                 title, body, formatPostPermlink(title),
-                "", CyberName(), 0L, tags, beneficiaries, metadata, vestPayment, tokenProp
+                "", CyberName(), 0L, tags, curatorRewardPercentage, beneficiaries, metadata, vestPayment, tokenProp
         )
     }
 
-    private fun isStateError(callResult: Either<out Any?, GolosEosError>): Boolean {
-        return callResult is Either.Failure && callResult.value.code == staleTransactionErrorCode
+    private fun isStaleError(callResult: Either<out Any?, GolosEosError>): Boolean {
+        println("isStaleError")
+        println("callResult = $callResult")
+        println("is stale error = ${callResult is Either.Failure
+                && (callResult.value.error.code == staleTransactionErrorCode)}")
+
+        return callResult is Either.Failure
+                && (callResult.value.error.code == staleTransactionErrorCode)
     }
 
     private fun formatPostPermlink(permlinkToFormat: String): String {
@@ -238,7 +249,7 @@ class Cyber4J @JvmOverloads constructor(
         var result: Either<TransactionSuccessful<T>, GolosEosError>
         do {
             result = callable.call()
-        } while (isStateError(result))
+        } while (isStaleError(result))
 
         return result
     }
@@ -284,6 +295,7 @@ class Cyber4J @JvmOverloads constructor(
             parentAccount: CyberName,
             parentDiscussionRefBlockId: Long,
             tags: List<io.golos.cyber4j.model.Tag>,
+            curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             metadata: DiscussionCreateMetadata = DiscussionCreateMetadata(emptyList(), emptyList()),
             vestPayment: Boolean = true,
@@ -305,7 +317,8 @@ class Cyber4J @JvmOverloads constructor(
                     tokenProp,
                     vestPayment,
                     "ru",
-                    moshi.adapter(DiscussionCreateMetadata::class.java).toJson(metadata)
+                    moshi.adapter(DiscussionCreateMetadata::class.java).toJson(metadata),
+                    curatorRewardPercentage
             )
 
             println(
@@ -337,6 +350,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param categories categories (tags) of a comment
      * @param metadata metadata of a comment. Can be empty
      * @param beneficiaries beneficiaries of a post. Can be empty
+     * @param curatorRewardPercentage percentage of curation reward, 0..10_000
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
@@ -350,6 +364,7 @@ class Cyber4J @JvmOverloads constructor(
             parentDiscussionRefBlockNum: Long,
             categories: List<Tag>,
             metadata: DiscussionCreateMetadata,
+            curatorRewardPercentage:Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
@@ -367,6 +382,7 @@ class Cyber4J @JvmOverloads constructor(
                 parentDiscussionRefBlockNum,
                 categories,
                 metadata,
+                curatorRewardPercentage,
                 beneficiaries,
                 vestPayment,
                 tokenProp
@@ -536,6 +552,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param parentPermlink parentPermlink of parent post. Must be not blank
      * @param parentDiscussionRefBlockNum ref_block_num of parent post. Must be not 0
      * @param categories list of tags of comments
+     * @param curatorRewardPercentage percentage of curation reward, 0..10_000
      * @param metadata metadata of a comment. Can be empty
      * @param beneficiaries beneficiaries of a post. Can be empty
      * @param vestPayment true to allow vestPayment of author to for a post
@@ -552,6 +569,7 @@ class Cyber4J @JvmOverloads constructor(
             parentDiscussionRefBlockNum: Long,
             categories: List<Tag>,
             metadata: DiscussionCreateMetadata,
+            curatorRewardPercentage:Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = listOf(),
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
@@ -575,6 +593,7 @@ class Cyber4J @JvmOverloads constructor(
                 parentAccount,
                 parentDiscussionRefBlockNum,
                 categories,
+                curatorRewardPercentage,
                 beneficiaries,
                 metadata,
                 vestPayment,
@@ -824,7 +843,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param refBlockNumOfPostToReblog ref_block_num of entity to  reblog
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
-     fun reblog(
+    fun reblog(
             userActiveKey: String,
             reblogger: CyberName,
             authorOfPostToReblog: CyberName,
@@ -1219,7 +1238,7 @@ class Cyber4J @JvmOverloads constructor(
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
 
-     fun openVestingBalance(
+    fun openVestingBalance(
             forUser: CyberName,
             cyberKey: String
     ) = openBalance(forUser, UserBalance.VESTING, cyberKey)
@@ -1231,7 +1250,7 @@ class Cyber4J @JvmOverloads constructor(
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
 
-     fun openTokenBalance(
+    fun openTokenBalance(
             forUser: CyberName,
             cyberCreatePermissionKey: String
     ) =
@@ -1282,7 +1301,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param amount amount of tokens to issue.  Must have 3 points precision, like 12.000 or 0.001
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
-     fun issueTokens(
+    fun issueTokens(
             forUser: CyberName,
             issuerKey: String,
             amount: String,

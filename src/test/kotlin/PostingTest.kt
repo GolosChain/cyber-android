@@ -25,7 +25,7 @@ class PostingTest {
     fun testPostOnPrivateTestNet() {
 
         val postResponse = client.createPost("тестовый заголовок-${UUID.randomUUID()}",
-                "тестовое тело поста", listOf(Tag("test")), testMetadata)
+                "тестовое тело поста", listOf(Tag("test")), testMetadata, createRandomCurationReward())
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
@@ -33,13 +33,13 @@ class PostingTest {
 
         val commentCreationResult = client.createComment("тестовый коммент",
                 postResult.message_id.author, postResult.message_id.permlink, postResult.message_id.ref_block_num,
-                listOf(), testMetadata)
+                listOf(), testMetadata, createRandomCurationReward())
 
         assertTrue("comment creation fail on test net", commentCreationResult is Either.Success)
 
 
         val secondPostResponse = client.createPost(secondAccount.first, secondAccount.second, "тестовый заголовок-${UUID.randomUUID()}",
-                "тестовое тело поста", listOf(Tag("test")), testMetadata)
+                "тестовое тело поста", listOf(Tag("test")), testMetadata, createRandomCurationReward())
         assertTrue("post creation fail on test net", secondPostResponse is Either.Success)
 
         val secondPostResult = (secondPostResponse as Either.Success).value.extractResult()
@@ -47,7 +47,7 @@ class PostingTest {
         val secondCommentCreationResult = client.createComment(secondAccount.first, secondAccount.second,
                 "тестовый коммент",
                 secondPostResult.message_id.author, secondPostResult.message_id.permlink, secondPostResult.message_id.ref_block_num,
-                listOf(), testMetadata)
+                listOf(), testMetadata, createRandomCurationReward())
 
         assertTrue("comment creation fail on test net", secondCommentCreationResult is Either.Success)
 
@@ -57,7 +57,7 @@ class PostingTest {
     fun updatePostTest() {
 
         val postResponse = client.createPost("тестовый заголовок-${UUID.randomUUID()}",
-                "тестовое тело поста", listOf(Tag("test")), testMetadata)
+                "тестовое тело поста", listOf(Tag("test")), testMetadata, createRandomCurationReward())
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
@@ -90,7 +90,7 @@ class PostingTest {
     @Test
     fun updateComment() {
         val postResponse = client.createPost("тестовый заголовок-${UUID.randomUUID()}",
-                "тестовое тело поста", listOf(Tag("test")), testMetadata)
+                "тестовое тело поста", listOf(Tag("test")), testMetadata, createRandomCurationReward())
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
@@ -98,7 +98,7 @@ class PostingTest {
 
         val commentCreationResponse = client.createComment("тестовый коммент",
                 postResult.message_id.author, postResult.message_id.permlink, postResult.message_id.ref_block_num,
-                listOf(), testMetadata)
+                listOf(), testMetadata, createRandomCurationReward())
 
         assertTrue("comment creation fail on test net", commentCreationResponse is Either.Success)
 
@@ -130,7 +130,7 @@ class PostingTest {
     fun deleteTest() {
 
         val postResponse = client.createPost("тестовый заголовок-${UUID.randomUUID()}",
-                "тестовое тело поста", listOf(Tag("test")), testMetadata)
+                "тестовое тело поста", listOf(Tag("test")), testMetadata, createRandomCurationReward())
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
@@ -141,7 +141,7 @@ class PostingTest {
 
         val postResponseSecond = client.createPost(secondAccount.first, secondAccount.second,
                 "тестовый заголовок-${UUID.randomUUID()}",
-                "тестовое тело поста", listOf(Tag("test")), testMetadata)
+                "тестовое тело поста", listOf(Tag("test")), testMetadata, createRandomCurationReward())
 
         assertTrue("post creation fail on test net", postResponseSecond is Either.Success)
 
@@ -156,15 +156,22 @@ class PostingTest {
 
     @Test
     fun testReblog() {
-        val postFeed = client.getCommunityPosts("gls", 100, DiscussionTimeSort.SEQUENTIALLY, null)
+        val postResponse = client.createPost("тестовый заголовок-${UUID.randomUUID()}",
+                "тестовое тело поста", listOf(Tag("test")), testMetadata, createRandomCurationReward())
 
-        val post = (postFeed as Either.Success).value.items[(Math.random() * 99).toInt()]
+        val postMessageId = (postResponse as Either.Success).value.extractResult().message_id
 
-        val reblogResult = client.reblog(post.contentId.userId.toCyberName(), post.contentId.permlink, post.contentId.refBlockNum)
+        val reblogResult = client.reblog(postMessageId.author,postMessageId.permlink, postMessageId.ref_block_num)
 
         assertTrue(reblogResult is Either.Success)
 
         println(reblogResult)
 
+    }
+
+    private fun createRandomCurationReward(): Short? {
+        val random = Math.random()
+        return if (random < 0.1 || random > 0.8) null
+        else (random * 10_000).toShort()
     }
 }

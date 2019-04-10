@@ -24,13 +24,17 @@ internal class CreateDiscussionRequestAbi(private val discussionIdAbi: Discussio
                                           private val tokenprop: Long = 0,
                                           private val vestpayment: Boolean = true,
                                           private val language: String = "ru",
-                                          private val jsonMetadata: String = "") {
+                                          private val jsonMetadata: String = "",
+                                          private val curatorPercentage: Short?) {
 
     val getDiscussionIdAbi: DiscussionIdAbi
         @ChildCompress get() = discussionIdAbi
 
     val getParentDiscussionIdAbi: DiscussionIdAbi
         @ChildCompress get() = parentDiscussionIdAbi
+
+    val getParentRecId: Long
+        @LongCompress get() = 0
 
     val getBeneficiaries: List<Beneficiary>
         @CollectionCompress get() = beneficiaries
@@ -56,7 +60,12 @@ internal class CreateDiscussionRequestAbi(private val discussionIdAbi: Discussio
     val getJsonmetadata: String
         @StringCompress get() = jsonMetadata
 
-    override fun toString(): String {
+    val getCuratorPercentage: ByteArray
+        @BytesCompress get() = curatorPercentage.asOptionalShortBytes()
+
+    override
+
+    fun toString(): String {
         return "CreateDiscussionRequestAbi(discussionIdAbi=$discussionIdAbi, parentDiscussionIdAbi=$parentDiscussionIdAbi, beneficiaries=$beneficiaries, headermssg='$headermssg', bodymssg='$bodymssg', tags=$tags, tokenprop=$tokenprop, vestpayment=$vestpayment, language='$language', jsonMetadata='$jsonMetadata')"
     }
 }

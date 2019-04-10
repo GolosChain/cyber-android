@@ -10,18 +10,20 @@ class WitnessVoteTest {
     fun testVoteAndUnvote() {
         val cyber4j = Cyber4J(mainTestNetConfig)
 
+        cyber4j.keyStorage.addAccountKeys(testInMainTestNetAccount.first,
+                setOf(Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)))
+
         //name = wmhbptpodfeu activeKey = 5J9bWrWFPxvLDbViBYh32k9Ei7aT8afyuWiwzkNzGHhtoZXmjtU
-        cyber4j.keyStorage.addAccountKeys("wmhbptpodfeu".toCyberName(), setOf(Pair(AuthType.ACTIVE, "5J9bWrWFPxvLDbViBYh32k9Ei7aT8afyuWiwzkNzGHhtoZXmjtU")))
 
         val createWitnessResult = cyber4j.registerAWitness("url")
 
         assertTrue(createWitnessResult is Either.Success)
 
-        val voteResult = cyber4j.voteForAWitness("wmhbptpodfeu".toCyberName(), 0.toShort())
+        val voteResult = cyber4j.voteForAWitness(testInMainTestNetAccount.first, 5.toShort())
 
         assertTrue(voteResult is Either.Success)
 
-        val unvoteResult = cyber4j.unVoteForAWitness("wmhbptpodfeu".toCyberName())
+        val unvoteResult = cyber4j.unVoteForAWitness(testInMainTestNetAccount.first)
 
         assertTrue(unvoteResult is Either.Success)
 
