@@ -1,20 +1,23 @@
 package io.golos.cyber4j.model;
 
-import kotlin.text.Regex;
-
 import java.util.Objects;
+
+import kotlin.text.Regex;
 
 public class CyberName {
 
-    private static final Regex pattern = new Regex("[a-z0-5.]{0,12}");
+    private static final Regex pattern = new Regex("([A-Za-z0-9\\._-]+@[a-z]+)|([a-z0-5\\.]{0,12})");
     private String name;
 
 
     public CyberName(String name) {
         if (!pattern.matches(name))
-            throw new IllegalStateException("name must consist only of a-z and 1-5 characters, " +
-                    "and be no longer then 12 chars, set name is " + name);
+            throw new IllegalStateException("invalid name " + name);
         this.name = name;
+    }
+
+    public boolean isCanonicalName() {
+        return !name.contains("@");
     }
 
     public CyberName() {
@@ -48,5 +51,4 @@ public class CyberName {
     public int hashCode() {
         return Objects.hash(name);
     }
-
 }

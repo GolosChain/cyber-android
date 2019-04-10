@@ -1,11 +1,16 @@
 import io.golos.cyber4j.Cyber4J
-import io.golos.cyber4j.model.*
+import io.golos.cyber4j.model.AuthType
+import io.golos.cyber4j.model.CyberName
+import io.golos.cyber4j.model.DiscussionCreateMetadata
+import io.golos.cyber4j.model.Tag
+import io.golos.cyber4j.utils.AuthUtils
 import io.golos.cyber4j.utils.Either
 import io.golos.cyber4j.utils.Pair
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import java.nio.charset.Charset
 import java.util.*
 
 class PostingTest {
@@ -16,7 +21,7 @@ class PostingTest {
     fun before() {
         client.keyStorage.addAccountKeys(testInMainTestNetAccount.first,
                 setOf(Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)))
-        secondAccount = testInMainTestNetAccountSecond
+        secondAccount = secondAccount
     }
 
     val testMetadata = DiscussionCreateMetadata(listOf(DiscussionCreateMetadata.EmbedmentsUrl("test_url")), listOf("тээст"))
@@ -161,7 +166,7 @@ class PostingTest {
 
         val postMessageId = (postResponse as Either.Success).value.extractResult().message_id
 
-        val reblogResult = client.reblog(postMessageId.author,postMessageId.permlink, postMessageId.ref_block_num)
+        val reblogResult = client.reblog(postMessageId.author, postMessageId.permlink, postMessageId.ref_block_num)
 
         assertTrue(reblogResult is Either.Success)
 

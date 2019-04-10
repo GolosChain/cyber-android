@@ -24,7 +24,7 @@ interface TransactionPusher {
                             usingPrefetchedChainInfo: Info? = null): Either<TransactionSuccessful<T>, GolosEosError>
 }
 
-internal class TransactionPusherImpl(private val chainApi: ChainApi,
+internal class TransactionPusherImpl(private val chainApi: CyberWayChainApi,
                                      private val cyber4JConfig: io.golos.cyber4j.Cyber4JConfig,
                                      private val moshi: Moshi) : TransactionPusher {
 

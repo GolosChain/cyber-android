@@ -6,8 +6,8 @@ val mainTestNetConfig = Cyber4JConfig(blockChainHttpApiUrl = "http://159.69.85.2
 //val privateTestNetConfig = Cyber4JConfig(blockChainHttpApiUrl = "http://159.69.85.233:8888/")
 
 val testInMainTestNetAccount by lazy {
-    //Pair(CyberName("vhgandicbrlh"), "5JPkQvkCrM3FU7DwejdYtWFboPaWb29TTCdas8YCUSM4z7m9HAP")
-    AccountCreationTest.createNewAccount(mainTestNetConfig)
+    Pair(CyberName("destroyer2k@golos"), "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")
+   // AccountCreationTest.createNewAccount(mainTestNetConfig)
 
 }
 
