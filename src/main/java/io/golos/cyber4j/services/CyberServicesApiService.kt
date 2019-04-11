@@ -17,7 +17,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 private enum class ServicesGateMethods {
     GET_FEED, GET_POST, GET_COMMENT, GET_COMMENTS, GET_USER_METADATA, GET_SECRET, AUTH, GET_EMBED,
-    GET_REGISTRATION_STATE, REG_FIRST_STEP, REG_VERIFY_PHONE, REG_SET_USER_NAME, REG_WRITE_TO_BLOCKCHAIN;
+    GET_REGISTRATION_STATE, REG_FIRST_STEP, REG_VERIFY_PHONE, REG_SET_USER_NAME, REG_WRITE_TO_BLOCKCHAIN,
+    REG_RESEND_SMS;
 
     override fun toString(): String {
         return when (this) {
@@ -34,6 +35,7 @@ private enum class ServicesGateMethods {
             REG_VERIFY_PHONE -> "registration.verify"
             REG_SET_USER_NAME -> "registration.setUsername"
             REG_WRITE_TO_BLOCKCHAIN -> "registration.toBlockChain"
+            REG_RESEND_SMS -> "registration.resendSmsCode"
         }
     }
 }
@@ -197,24 +199,29 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
                 RegistrationStateRequest(userId, phone), UserRegistrationStateResult::class.java)
     }
 
-    override fun firstUserRegistrationStep(captcha: String, phone: String, testingPass: String?): Either<FirstRegistrationStepResult, ApiResponseError> {
+    override fun firstUserRegistrationStep(captcha: String?, phone: String, testingPass: String?): Either<FirstRegistrationStepResult, ApiResponseError> {
         return apiClient.send(ServicesGateMethods.REG_FIRST_STEP.toString(),
                 FirstRegistrationStepRequest(captcha, phone, testingPass), FirstRegistrationStepResult::class.java)
     }
 
-    override fun verifyPhoneForUserRegistration(phone: String, code: String): Either<Any, ApiResponseError> {
+    override fun verifyPhoneForUserRegistration(phone: String, code: Int): Either<ResultOk, ApiResponseError> {
         return apiClient.send(ServicesGateMethods.REG_VERIFY_PHONE.toString(),
-                VerifyPhoneRequest(phone, code), Any::class.java)
+                VerifyPhoneRequest(phone, code), ResultOk::class.java)
     }
 
-    override fun setVerifiedUserName(user: String, phone: String): Either<Any, ApiResponseError> {
-        return apiClient.send(ServicesGateMethods.REG_FIRST_STEP.toString(),
-                RegistrationStateRequest(user, phone), Any::class.java)
+    override fun setVerifiedUserName(user: String, phone: String): Either<ResultOk, ApiResponseError> {
+        return apiClient.send(ServicesGateMethods.REG_SET_USER_NAME.toString(),
+                RegistrationStateRequest(user, phone), ResultOk::class.java)
     }
 
-    override fun writeUserToBlockchain(userName: String, owner: String, active: String, posting: String, memo: String): Either<Any, ApiResponseError> {
+    override fun writeUserToBlockchain(userName: String, owner: String, active: String, posting: String, memo: String): Either<ResultOk, ApiResponseError> {
         return apiClient.send(ServicesGateMethods.REG_WRITE_TO_BLOCKCHAIN.toString(),
-                WriteUserToBlockchainRequest(userName, owner, active, posting, memo), Any::class.java)
+                WriteUserToBlockchainRequest(userName, owner, active, posting, memo), ResultOk::class.java)
+    }
+
+    override fun resendSmsCode(name: String?, phone: String?): Either<ResultOk, ApiResponseError> {
+        return apiClient.send(ServicesGateMethods.REG_RESEND_SMS.toString(),
+                ResendUserSmsRequest(name, phone), ResultOk::class.java)
     }
 
     @Synchronized

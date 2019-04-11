@@ -5,9 +5,9 @@ import java.util.Date;
 public class FirstRegistrationStepResult {
     private int code;
     private RegistrationStrategy strategy;
-    private long nextSmsRetry;
+    private Date nextSmsRetry;
 
-    public FirstRegistrationStepResult(int code, RegistrationStrategy strategy, long nextSmsRetry) {
+    public FirstRegistrationStepResult(int code, RegistrationStrategy strategy, Date nextSmsRetry) {
         this.code = code;
         this.strategy = strategy;
         this.nextSmsRetry = nextSmsRetry;
@@ -29,11 +29,11 @@ public class FirstRegistrationStepResult {
         this.strategy = strategy;
     }
 
-    public long getNextSmsRetry() {
+    public Date getNextSmsRetry() {
         return nextSmsRetry;
     }
 
-    public void setNextSmsRetry(long nextSmsRetry) {
+    public void setNextSmsRetry(Date nextSmsRetry) {
         this.nextSmsRetry = nextSmsRetry;
     }
 

@@ -125,12 +125,14 @@ interface ApiService {
 
     fun getRegistrationStateOf(userId: String?, phone: String?): Either<UserRegistrationStateResult, ApiResponseError>
 
-    fun firstUserRegistrationStep(captcha: String, phone: String, testingPass: String?): Either<FirstRegistrationStepResult, ApiResponseError>
+    fun firstUserRegistrationStep(captcha: String?, phone: String, testingPass: String?): Either<FirstRegistrationStepResult, ApiResponseError>
 
-    fun verifyPhoneForUserRegistration(phone: String, code: String): Either<Any, ApiResponseError>
+    fun verifyPhoneForUserRegistration(phone: String, code: Int): Either<ResultOk, ApiResponseError>
 
-    fun setVerifiedUserName(user: String, phone: String): Either<Any, ApiResponseError>
+    fun setVerifiedUserName(user: String, phone: String): Either<ResultOk, ApiResponseError>
 
-    fun writeUserToBlockchain(userName: String, owner: String, active: String, posting: String, memo: String): Either<Any, ApiResponseError>
+    fun writeUserToBlockchain(userName: String, owner: String, active: String, posting: String, memo: String): Either<ResultOk, ApiResponseError>
+
+    fun resendSmsCode(name: String?, phone: String?): Either<ResultOk, ApiResponseError>
 }
 

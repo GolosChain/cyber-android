@@ -54,7 +54,7 @@ class AccountCreationTest {
 
 
     companion object {
-        private val eosCreateKey =  (Cyber4J::class.java).getResource("/eoscreateacckey.txt").readText(Charset.defaultCharset())
+        private val eosCreateKey = (Cyber4J::class.java).getResource("/eoscreateacckey.txt").readText(Charset.defaultCharset())
 
         fun createNewAccount(forConfig: Cyber4JConfig = mainTestNetConfig): Pair<CyberName, String> {
             val commun = io.golos.cyber4j.Cyber4J(forConfig)
@@ -66,12 +66,6 @@ class AccountCreationTest {
             return Pair(CyberName(newUser), AuthUtils.generatePrivateWiFs(newUser, pass, arrayOf(AuthType.ACTIVE))[AuthType.ACTIVE]!!)
         }
 
-        private fun generateRandomCommunName(): String {
-            val builder = StringBuilder()
-            (0..11).forEach {
-                builder.append((Math.random() * 25).toChar() + 97)
-            }
-            return builder.toString()
-        }
+
     }
 }

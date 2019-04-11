@@ -824,7 +824,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param refBlockNumOfPostToReblog ref_block_num of entity to  reblog
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
-     fun reblog(
+    fun reblog(
             userActiveKey: String,
             reblogger: CyberName,
             authorOfPostToReblog: CyberName,
@@ -1219,7 +1219,7 @@ class Cyber4J @JvmOverloads constructor(
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
 
-     fun openVestingBalance(
+    fun openVestingBalance(
             forUser: CyberName,
             cyberKey: String
     ) = openBalance(forUser, UserBalance.VESTING, cyberKey)
@@ -1231,7 +1231,7 @@ class Cyber4J @JvmOverloads constructor(
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
 
-     fun openTokenBalance(
+    fun openTokenBalance(
             forUser: CyberName,
             cyberCreatePermissionKey: String
     ) =
@@ -1282,7 +1282,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param amount amount of tokens to issue.  Must have 3 points precision, like 12.000 or 0.001
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
-     fun issueTokens(
+    fun issueTokens(
             forUser: CyberName,
             issuerKey: String,
             amount: String,
@@ -1510,18 +1510,51 @@ class Cyber4J @JvmOverloads constructor(
                              phone: String?): Either<UserRegistrationStateResult, ApiResponseError> = apiService.getRegistrationStateOf(userId = user?.name, phone = phone)
 
 
-    fun firstUserRegistrationStep(captcha: String, phone: String, testingPass: String?) =
+    /** method leads to sending sms code to user's [phone]. proper [testingPass] makes backend to omit this check
+     *  @param captcha capthc string
+     *  @param phone  of user for sending sms verification code
+     *  @param testingPass pass to omit cpatcha and phone checks
+     *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
+
+    fun firstUserRegistrationStep(captcha: String?, phone: String, testingPass: String?) =
             apiService.firstUserRegistrationStep(captcha, phone, testingPass)
 
-    fun verifyPhoneForUserRegistration(phone: String, code: String) = apiService.verifyPhoneForUserRegistration(phone, code)
+    /** method used to verify [phone] by sent [code] through sms. Second step of registration
+     *  @param code sms code sent to [phone]
+     *  @param phone  of user
+     *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
+    fun verifyPhoneForUserRegistration(phone: String, code: Int) = apiService.verifyPhoneForUserRegistration(phone, code)
 
-    fun setVerifiedUserName(user: String, phone: String) = apiService.setVerifiedUserName(user, phone)
+    /** method used to connect verified [user] name with [phone]. Third step of registration
+     *  @param user name to associate with [phone]
+     *  @param phone verified phone
+     *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
+    fun setVerifiedUserName(user: CyberName, phone: String) = apiService.setVerifiedUserName(user.name, phone)
 
+    /** method used to finalize registration of user in cyberway blockchain. Final step of registration
+     *  @param userName name of user
+     *  @param owner public owner key of user
+     *  @param active public active key of user
+     *  @param posting public posting key of user
+     *  @param memo public memo key of user
+     *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
     fun writeUserToBlockChain(userName: CyberName,
                               owner: String,
                               active: String,
                               posting: String,
                               memo: String) = apiService.writeUserToBlockchain(userName.name, owner, active, posting, memo)
+
+    fun resendSmsCode(forUser: CyberName) = apiService.resendSmsCode(forUser.name, null)
+
+    fun resendSmsCode(phone: String) = apiService.resendSmsCode(null, phone)
 
 
     /** method for fetching  account of some user
