@@ -8,13 +8,12 @@ import java.util.*
 
 class RegistrationTest {
     private val cyber4J = Cyber4J()
-    val unExistingPhone = "+70000000219"
+    val unExistingPhone = generatePhone()
     val pass = (Cyber4J::class.java).getResource("/phonekey.txt").readText()
 
     @Test
     fun testGetState() {
-        val state = cyber4J.getRegistrationState("hpwkuvaktvmn".toCyberName(), null)
-        println(generatePass())
+        val state = cyber4J.getRegistrationState(null, "+773217337584")
 
         assertTrue(state is Either.Success)
     }
@@ -54,6 +53,14 @@ class RegistrationTest {
         println(lastStep)
 
     }
+}
+
+fun generatePhone(): String {
+    val sb = StringBuilder("+7")
+    (0..10).forEach {
+        sb.append((Math.random() * 10).toInt())
+    }
+    return sb.toString()
 }
 
 fun generatePass() = (UUID.randomUUID().toString() + UUID.randomUUID().toString()).replace("-", "")
