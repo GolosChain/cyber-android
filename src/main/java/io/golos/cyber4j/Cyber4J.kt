@@ -1552,8 +1552,20 @@ class Cyber4J @JvmOverloads constructor(
                               posting: String,
                               memo: String) = apiService.writeUserToBlockchain(userName.name, owner, active, posting, memo)
 
+
+
+    /** method used to resend sms code to user during phone verification
+     *  @param forUser name of user
+     *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
     fun resendSmsCode(forUser: CyberName) = apiService.resendSmsCode(forUser.name, null)
 
+    /** method used to resend sms code to user during phone verification
+     *  @param phone phone of user to verify
+     *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
     fun resendSmsCode(phone: String) = apiService.resendSmsCode(null, phone)
 
 
