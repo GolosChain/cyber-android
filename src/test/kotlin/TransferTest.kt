@@ -21,12 +21,12 @@ class TransferTest {
     @Test
     fun transferSomeMoney() {
        // privateTestNetClient.openBalance("destroyer2k@golos".toCyberName(),)
-        val firstTransferResult = privateTestNetClient.transfer(secondAccount.first, "0.010", "GLS")
+        val firstTransferResult = privateTestNetClient.transfer(secondAccount.first, "0.010", "GOLOS")
         assertTrue("transfer fail", firstTransferResult is Either.Success)
 
         val seconfTransferResult = privateTestNetClient.transfer(secondAccount.second,
                 secondAccount.first, privateTestNetClient.keyStorage.getActiveAccount()
-                , "0.001", "GLS")
+                , "0.001", "GOLOS")
         assertTrue("transfer fail", seconfTransferResult is Either.Success)
     }
 }

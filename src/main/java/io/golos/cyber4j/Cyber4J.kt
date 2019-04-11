@@ -1213,7 +1213,7 @@ class Cyber4J @JvmOverloads constructor(
                         "during openTokenBalance()"
         )
 
-        val issueResult = issueTokens(newAccountName.toCyberName(), cyberCreatePermissionKey, "3.000 GLS")
+        val issueResult = issueTokens(newAccountName.toCyberName(), cyberCreatePermissionKey, "3.000 GOLOS")
 
         if (issueResult is Either.Failure) throw IllegalStateException(
                 "error initializing of account $newAccountName" +
@@ -1230,7 +1230,7 @@ class Cyber4J @JvmOverloads constructor(
                 activeKey,
                 newAccountName.toCyberName(),
                 CyberContracts.VESTING.toString().toCyberName(),
-                "0.100", "GLS"
+                "0.100", "GOLOS"
         )
 
         if (transferResult is Either.Failure) throw IllegalStateException(

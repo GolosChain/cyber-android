@@ -18,7 +18,8 @@ internal class VestingStartRequestAbi(private val owner: CyberName,
 
     val decsBytes: ByteArray
         @BytesCompress
-        get() = byteArrayOf(71, 76, 83, 0, 0, 0, 0)
+        get() = "GOLOS".toByteArray().plus(0).plus(0)
+//        get() = byteArrayOf(71, 76, 83, 0, 0, 0, 0)
 
     val getRamPayer: String
         @NameCompress
