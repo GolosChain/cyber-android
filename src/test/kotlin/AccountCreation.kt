@@ -29,9 +29,12 @@ class AccountCreationTest {
         val client = io.golos.cyber4j.Cyber4J(Cyber4JConfig(blockChainHttpApiUrl = "http://46.4.96.246:8888/"))
         val pass = UUID.randomUUID().toString()
         val newUser = generateRandomCommunName()
-        val accCreationResult = client.createAccount(newUser, pass, eosCreateKey)
         val activeKey = AuthUtils.generatePrivateWiFs(newUser, pass, arrayOf(AuthType.ACTIVE))[AuthType.ACTIVE]!!
+
+        val accCreationResult = client.createAccount(newUser, pass, eosCreateKey)
+
         print("name = $newUser activeKey = $activeKey")
+
 
 //        assertTrue("account creation failure on main net for user $newUser", accCreationResult is Either.Success)
 //

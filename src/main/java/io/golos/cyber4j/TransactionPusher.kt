@@ -4,7 +4,6 @@ import com.memtrip.eos.abi.writer.compression.CompressionType
 import com.memtrip.eos.core.block.BlockIdDetails
 import com.memtrip.eos.core.crypto.EosPrivateKey
 import com.memtrip.eos.core.crypto.signature.PrivateKeySigning
-import com.memtrip.eos.http.rpc.ChainApi
 import com.memtrip.eos.http.rpc.model.info.Info
 import com.memtrip.eos.http.rpc.model.signing.PushTransaction
 import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
@@ -13,6 +12,7 @@ import com.squareup.moshi.Rfc3339DateJsonAdapter
 import com.squareup.moshi.Types
 import io.golos.cyber4j.model.*
 import io.golos.cyber4j.utils.Either
+import io.golos.cyber4j.utils.LogLevel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -46,7 +46,7 @@ internal class TransactionPusherImpl(private val chainApi: CyberWayChainApi,
 
         val signedTransaction = MySignedTransactionAbi(info.chain_id, transaction, emptyList())
 
-        println("signed transaction = ${Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter()).build().adapter<MySignedTransactionAbi>(MySignedTransactionAbi::class.java).toJson(signedTransaction)}")
+        if (cyber4JConfig.logLevel == LogLevel.BODY) println("signed transaction = ${Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter()).build().adapter<MySignedTransactionAbi>(MySignedTransactionAbi::class.java).toJson(signedTransaction)}")
 
         val signature = PrivateKeySigning()
                 .sign(
