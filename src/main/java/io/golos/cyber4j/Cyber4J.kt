@@ -338,7 +338,7 @@ class Cyber4J @JvmOverloads constructor(
                     curatorRewardPercentage
             )
 
-            println(
+            if (config.logLevel == LogLevel.BODY) println(
                     "createPostRequest = ${moshi.adapter(CreateDiscussionRequestAbi::class.java).toJson(
                             createPostRequest
                     )}"
@@ -1268,7 +1268,7 @@ class Cyber4J @JvmOverloads constructor(
 
     enum class UserBalance { VESTING, TOKEN }
 
-   private fun openBalance(
+    private fun openBalance(
             newAccountName: CyberName,
             type: UserBalance,
             cyberCreatePermissionKey: String
@@ -1357,6 +1357,9 @@ class Cyber4J @JvmOverloads constructor(
     /** method for fetching posts of certain community from cyberway microservices.
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
      * @param communityId id of community
+     * @param type type of parsing to apply to content. According to [type] returning [DiscussionsResult]'s [DiscussionContent] may vary:
+     * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
+     * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit limit of returned discussions
      * @param sort [DiscussionTimeSort.INVERTED] if you need new posts first, [DiscussionTimeSort.SEQUENTIALLY] if you need old first
      * @param sequenceKey paging key for querying next page of discussions. is from [DiscussionsResult.getSequenceKey].
@@ -1369,15 +1372,19 @@ class Cyber4J @JvmOverloads constructor(
 
     fun getCommunityPosts(
             communityId: String,
+            type: ContentParsingType,
             limit: Int,
             sort: DiscussionTimeSort,
             sequenceKey: String? = null
-    ) = apiService.getDiscussions(PostsFeedType.COMMUNITY, sort, sequenceKey, limit, null, communityId)
+    ) = apiService.getDiscussions(PostsFeedType.COMMUNITY, sort, type, sequenceKey, limit, null, communityId)
 
 
     /** method for fetching user subscribed communities posts
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
      * @param user user, which subscriptions to fetch
+     * @param type type of parsing to apply to content. According to [type] returning [DiscussionsResult]'s [DiscussionContent] may vary:
+     * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
+     * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit limit of returned discussions
      * @param sort [DiscussionTimeSort.INVERTED] if you need new posts first, [DiscussionTimeSort.SEQUENTIALLY] if you need old first
      * @param sequenceKey paging key for querying next page of discussions. is from [DiscussionsResult.getSequenceKey]
@@ -1389,18 +1396,22 @@ class Cyber4J @JvmOverloads constructor(
 
     fun getUserSubscriptions(
             user: CyberName,
+            type: ContentParsingType,
             limit: Int,
             sort: DiscussionTimeSort,
             sequenceKey: String?
     ) = apiService.getDiscussions(
             PostsFeedType.SUBSCRIPTIONS,
-            sort, sequenceKey, limit, user.resolveCanonical().name, null
+            sort, type, sequenceKey, limit, user.resolveCanonical().name, null
     )
 
     /** method for fetching posts of certain user
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
      *  in [CyberDiscussion] returned by this method, in [ContentBody] [ContentBody.preview] is not empty
      * @param user user, which subscriptions to fetch
+     * @param type type of parsing to apply to content. According to [type] returning [DiscussionsResult]'s [DiscussionContent] may vary:
+     * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
+     * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit limit of returned discussions
      * @param sort [DiscussionTimeSort.INVERTED] if you need new posts first, [DiscussionTimeSort.SEQUENTIALLY] if you need old first
      * @param sequenceKey paging key for querying next page of discussions. is from [DiscussionsResult.getSequenceKey]
@@ -1412,11 +1423,12 @@ class Cyber4J @JvmOverloads constructor(
 
     fun getUserPosts(
             user: CyberName,
+            type: ContentParsingType,
             limit: Int,
             sort: DiscussionTimeSort,
             sequenceKey: String? = null
     ) =
-            apiService.getDiscussions(PostsFeedType.USER_POSTS, sort, sequenceKey, limit, user.resolveCanonical().name, null)
+            apiService.getDiscussions(PostsFeedType.USER_POSTS, sort, type, sequenceKey, limit, user.resolveCanonical().name, null)
 
 
     /** method for fetching particular post
@@ -1425,6 +1437,9 @@ class Cyber4J @JvmOverloads constructor(
      * @param user user, which post to fetch
      * @param permlink permlink of post to fetch
      * @param refBlockNum ref_block_num of post to fetch
+     * @param type type of parsing to apply to content. According to [type] returning [DiscussionsResult]'s [DiscussionContent] may vary:
+     * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
+     * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
@@ -1434,8 +1449,9 @@ class Cyber4J @JvmOverloads constructor(
     fun getPost(
             user: CyberName,
             permlink: String,
-            refBlockNum: Long
-    ) = apiService.getPost(user.resolveCanonical().name, permlink, refBlockNum)
+            refBlockNum: Long,
+            parsingType: ContentParsingType
+    ) = apiService.getPost(user.resolveCanonical().name, permlink, refBlockNum, parsingType)
 
 
     /** method for fetching particular comment
@@ -1443,6 +1459,9 @@ class Cyber4J @JvmOverloads constructor(
      * @param user user, which comment to fetch
      * @param permlink permlink of comment to fetch
      * @param refBlockNum ref_block_num of comment to fetch
+     * @param type type of parsing to apply to content. According to [type] returning [DiscussionsResult]'s [DiscussionContent] may vary:
+     * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
+     * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
@@ -1451,14 +1470,18 @@ class Cyber4J @JvmOverloads constructor(
     fun getComment(
             user: CyberName,
             permlink: String,
-            refBlockNum: Long
-    ) = apiService.getComment(user.resolveCanonical().name, permlink, refBlockNum)
+            refBlockNum: Long,
+            parsingType: ContentParsingType
+    ) = apiService.getComment(user.resolveCanonical().name, permlink, refBlockNum, parsingType)
 
     /** method for fetching comments particular post
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
      * @param user user of original post
      * @param permlink permlink of original post
      * @param refBlockNum ref_block_num of original post
+     * @param parsingType type of parsing to apply to content. According to [type] returning [DiscussionsResult]'s [DiscussionContent] may vary:
+     * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
+     * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit number of comments to fetch. Comments are fetched sequentially, without concerning on comment level
      * @param sort [DiscussionTimeSort.INVERTED] if you need new comments first, [DiscussionTimeSort.SEQUENTIALLY] if you need old first
      * @param sequenceKey paging key for querying next page of comments. is from [DiscussionsResult.getSequenceKey]
@@ -1472,6 +1495,7 @@ class Cyber4J @JvmOverloads constructor(
             user: CyberName,
             permlink: String,
             refBlockNum: Long,
+            parsingType: ContentParsingType,
             limit: Int,
             sort: DiscussionTimeSort,
             sequenceKey: String? = null
@@ -1479,12 +1503,16 @@ class Cyber4J @JvmOverloads constructor(
 
             apiService.getComments(
                     sort, sequenceKey, limit,
-                    CommentsOrigin.COMMENTS_OF_POST, user.resolveCanonical().name, permlink, refBlockNum
+                    CommentsOrigin.COMMENTS_OF_POST, parsingType,
+                    user.resolveCanonical().name, permlink, refBlockNum
             )
 
     /** method for fetching comments particular user
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
      * @param user name of user, which comments we need
+     * @param type type of parsing to apply to content. According to [type] returning [DiscussionsResult]'s [DiscussionContent] may vary:
+     * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
+     * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit number of comments to fetch.
      * @param sort [DiscussionTimeSort.INVERTED] if you need new comments first, [DiscussionTimeSort.SEQUENTIALLY] if you need old first
      * @param sequenceKey paging key for querying next page of comments. is from [DiscussionsResult.getSequenceKey]
@@ -1496,13 +1524,15 @@ class Cyber4J @JvmOverloads constructor(
 
     fun getCommentsOfUser(
             user: CyberName,
+            parsingType: ContentParsingType,
             limit: Int,
             sort: DiscussionTimeSort,
             sequenceKey: String? = null
     ): Either<DiscussionsResult, ApiResponseError> =
             apiService.getComments(
                     sort, sequenceKey, limit,
-                    CommentsOrigin.COMMENTS_OF_USER, user.resolveCanonical().name, null, null
+                    CommentsOrigin.COMMENTS_OF_USER, parsingType,
+                    user.resolveCanonical().name, null, null
             )
 
 
@@ -1580,7 +1610,6 @@ class Cyber4J @JvmOverloads constructor(
                               active: String,
                               posting: String,
                               memo: String) = apiService.writeUserToBlockchain(userName.name, owner, active, posting, memo)
-
 
 
     /** method used to resend sms code to user during phone verification

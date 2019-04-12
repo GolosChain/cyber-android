@@ -1,9 +1,6 @@
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.Cyber4JConfig
-import io.golos.cyber4j.model.AuthListener
-import io.golos.cyber4j.model.AuthType
-import io.golos.cyber4j.model.CyberName
-import io.golos.cyber4j.model.DiscussionTimeSort
+import io.golos.cyber4j.model.*
 import io.golos.cyber4j.utils.Pair
 import junit.framework.Assert.fail
 import org.junit.Before
@@ -34,16 +31,16 @@ class ServicesAuthTest {
         })
 
 
-        commun4J.getUserPosts("destroyer2k".toCyberName(), 20, DiscussionTimeSort.INVERTED)
+        commun4J.getUserPosts("destroyer2k".toCyberName(), ContentParsingType.WEB, 20, DiscussionTimeSort.INVERTED)
 
 
         val commun4JWithoutKeys = Cyber4J(Cyber4JConfig(servicesUrl = "ws://116.203.98.241:8080"))
 
-        commun4JWithoutKeys.getUserPosts("qraf".toCyberName(), 20, DiscussionTimeSort.INVERTED)
+        commun4JWithoutKeys.getUserPosts("qraf".toCyberName(), ContentParsingType.WEB, 20, DiscussionTimeSort.INVERTED)
 
         commun4JWithoutKeys.keyStorage.addAccountKeys("destroyer2k".toCyberName(), setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
 
-        commun4JWithoutKeys.getUserPosts("asfasf".toCyberName(), 20, DiscussionTimeSort.INVERTED)
+        commun4JWithoutKeys.getUserPosts("asfasf".toCyberName(), ContentParsingType.WEB, 20, DiscussionTimeSort.INVERTED)
 
         Thread.sleep(3000)
 
@@ -62,7 +59,7 @@ class ServicesAuthTest {
             }
         })
         commun4JWithoutKeys.keyStorage.addAccountKeys("destroyer2k".toCyberName(), setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
-        commun4JWithoutKeys.getUserPosts("asfasf".toCyberName(), 20, DiscussionTimeSort.INVERTED)
+        commun4JWithoutKeys.getUserPosts("asfasf".toCyberName(), ContentParsingType.WEB, 20, DiscussionTimeSort.INVERTED)
 
         Thread.sleep(3000)
     }

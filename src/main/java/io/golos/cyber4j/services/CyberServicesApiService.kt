@@ -51,6 +51,7 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
                                                        .add(CyberName::class.java, CyberNameAdapter())
                                                        .add(UserRegistrationState::class.java, UserRegistrationStateAdapter())
                                                        .add(RegistrationStrategy::class.java, UserRegistrationStrategyAdapter())
+                                                       .add(ContentRow::class.java, ContentRowAdapter())
                                                        .build())) :
         ApiService, AuthRequestListener, OnKeysAddedListener {
 
@@ -147,6 +148,7 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
 
     override fun getDiscussions(feedType: PostsFeedType,
                                 sort: DiscussionTimeSort,
+                                parsingType: ContentParsingType,
                                 sequenceKey: String?,
                                 limit: Int,
                                 userId: String?,
@@ -158,25 +160,40 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
                         sequenceKey,
                         limit,
                         userId,
-                        communityId), DiscussionsResult::class.java)
+                        communityId,
+                        parsingType.asContentType()), DiscussionsResult::class.java)
     }
 
-    override fun getPost(userId: String, permlink: String, refBlockNum: Long): Either<CyberDiscussion, ApiResponseError> {
+    override fun getPost(userId: String, permlink: String, refBlockNum: Long, parsingType: ContentParsingType): Either<CyberDiscussion, ApiResponseError> {
         lockIfNeeded()
-        return apiClient.send(ServicesGateMethods.GET_POST.toString(), DiscussionRequests(userId, permlink, refBlockNum), CyberDiscussion::class.java)
+        return apiClient.send(ServicesGateMethods.GET_POST.toString(),
+                DiscussionRequests(userId, permlink, refBlockNum, parsingType.asContentType()),
+                CyberDiscussion::class.java)
     }
 
-    override fun getComment(userId: String, permlink: String, refBlockNum: Long): Either<CyberDiscussion, ApiResponseError> {
+    override fun getComment(userId: String, permlink: String, refBlockNum: Long, parsingType: ContentParsingType): Either<CyberDiscussion, ApiResponseError> {
         lockIfNeeded()
-        return apiClient.send(ServicesGateMethods.GET_COMMENT.toString(), DiscussionRequests(userId, permlink, refBlockNum), CyberDiscussion::class.java)
+        return apiClient.send(ServicesGateMethods.GET_COMMENT.toString(), DiscussionRequests(userId,
+                permlink,
+                refBlockNum,
+                parsingType.asContentType()), CyberDiscussion::class.java)
     }
 
     override fun getComments(sort: DiscussionTimeSort, sequenceKey: String?,
-                             limit: Int, origin: CommentsOrigin, userId: String?,
+                             limit: Int, origin: CommentsOrigin,
+                             parsingType: ContentParsingType,
+                             userId: String?,
                              permlink: String?, refBlockNum: Long?): Either<DiscussionsResult, ApiResponseError> {
+
         lockIfNeeded()
         return apiClient.send(ServicesGateMethods.GET_COMMENTS.toString(),
-                CommentsRequest(sort.toString(), sequenceKey, limit, origin.toString(), userId, permlink, refBlockNum), DiscussionsResult::class.java)
+                CommentsRequest(sort.toString(),
+                        sequenceKey, limit,
+                        parsingType.asContentType(),
+                        origin.toString(),
+                        userId,
+                        permlink,
+                        refBlockNum), DiscussionsResult::class.java)
     }
 
     override fun getIframelyEmbed(forLink: String): Either<IFramelyEmbedResult, ApiResponseError> {
@@ -237,5 +254,13 @@ internal class CyberServicesApiService(private val config: Cyber4JConfig,
     private fun lock() {
         releaseLock()
         lock = CountDownLatch(1)
+    }
+
+    private fun ContentParsingType.asContentType(): String {
+        return when (this) {
+            ContentParsingType.WEB -> "web"
+            ContentParsingType.MOBILE -> "mobile"
+            ContentParsingType.RAW -> "raw"
+        }
     }
 }

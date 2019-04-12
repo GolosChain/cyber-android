@@ -66,6 +66,7 @@ interface ApiService {
 
     fun getDiscussions(feedType: PostsFeedType,
                        sort: DiscussionTimeSort,
+                       parsingType: ContentParsingType,
                        sequenceKey: String?,
                        limit: Int,
                        userId: String?,
@@ -79,11 +80,13 @@ interface ApiService {
 
     fun getPost(userId: String,
                 permlink: String,
-                refBlockNum: Long): Either<CyberDiscussion, ApiResponseError>
+                refBlockNum: Long,
+                parsingType: ContentParsingType): Either<CyberDiscussion, ApiResponseError>
 
     fun getComment(userId: String,
                    permlink: String,
-                   refBlockNum: Long): Either<CyberDiscussion, ApiResponseError>
+                   refBlockNum: Long,
+                   parsingType: ContentParsingType): Either<CyberDiscussion, ApiResponseError>
 
 //    content.getComments:                // Получение ленты комментариев
 //    params:                         // Параметры запроса из гейта
@@ -107,6 +110,7 @@ interface ApiService {
                     sequenceKey: String?,
                     limit: Int,
                     origin: CommentsOrigin,
+                    parsingType: ContentParsingType,
                     userId: String?,
                     permlink: String?,
                     refBlockNum: Long?): Either<DiscussionsResult, ApiResponseError>
