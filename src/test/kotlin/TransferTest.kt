@@ -20,6 +20,7 @@ class TransferTest {
 
     @Test
     fun transferSomeMoney() {
+       // privateTestNetClient.openBalance("destroyer2k@golos".toCyberName(),)
         val firstTransferResult = privateTestNetClient.transfer(secondAccount.first, "0.010", "GLS")
         assertTrue("transfer fail", firstTransferResult is Either.Success)
 

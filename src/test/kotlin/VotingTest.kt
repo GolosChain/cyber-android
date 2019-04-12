@@ -16,7 +16,7 @@ class VotingTest {
     fun before() {
         client.keyStorage.addAccountKeys(testInMainTestNetAccount.first,
                 setOf(Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)))
-        postCreateResult = (client.createPost("sdgsdg", "gdssdg", listOf(Tag("test")), DiscussionCreateMetadata(emptyList(), listOf()))
+        postCreateResult = (client.createPost("sdgsdg", "gdssdg", listOf(Tag("test")), DiscussionCreateMetadata(emptyList(), listOf()), 0)
                 as Either.Success).value.processed.action_traces.first().act.data
 
         secndTestAccount = testInMainTestNetAccountSecond

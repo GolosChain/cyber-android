@@ -12,7 +12,6 @@ import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewA
 import com.memtrip.eos.core.block.BlockIdDetails
 import com.memtrip.eos.core.crypto.EosPrivateKey
 import com.memtrip.eos.core.hex.DefaultHexWriter
-import com.memtrip.eos.http.rpc.ChainApi
 import com.memtrip.eos.http.rpc.model.account.request.AccountName
 import com.memtrip.eos.http.rpc.model.info.Info
 import com.squareup.moshi.Moshi
@@ -24,6 +23,7 @@ import net.gcardone.junidecode.Junidecode
 import java.net.SocketTimeoutException
 import java.util.*
 import java.util.concurrent.Callable
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.ArrayList
 
 private interface CyberContract {
@@ -125,7 +125,8 @@ class Cyber4J @JvmOverloads constructor(
 ) {
     private val staleTransactionErrorCode = 3080006
     private val transactionPusher: io.golos.cyber4j.TransactionPusher
-    private val chainApi: ChainApi
+    private val chainApi: CyberWayChainApi
+    private val resolvedNamesCache = ConcurrentHashMap<CyberName, CyberName>()
     private val moshi: Moshi = Moshi
             .Builder()
             .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
@@ -134,11 +135,16 @@ class Cyber4J @JvmOverloads constructor(
 
     init {
         if (chainApiProvider == null) {
-            chainApi = io.golos.cyber4j.GolosEosConfiguratedApi(config).provide()
+            chainApi = io.golos.cyber4j.GolosEosConfiguratedApi(config, moshi).provide()
             this.transactionPusher = io.golos.cyber4j.TransactionPusherImpl(chainApi, config, moshi)
         } else {
             this.transactionPusher = io.golos.cyber4j.TransactionPusherImpl(chainApiProvider.provide(), config, moshi)
             chainApi = chainApiProvider.provide()
+        }
+        keyStorage.resolvedUserNamesProvider = object : ResolvedUserNamesProvider {
+            override fun resolveCanonicalCyberName(cyberName: CyberName): CyberName {
+                return this@Cyber4J.resolveCanonicalCyberName(cyberName)
+            }
         }
     }
 
@@ -149,6 +155,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param tags tags list for post. Must be not empty
      * @param metadata metadata of a post. Can be empty
      * @param beneficiaries beneficiaries of a post. Can be empty
+     * @param curatorRewardPercentage curation reward percentage, 0..10_000
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
@@ -161,6 +168,7 @@ class Cyber4J @JvmOverloads constructor(
             body: String,
             tags: List<io.golos.cyber4j.model.Tag>,
             metadata: DiscussionCreateMetadata,
+            curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
@@ -176,6 +184,7 @@ class Cyber4J @JvmOverloads constructor(
                 body,
                 tags,
                 metadata,
+                curatorRewardPercentage,
                 beneficiaries,
                 vestPayment,
                 tokenProp
@@ -190,6 +199,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param tags tags list for post. Must be not empty
      * @param beneficiaries beneficiaries of a post. Can be empty
      * @param metadata metadata of a post. Can be empty
+     * @param curatorRewardPercentage percentage of curation reward, 0..10_000
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
@@ -204,6 +214,7 @@ class Cyber4J @JvmOverloads constructor(
             body: String,
             tags: List<io.golos.cyber4j.model.Tag>,
             metadata: DiscussionCreateMetadata,
+            curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
@@ -212,12 +223,13 @@ class Cyber4J @JvmOverloads constructor(
         return createPostOrComment(
                 fromAccount, userActiveKey,
                 title, body, formatPostPermlink(title),
-                "", CyberName(), 0L, tags, beneficiaries, metadata, vestPayment, tokenProp
+                "", CyberName(), 0L, tags, curatorRewardPercentage, beneficiaries, metadata, vestPayment, tokenProp
         )
     }
 
-    private fun isStateError(callResult: Either<out Any?, GolosEosError>): Boolean {
-        return callResult is Either.Failure && callResult.value.code == staleTransactionErrorCode
+    private fun isStaleError(callResult: Either<out Any?, GolosEosError>): Boolean {
+        return callResult is Either.Failure
+                && (callResult.value.error.code == staleTransactionErrorCode)
     }
 
     private fun formatPostPermlink(permlinkToFormat: String): String {
@@ -238,9 +250,25 @@ class Cyber4J @JvmOverloads constructor(
         var result: Either<TransactionSuccessful<T>, GolosEosError>
         do {
             result = callable.call()
-        } while (isStateError(result))
+        } while (isStaleError(result))
 
         return result
+    }
+
+    /**function tries to resolve canonical name from domain (..@golos for example) username
+     * @param cyberName userName to resolve to
+     * @return resovled canonical name
+     * @throws IllegalArgumentException if name doesn't exist
+     * */
+    fun resolveCanonicalCyberName(cyberName: CyberName): CyberName {
+        if (cyberName.isCanonicalName) return cyberName
+        return resolvedNamesCache.getOrPut(cyberName) {
+            chainApi.resolveNames(listOf(cyberName.name))
+                    .blockingGet()
+                    .map { CyberName(it.resolved_username) }
+                    .firstOrNull()
+                    ?: throw java.lang.IllegalArgumentException("domain name $cyberName was'n found")
+        }
     }
 
     /**
@@ -284,6 +312,7 @@ class Cyber4J @JvmOverloads constructor(
             parentAccount: CyberName,
             parentDiscussionRefBlockId: Long,
             tags: List<io.golos.cyber4j.model.Tag>,
+            curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             metadata: DiscussionCreateMetadata = DiscussionCreateMetadata(emptyList(), emptyList()),
             vestPayment: Boolean = true,
@@ -296,8 +325,8 @@ class Cyber4J @JvmOverloads constructor(
 
 
             val createPostRequest = io.golos.cyber4j.model.CreateDiscussionRequestAbi(
-                    DiscussionIdAbi(fromAccount, permlink, BlockIdDetails(chainInfo.head_block_id).blockNum.toLong()),
-                    DiscussionIdAbi(parentAccount, parentPermlink, parentDiscussionRefBlockId),
+                    DiscussionIdAbi(fromAccount.resolveCanonical(), permlink, BlockIdDetails(chainInfo.head_block_id).blockNum.toLong()),
+                    DiscussionIdAbi(parentAccount.resolveCanonical(), parentPermlink, parentDiscussionRefBlockId),
                     beneficiaries,
                     title,
                     body,
@@ -305,7 +334,8 @@ class Cyber4J @JvmOverloads constructor(
                     tokenProp,
                     vestPayment,
                     "ru",
-                    moshi.adapter(DiscussionCreateMetadata::class.java).toJson(metadata)
+                    moshi.adapter(DiscussionCreateMetadata::class.java).toJson(metadata),
+                    curatorRewardPercentage
             )
 
             println(
@@ -317,7 +347,7 @@ class Cyber4J @JvmOverloads constructor(
             val result = createBinaryConverter().squishCreateDiscussionRequestAbi(createPostRequest)
             pushTransaction(
                     CyberContracts.PUBLICATION, CyberActions.CREATE_DISCUSSION,
-                    MyTransactionAuthorizationAbi(fromAccount.name), result.toHex(),
+                    MyTransactionAuthorizationAbi(fromAccount.resolveCanonical().name), result.toHex(),
                     userActiveKey,
                     chainInfo
             )
@@ -337,6 +367,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param categories categories (tags) of a comment
      * @param metadata metadata of a comment. Can be empty
      * @param beneficiaries beneficiaries of a post. Can be empty
+     * @param curatorRewardPercentage percentage of curation reward, 0..10_000
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
@@ -350,6 +381,7 @@ class Cyber4J @JvmOverloads constructor(
             parentDiscussionRefBlockNum: Long,
             categories: List<Tag>,
             metadata: DiscussionCreateMetadata,
+            curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
@@ -367,6 +399,7 @@ class Cyber4J @JvmOverloads constructor(
                 parentDiscussionRefBlockNum,
                 categories,
                 metadata,
+                curatorRewardPercentage,
                 beneficiaries,
                 vestPayment,
                 tokenProp
@@ -472,7 +505,7 @@ class Cyber4J @JvmOverloads constructor(
 
         val callable = Callable {
             val request = ProfileMetadataUpdateRequestAbi(
-                    fromAccount,
+                    fromAccount.resolveCanonical(),
                     ProfileMetadataAbi(
                             type, app, email, phone, facebook, instagram,
                             telegram, vk, website, first_name, last_name, name, birthDate, gender, location,
@@ -486,7 +519,7 @@ class Cyber4J @JvmOverloads constructor(
 
             pushTransaction<ProfileMetadataUpdateResult>(
                     CyberContracts.SOCIAL,
-                    CyberActions.UPDATE_META, MyTransactionAuthorizationAbi(fromAccount),
+                    CyberActions.UPDATE_META, MyTransactionAuthorizationAbi(fromAccount.resolveCanonical()),
                     hex, userActiveKey
             )
         }
@@ -506,8 +539,8 @@ class Cyber4J @JvmOverloads constructor(
         val callable = Callable {
             pushTransaction<ProfileMetadataDeleteResult>(
                     CyberContracts.SOCIAL, CyberActions.DELETE_METADATA,
-                    MyTransactionAuthorizationAbi(ofUser),
-                    createBinaryConverter().squishProfileMetadataDeleteRequestAbi(ProfileMetadataDeleteRequestAbi(ofUser)).toHex(),
+                    MyTransactionAuthorizationAbi(ofUser.resolveCanonical()),
+                    createBinaryConverter().squishProfileMetadataDeleteRequestAbi(ProfileMetadataDeleteRequestAbi(ofUser.resolveCanonical())).toHex(),
                     userActiveKey
             )
         }
@@ -536,6 +569,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param parentPermlink parentPermlink of parent post. Must be not blank
      * @param parentDiscussionRefBlockNum ref_block_num of parent post. Must be not 0
      * @param categories list of tags of comments
+     * @param curatorRewardPercentage percentage of curation reward, 0..10_000
      * @param metadata metadata of a comment. Can be empty
      * @param beneficiaries beneficiaries of a post. Can be empty
      * @param vestPayment true to allow vestPayment of author to for a post
@@ -552,6 +586,7 @@ class Cyber4J @JvmOverloads constructor(
             parentDiscussionRefBlockNum: Long,
             categories: List<Tag>,
             metadata: DiscussionCreateMetadata,
+            curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = listOf(),
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
@@ -575,6 +610,7 @@ class Cyber4J @JvmOverloads constructor(
                 parentAccount,
                 parentDiscussionRefBlockNum,
                 categories,
+                curatorRewardPercentage,
                 beneficiaries,
                 metadata,
                 vestPayment,
@@ -599,14 +635,14 @@ class Cyber4J @JvmOverloads constructor(
 
         val callable = Callable {
             val updateRequest = UpdateDiscussionRequestAbi(
-                    DiscussionIdAbi(discussionAuthor, discussionPermlink, discussionRefBlockNum),
+                    DiscussionIdAbi(discussionAuthor.resolveCanonical(), discussionPermlink, discussionRefBlockNum),
                     newTitle, newBody, newTags,
                     newLanguage, moshi.adapter(DiscussionCreateMetadata::class.java).toJson(newJsonMetadata)
             )
             pushTransaction<UpdateDiscussionResult>(
                     CyberContracts.PUBLICATION,
                     CyberActions.UPDATE_DISCUSSION,
-                    MyTransactionAuthorizationAbi(discussionAuthor.name),
+                    MyTransactionAuthorizationAbi(discussionAuthor.resolveCanonical().name),
                     createBinaryConverter().squishUpdateDiscussionRequestAbi(updateRequest).toHex(),
                     userActiveKey
             )
@@ -751,11 +787,11 @@ class Cyber4J @JvmOverloads constructor(
             pushTransaction<DeleteResult>(
                     CyberContracts.PUBLICATION,
                     CyberActions.DELETE_DISCUSSION,
-                    MyTransactionAuthorizationAbi(postOrCommentAuthor),
+                    MyTransactionAuthorizationAbi(postOrCommentAuthor.resolveCanonical()),
                     createBinaryConverter().squishDeleteDiscussionRequestAbi(
                             DeleteDiscussionRequestAbi(
                                     DiscussionIdAbi(
-                                            postOrCommentAuthor,
+                                            postOrCommentAuthor.resolveCanonical(),
                                             postOrCommentPermlink,
                                             postOrCommentRefBlockNum
                                     )
@@ -836,7 +872,7 @@ class Cyber4J @JvmOverloads constructor(
 
             val reblogRequest = ReblogRequestAbi(
                     reblogger,
-                    DiscussionIdAbi(authorOfPostToReblog, permlinkOfPostToReblog, refBlockNumOfPostToReblog)
+                    DiscussionIdAbi(authorOfPostToReblog.resolveCanonical(), permlinkOfPostToReblog, refBlockNumOfPostToReblog)
             )
 
             val operationHex = squisher.squishReblogRequestAbi(reblogRequest).toHex()
@@ -844,7 +880,7 @@ class Cyber4J @JvmOverloads constructor(
             pushTransaction<ReblogResult>(
                     CyberContracts.PUBLICATION,
                     CyberActions.REBLOG,
-                    MyTransactionAuthorizationAbi(reblogger.name),
+                    MyTransactionAuthorizationAbi(reblogger.resolveCanonical().name),
                     operationHex,
                     userActiveKey
             )
@@ -861,15 +897,14 @@ class Cyber4J @JvmOverloads constructor(
      *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
 
-    private fun voteForAWitness(userActiveKey: String,
-                                voter: CyberName,
-                                witness: CyberName,
-                                weight: Short): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
+    fun voteForAWitness(userActiveKey: String,
+                        voter: CyberName,
+                        witness: CyberName): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
         val callable = Callable {
             val squisher = createBinaryConverter()
 
             val voteRequest = WitnessVoteRequestAbi(
-                    voter, witness, weight
+                    voter.resolveCanonical(), witness.resolveCanonical()
             )
 
             val operationHex = squisher.squishWitnessVoteRequestAbi(voteRequest).toHex()
@@ -877,7 +912,7 @@ class Cyber4J @JvmOverloads constructor(
             pushTransaction<WitnessVoteResult>(
                     CyberContracts.CTRL,
                     CyberActions.VOTE_FOR_WITNESS,
-                    MyTransactionAuthorizationAbi(voter.name),
+                    MyTransactionAuthorizationAbi(voter.resolveCanonical().name),
                     operationHex,
                     userActiveKey
             )
@@ -889,18 +924,17 @@ class Cyber4J @JvmOverloads constructor(
     /** vote for a witness
      * This method assumes that you have added account with keys to [keyStorage]
      * @param witness name of witness to vote to
-     * @param weight weight of vote
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * @throws IllegalStateException if active account not set
      */
 
     fun voteForAWitness(
-            witness: CyberName, weight: Short): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
+            witness: CyberName): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
 
-        return voteForAWitness(activeAccountKey, activeAccountName, witness, weight)
+        return voteForAWitness(activeAccountKey, activeAccountName, witness)
     }
 
     /** cancel vote for a witness
@@ -910,14 +944,14 @@ class Cyber4J @JvmOverloads constructor(
      *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
 
-    private fun unVoteForAWitness(userActiveKey: String,
-                                  voter: CyberName,
-                                  witness: CyberName): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
+    fun unVoteForAWitness(userActiveKey: String,
+                          voter: CyberName,
+                          witness: CyberName): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
         val callable = Callable {
             val squisher = createBinaryConverter()
 
             val voteRequest = WitnessUnVoteRequestAbi(
-                    voter, witness
+                    voter.resolveCanonical(), witness.resolveCanonical()
             )
 
             val operationHex = squisher.squishWitnessUnVoteRequestAbi(voteRequest).toHex()
@@ -925,7 +959,7 @@ class Cyber4J @JvmOverloads constructor(
             pushTransaction<WitnessVoteResult>(
                     CyberContracts.CTRL,
                     CyberActions.UNVOTE_WITNESS,
-                    MyTransactionAuthorizationAbi(voter.name),
+                    MyTransactionAuthorizationAbi(voter.resolveCanonical().name),
                     operationHex,
                     userActiveKey
             )
@@ -958,19 +992,14 @@ class Cyber4J @JvmOverloads constructor(
      *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
 
-    private fun registerAWitness(userActiveKey: String,
-                                 witness: CyberName,
-                                 websiteUrl: String): Either<TransactionSuccessful<Any>, GolosEosError> {
+    fun registerAWitness(userActiveKey: String,
+                         witness: CyberName,
+                         websiteUrl: String): Either<TransactionSuccessful<Any>, GolosEosError> {
         val callable = Callable {
             val squisher = createBinaryConverter()
 
-            val witnessAccount = chainApi.getAccount(AccountName(witness.name)).blockingGet().body()!!
-
-            val activeKey = witnessAccount.permissions.find { it.perm_name == "active" }!!.required_auth.keys.first().key
-
             val witnessRegisterRequest = RegWitnessRequestAbi(
-                    witness,
-                    activeKey.replace("GLS", "EOS"),
+                    witness.resolveCanonical(),
                     websiteUrl)
 
 
@@ -979,7 +1008,7 @@ class Cyber4J @JvmOverloads constructor(
             pushTransaction<Any>(
                     CyberContracts.CTRL,
                     CyberActions.REGISTER_WITNESS,
-                    MyTransactionAuthorizationAbi(witness.name),
+                    MyTransactionAuthorizationAbi(witness.resolveCanonical().name),
                     operationHex,
                     userActiveKey
             )
@@ -1009,19 +1038,19 @@ class Cyber4J @JvmOverloads constructor(
      *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
 
-    private fun unRegisterWitness(userActiveKey: String,
-                                  witness: CyberName): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
+    fun unRegisterWitness(userActiveKey: String,
+                          witness: CyberName): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
         val callable = Callable {
             val squisher = createBinaryConverter()
 
-            val witnessRequest = UnRegWitnessRequestAbi(witness)
+            val witnessRequest = UnRegWitnessRequestAbi(witness.resolveCanonical())
 
             val operationHex = squisher.squishUnRegWitnessRequestAbi(witnessRequest).toHex()
 
             pushTransaction<WitnessVoteResult>(
                     CyberContracts.CTRL,
                     CyberActions.UNREGISTER_WITNESS,
-                    MyTransactionAuthorizationAbi(witness.name),
+                    MyTransactionAuthorizationAbi(witness.resolveCanonical().name),
                     operationHex,
                     userActiveKey
             )
@@ -1089,13 +1118,13 @@ class Cyber4J @JvmOverloads constructor(
         val callable = Callable {
             val squisher = createBinaryConverter()
 
-            val discussionId = DiscussionIdAbi(postOrCommentAuthor, postOrCommentPermlink, postOrCommentRefBlockNum)
+            val discussionId = DiscussionIdAbi(postOrCommentAuthor.resolveCanonical(), postOrCommentPermlink, postOrCommentRefBlockNum)
 
             val operationHex = if (voteStrength == 0.toShort()) squisher
-                    .squishUnVoteRequestAbi(UnVoteRequestAbi(fromAccount, discussionId)).toHex()
+                    .squishUnVoteRequestAbi(UnVoteRequestAbi(fromAccount.resolveCanonical(), discussionId)).toHex()
             else squisher.squishVoteRequestAbi(
                     VoteRequestAbi(
-                            fromAccount, discussionId,
+                            fromAccount.resolveCanonical(), discussionId,
                             Math.abs(voteStrength.toInt()).toShort()
                     )
             ).toHex()
@@ -1103,7 +1132,7 @@ class Cyber4J @JvmOverloads constructor(
             pushTransaction<VoteResult>(
                     CyberContracts.PUBLICATION,
                     if (voteStrength == 0.toShort()) CyberActions.UN_VOTE else if (voteStrength > 0) CyberActions.UP_VOTE else CyberActions.DOWN_VOTE,
-                    MyTransactionAuthorizationAbi(fromAccount.name),
+                    MyTransactionAuthorizationAbi(fromAccount.resolveCanonical().name),
                     operationHex,
                     userActiveKey
             )
@@ -1222,7 +1251,7 @@ class Cyber4J @JvmOverloads constructor(
     fun openVestingBalance(
             forUser: CyberName,
             cyberKey: String
-    ) = openBalance(forUser, UserBalance.VESTING, cyberKey)
+    ) = openBalance(resolveCanonicalCyberName(forUser), UserBalance.VESTING, cyberKey)
 
     /** method for opening token balance of account. used in [createAccount] as one of the steps of
      * new account creation
@@ -1239,7 +1268,7 @@ class Cyber4J @JvmOverloads constructor(
 
     enum class UserBalance { VESTING, TOKEN }
 
-    private fun openBalance(
+   private fun openBalance(
             newAccountName: CyberName,
             type: UserBalance,
             cyberCreatePermissionKey: String
@@ -1249,7 +1278,7 @@ class Cyber4J @JvmOverloads constructor(
         val createVestingCallable = Callable {
             val writer = createBinaryConverter()
             val request = VestingStartRequestAbi(
-                    newAccountName, CyberName(creatorAccountName),
+                    newAccountName.resolveCanonical(), CyberName(creatorAccountName),
                     when (type) {
                         UserBalance.TOKEN -> 3
                         UserBalance.VESTING -> 6
@@ -1307,7 +1336,7 @@ class Cyber4J @JvmOverloads constructor(
 
 
             hex = createBinaryConverter().squishMyTransferArgsAbi(
-                    MyTransferArgsAbi(CyberContracts.ISSUER.toString(), forUser.name, amount, memo)
+                    MyTransferArgsAbi(CyberContracts.ISSUER.toString(), forUser.resolveCanonical().name, amount, memo)
             ).toHex()
 
             actionAbis.add(
@@ -1365,7 +1394,7 @@ class Cyber4J @JvmOverloads constructor(
             sequenceKey: String?
     ) = apiService.getDiscussions(
             PostsFeedType.SUBSCRIPTIONS,
-            sort, sequenceKey, limit, user.name, null
+            sort, sequenceKey, limit, user.resolveCanonical().name, null
     )
 
     /** method for fetching posts of certain user
@@ -1387,7 +1416,7 @@ class Cyber4J @JvmOverloads constructor(
             sort: DiscussionTimeSort,
             sequenceKey: String? = null
     ) =
-            apiService.getDiscussions(PostsFeedType.USER_POSTS, sort, sequenceKey, limit, user.name, null)
+            apiService.getDiscussions(PostsFeedType.USER_POSTS, sort, sequenceKey, limit, user.resolveCanonical().name, null)
 
 
     /** method for fetching particular post
@@ -1406,7 +1435,7 @@ class Cyber4J @JvmOverloads constructor(
             user: CyberName,
             permlink: String,
             refBlockNum: Long
-    ) = apiService.getPost(user.name, permlink, refBlockNum)
+    ) = apiService.getPost(user.resolveCanonical().name, permlink, refBlockNum)
 
 
     /** method for fetching particular comment
@@ -1423,7 +1452,7 @@ class Cyber4J @JvmOverloads constructor(
             user: CyberName,
             permlink: String,
             refBlockNum: Long
-    ) = apiService.getComment(user.name, permlink, refBlockNum)
+    ) = apiService.getComment(user.resolveCanonical().name, permlink, refBlockNum)
 
     /** method for fetching comments particular post
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
@@ -1450,7 +1479,7 @@ class Cyber4J @JvmOverloads constructor(
 
             apiService.getComments(
                     sort, sequenceKey, limit,
-                    CommentsOrigin.COMMENTS_OF_POST, user.name, permlink, refBlockNum
+                    CommentsOrigin.COMMENTS_OF_POST, user.resolveCanonical().name, permlink, refBlockNum
             )
 
     /** method for fetching comments particular user
@@ -1473,7 +1502,7 @@ class Cyber4J @JvmOverloads constructor(
     ): Either<DiscussionsResult, ApiResponseError> =
             apiService.getComments(
                     sort, sequenceKey, limit,
-                    CommentsOrigin.COMMENTS_OF_USER, user.name, null, null
+                    CommentsOrigin.COMMENTS_OF_USER, user.resolveCanonical().name, null, null
             )
 
 
@@ -1482,7 +1511,7 @@ class Cyber4J @JvmOverloads constructor(
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
-    fun getUserMetadata(user: CyberName): Either<UserMetadata, ApiResponseError> = apiService.getUserMetadata(user.name)
+    fun getUserMetadata(user: CyberName): Either<UserMetadata, ApiResponseError> = apiService.getUserMetadata(user.resolveCanonical().name)
 
 
     /**get processed embed link for some raw "https://site.com/content" using iframely service
@@ -1576,7 +1605,7 @@ class Cyber4J @JvmOverloads constructor(
      */
     fun getUserAccount(user: CyberName): Either<UserProfile, ApiResponseError> {
         return try {
-            val acc = chainApi.getAccount(AccountName(user.name)).blockingGet().body()!!
+            val acc = chainApi.getAccount(AccountName(user.resolveCanonical().name)).blockingGet().body()!!
             return Either.Success(
                     UserProfile(acc.account_name,
                             acc.head_block_num,
@@ -1651,8 +1680,8 @@ class Cyber4J @JvmOverloads constructor(
         val callable = Callable {
             val hex = createBinaryConverter().squishMyTransferArgsAbi(
                     MyTransferArgsAbi(
-                            from.name,
-                            to.name,
+                            from.resolveCanonical().name,
+                            to.resolveCanonical().name,
                             "$amount $currency",
                             memo
                     )
@@ -1712,11 +1741,11 @@ class Cyber4J @JvmOverloads constructor(
     ): Either<TransactionSuccessful<PinResult>, GolosEosError> {
 
         val callable = Callable {
-            val hex = createBinaryConverter().squishPinRequestAbi(PinRequestAbi(pinner, pinning)).toHex()
+            val hex = createBinaryConverter().squishPinRequestAbi(PinRequestAbi(pinner.resolveCanonical(), pinning.resolveCanonical())).toHex()
             pushTransaction<PinResult>(
                     CyberContracts.SOCIAL,
                     CyberActions.PIN,
-                    pinner.toTransactionAuthAbi(),
+                    pinner.resolveCanonical().toTransactionAuthAbi(),
                     hex,
                     activeKey
             )
@@ -1748,11 +1777,11 @@ class Cyber4J @JvmOverloads constructor(
     ): Either<TransactionSuccessful<PinResult>, GolosEosError> {
 
         val callable = Callable {
-            val hex = createBinaryConverter().squishPinRequestAbi(PinRequestAbi(pinner, pinning)).toHex()
+            val hex = createBinaryConverter().squishPinRequestAbi(PinRequestAbi(pinner.resolveCanonical(), pinning.resolveCanonical())).toHex()
             pushTransaction<PinResult>(
                     CyberContracts.SOCIAL,
                     CyberActions.UN_PIN,
-                    pinner.toTransactionAuthAbi(),
+                    pinner.resolveCanonical().toTransactionAuthAbi(),
                     hex,
                     activeKey
             )
@@ -1785,8 +1814,8 @@ class Cyber4J @JvmOverloads constructor(
         val callable = Callable {
             pushTransaction<BlockUserResult>(
                     CyberContracts.SOCIAL, CyberActions.BLOCK,
-                    blocker.toTransactionAuthAbi(),
-                    createBinaryConverter().squishBlockUserRequestAbi(BlockUserRequestAbi(blocker, blocking)).toHex(),
+                    blocker.resolveCanonical().toTransactionAuthAbi(),
+                    createBinaryConverter().squishBlockUserRequestAbi(BlockUserRequestAbi(blocker.resolveCanonical(), blocking.resolveCanonical())).toHex(),
                     blockerActiveKey
             )
         }
@@ -1818,17 +1847,19 @@ class Cyber4J @JvmOverloads constructor(
         val callable = Callable {
             pushTransaction<BlockUserResult>(
                     CyberContracts.SOCIAL, CyberActions.UN_BLOCK,
-                    blocker.toTransactionAuthAbi(),
-                    createBinaryConverter().squishBlockUserRequestAbi(BlockUserRequestAbi(blocker, blocking)).toHex(),
+                    blocker.resolveCanonical().toTransactionAuthAbi(),
+                    createBinaryConverter().squishBlockUserRequestAbi(BlockUserRequestAbi(blocker.resolveCanonical(), blocking.resolveCanonical())).toHex(),
                     blockerActiveKey
             )
         }
         return callTilTimeoutExceptionVanishes(callable)
     }
 
+    private fun CyberName.resolveCanonical() = resolveCanonicalCyberName(this)
 }
 
 private fun CyberName.toTransactionAuthAbi(): MyTransactionAuthorizationAbi = MyTransactionAuthorizationAbi(this.name)
+
 
 /**[DefaultByteWriter] has a bug in utf-8 serialization, so we use custom one */
 private fun createBinaryConverter(): AbiBinaryGenCyber4J {
