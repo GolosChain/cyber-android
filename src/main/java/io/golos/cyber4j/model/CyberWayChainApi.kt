@@ -49,7 +49,7 @@ interface CyberWayChainApi {
 
     fun getCurrencyStats(body: GetCurrencyStats): Single<Response<ResponseBody>>
 
-    fun pushTransaction(body: PushTransaction): Single<Response<TransactionCommitted>>
+    fun pushTransaction(body: PushTransaction):  Single<Response<String>>
 
     fun resolveNames(body: List<String>): Single<List<ResolvedName>>
 }

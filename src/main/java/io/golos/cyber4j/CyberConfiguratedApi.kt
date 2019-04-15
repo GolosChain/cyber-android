@@ -14,7 +14,6 @@ import com.memtrip.eos.http.rpc.model.producer.response.ProducerList
 import com.memtrip.eos.http.rpc.model.signing.GetRequiredKeysBody
 import com.memtrip.eos.http.rpc.model.signing.PushTransaction
 import com.memtrip.eos.http.rpc.model.signing.RequiredKeys
-import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import io.golos.cyber4j.model.CyberWayChainApi
@@ -107,8 +106,31 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
                 return api.getCurrencyStats(body)
             }
 
-            override fun pushTransaction(body: PushTransaction): Single<Response<TransactionCommitted>> {
-                return api.pushTransaction(body)
+            override fun pushTransaction(body: PushTransaction): Single<Response<String>> {
+                return Single.create<Response<String>> { emitter ->
+
+                    okHttpClient.newCall(Request.Builder()
+                            .url("${config.blockChainHttpApiUrl}v1/chain/push_transaction")
+                            .post(RequestBody.create(MediaType.parse("application/json"),
+                                    moshi.adapter<PushTransaction>(PushTransaction::class.java).toJson(body)))
+                            .build())
+                            .enqueue(object : Callback {
+                                override fun onFailure(call: Call, e: IOException) {
+                                    emitter.onError(e)
+                                }
+
+                                override fun onResponse(call: Call, response: okhttp3.Response) {
+                                    val responseBody = response.body()
+                                    if (responseBody == null) emitter.onError(IllegalStateException("null response $response"))
+                                    val responseString = responseBody!!.string()
+                                    try {
+                                        emitter.onSuccess(Response.success(responseString))
+                                    } catch (e: Exception) {
+                                        emitter.onError(e)
+                                    }
+                                }
+                            })
+                }
             }
 
             override fun resolveNames(body: List<String>): Single<List<ResolvedName>> {

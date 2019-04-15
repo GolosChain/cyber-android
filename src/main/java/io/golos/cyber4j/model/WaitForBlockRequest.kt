@@ -1,3 +1,3 @@
 package io.golos.cyber4j.model
 
-internal class WaitForBlockRequest(blockNum: Long)
+internal class WaitForBlockRequest(val blockNum: Long)

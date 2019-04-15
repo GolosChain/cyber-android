@@ -6,7 +6,6 @@ import com.memtrip.eos.core.crypto.EosPrivateKey
 import com.memtrip.eos.core.crypto.signature.PrivateKeySigning
 import com.memtrip.eos.http.rpc.model.info.Info
 import com.memtrip.eos.http.rpc.model.signing.PushTransaction
-import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
 import com.squareup.moshi.Types
@@ -62,14 +61,15 @@ internal class TransactionPusherImpl(private val chainApi: CyberWayChainApi,
                         AbiBinaryGenCyber4J(CompressionType.NONE).squishMyTransactionAbi(transaction).toHex()
                 )
         ).blockingGet()
+
+
         return if (result.isSuccessful) {
 
             val response = result.body()!!
-            val responseString = moshi.adapter<TransactionCommitted>(TransactionCommitted::class.java).toJson(response)
 
             val type = Types.newParameterizedType(TransactionSuccessful::class.java, traceType)
             val jsonAdapter = moshi.adapter<TransactionSuccessful<T>>(type)
-            val value = jsonAdapter.fromJson(responseString)!!
+            val value = jsonAdapter.fromJson(response)!!
 
             return Either.Success(value)
         } else {

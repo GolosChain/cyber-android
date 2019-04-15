@@ -15,6 +15,7 @@ data class TransactionSuccessful<T>(
 data class TransactionProcessed<T>(
         val id: String,
         val receipt: TransactionParentReceipt,
+        val block_num: Long,
         val elapsed: Int,
         val net_usage: Int,
         val scheduled: Boolean,
@@ -22,7 +23,7 @@ data class TransactionProcessed<T>(
         val except: Any?
 ) {
     constructor(proceede: com.memtrip.eos.http.rpc.model.transaction.response.TransactionProcessed) :
-            this(proceede.id, TransactionParentReceipt(proceede.receipt), proceede.elapsed, proceede.net_usage,
+            this(proceede.id, TransactionParentReceipt(proceede.receipt), 0L, proceede.elapsed, proceede.net_usage,
                     proceede.scheduled, proceede.action_traces.map { TransactionActionTrace<T>(it) }, proceede.except)
 }
 

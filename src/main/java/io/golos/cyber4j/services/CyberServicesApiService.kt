@@ -26,7 +26,7 @@ private enum class ServicesGateMethods {
             GET_POST -> "content.getPost"
             GET_COMMENT -> "content.getComment"
             GET_COMMENTS -> "content.getComments"
-            WAIT_BLOCK -> "content.waitForBlock "
+            WAIT_BLOCK -> "content.waitForBlock"
             GET_USER_METADATA -> "content.getProfile"
             GET_SECRET -> "auth.generateSecret"
             GET_EMBED -> "frame.getEmbed"
