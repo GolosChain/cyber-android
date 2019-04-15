@@ -21,7 +21,7 @@ class PostingTest {
     fun before() {
         client.keyStorage.addAccountKeys(testInMainTestNetAccount.first,
                 setOf(Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)))
-        secondAccount = secondAccount
+        secondAccount = testInMainTestNetAccountSecond
     }
 
     val testMetadata = DiscussionCreateMetadata(listOf(DiscussionCreateMetadata.EmbedmentsUrl("test_url")), listOf("тээст"))

@@ -13,8 +13,8 @@ val testInMainTestNetAccount by lazy {
 }
 
 val testInMainTestNetAccountSecond by lazy {
-    Pair(CyberName("ohqasprgksdn"), "5KASdJHiokLBD4F4727jKnkuem35GVFCPW6QeFj1rTTv5AYZohB")
-            // AccountCreationTest.createNewAccount(mainTestNetConfig)
+   // Pair(CyberName("ohqasprgksdn"), "5KASdJHiokLBD4F4727jKnkuem35GVFCPW6QeFj1rTTv5AYZohB")
+             AccountCreationTest.createNewAccount(mainTestNetConfig)
 }
 
 //val testingAccountInPrivateTestNet by lazy { AccountCreationTest.createNewAccount(privateTestNetConfig) }

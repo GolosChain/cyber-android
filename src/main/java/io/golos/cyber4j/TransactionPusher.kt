@@ -69,9 +69,15 @@ internal class TransactionPusherImpl(private val chainApi: CyberWayChainApi,
 
             val type = Types.newParameterizedType(TransactionSuccessful::class.java, traceType)
             val jsonAdapter = moshi.adapter<TransactionSuccessful<T>>(type)
-            val value = jsonAdapter.fromJson(response)!!
 
-            return Either.Success(value)
+            return try {
+                val value = jsonAdapter.fromJson(response)!!
+
+                Either.Success(value)
+            }catch (e:Exception){
+                Either.Failure(moshi.adapter<io.golos.cyber4j.model.GolosEosError>(io.golos.cyber4j.model.GolosEosError::class.java).fromJson(response)!!)
+            }
+
         } else {
             Either.Failure(moshi.adapter<io.golos.cyber4j.model.GolosEosError>(io.golos.cyber4j.model.GolosEosError::class.java).fromJson(result.errorBody()?.string().orEmpty())!!)
         }

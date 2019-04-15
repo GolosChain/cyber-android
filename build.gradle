@@ -48,13 +48,13 @@ dependencies {
         exclude group: "com.lambdaworks", module: "scrypt"
     }
 
-    implementation("com.memtrip.eos-jvm:eos-core:1.0.0-beta02") {
+    implementation("com.memtrip.eos-jvm:eos-core:1.0.0-alpha29") {
         exclude group: "com.lambdaworks", module: "scrypt"
     }
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
     implementation 'net.gcardone.junidecode:junidecode:0.4.1'
     implementation 'com.squareup.moshi:moshi-adapters:1.5.0'
-    implementation("com.memtrip.eos-jvm:eos-http-rpc:1.0.0-beta02") {
+    implementation("com.memtrip.eos-jvm:eos-http-rpc:1.0.0-alpha29") {
         exclude group: "com.lambdaworks", module: "scrypt"
     }
     testCompile 'junit:junit:4.12'
