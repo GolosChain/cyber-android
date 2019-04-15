@@ -93,7 +93,6 @@ class ContentRowAdapter : JsonAdapter<ContentRow>() {
                 else -> reader.nextString()
             }
         }
-        println("type $type src = $src content = $content")
 
         val out = when (type!!) {
             TextRow.typeName -> TextRow(content!!)
