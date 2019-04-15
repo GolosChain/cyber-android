@@ -17,8 +17,6 @@ internal class DiscussionRequests(val userId: String,
 
 internal class UserMetaDataRequest(val userId: String)
 
-internal class GetSecretRequest {
-    val params = Any()
-}
+internal class GetSecretRequest
 
 internal class ServicesAuthRequest(val user: String, val sign: String, val secret: String)
