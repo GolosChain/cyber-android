@@ -138,5 +138,7 @@ interface ApiService {
     fun writeUserToBlockchain(userName: String, owner: String, active: String, posting: String, memo: String): Either<ResultOk, ApiResponseError>
 
     fun resendSmsCode(name: String?, phone: String?): Either<ResultOk, ApiResponseError>
+
+    fun waitBlock(blockNum: Long): Either<ResultOk, ApiResponseError>
 }
 

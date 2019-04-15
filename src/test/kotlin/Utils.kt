@@ -72,11 +72,8 @@ class Utils {
 
     @Test
     fun createUserTest() {
-        val userName = generateRandomCommunName()
-        val pass = (UUID.randomUUID().toString() + UUID.randomUUID().toString()).replace("-", "")
-        val publicKeys = AuthUtils.generatePublicWiFs(userName, pass, AuthType.values())
-        val privateKeys = AuthUtils.generatePrivateWiFs(userName, pass, AuthType.values())
-        println("usename = $userName\nmaster password = $pass \npublic keys=$publicKeys\nprivateKeys = $privateKeys")
+        privateTestNetClient.getRegistrationState(null, "+73333333330")
+        privateTestNetClient.getRegistrationState(null, "+7(333)333-33-30")
     }
 
     @Test

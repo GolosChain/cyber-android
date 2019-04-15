@@ -5,6 +5,7 @@ import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 
 data class TransactionSuccessful<T>(
         val transaction_id: String,
+
         val processed: TransactionProcessed<T>
 ) {
     constructor(comitted: TransactionCommitted) : this(comitted.transaction_id, TransactionProcessed(comitted.processed))

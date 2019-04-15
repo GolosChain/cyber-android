@@ -1,8 +1,8 @@
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.Cyber4JConfig
-import io.golos.cyber4j.model.ContentParsingType
-import io.golos.cyber4j.model.DiscussionTimeSort
+import io.golos.cyber4j.model.*
 import io.golos.cyber4j.utils.Either
+import io.golos.cyber4j.utils.Pair
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -134,5 +134,18 @@ class ServicesFetchTest {
                 client.getEmbedIframely("https://music.yandex.ru/album/3100408/track/3869231")
         assertTrue(response is Either.Success)
 
+    }
+
+    @Test
+    fun waitForABlockTest() {
+        client.keyStorage.addAccountKeys(testInMainTestNetAccount.first, setOf(
+                Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)
+        ))
+        val result = client.createPost("",
+                "post",
+                emptyList<Tag>(),
+                DiscussionCreateMetadata(emptyList(), emptyList()),
+                null)
+      // val blockNum = (result as Either.Success).value.
     }
 }

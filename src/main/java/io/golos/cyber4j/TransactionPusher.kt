@@ -13,7 +13,6 @@ import com.squareup.moshi.Types
 import io.golos.cyber4j.model.*
 import io.golos.cyber4j.utils.Either
 import io.golos.cyber4j.utils.LogLevel
-import java.text.SimpleDateFormat
 import java.util.*
 
 // helper class, used to split action creation and transaction push
@@ -28,10 +27,6 @@ internal class TransactionPusherImpl(private val chainApi: CyberWayChainApi,
                                      private val cyber4JConfig: io.golos.cyber4j.Cyber4JConfig,
                                      private val moshi: Moshi) : TransactionPusher {
 
-    private val dateFormat: SimpleDateFormat = SimpleDateFormat(cyber4JConfig.datePattern).apply {
-        timeZone = TimeZone.getTimeZone(cyber4JConfig.blockChainTimeZoneId)
-    }
-
 
     override fun <T> pushTransaction(action: List<MyActionAbi>,
                                      key: EosPrivateKey,
@@ -40,7 +35,9 @@ internal class TransactionPusherImpl(private val chainApi: CyberWayChainApi,
 
         val info = usingPrefetchedChainInfo ?: chainApi.getInfo().blockingGet().body()!!
 
-        val serverDate = Date(dateFormat.parse(info.head_block_time).time + 30_000)
+        val sdf = Calendar.getInstance(TimeZone.getTimeZone(cyber4JConfig.blockChainTimeZoneId))
+
+        val serverDate = Date(sdf.timeInMillis + 30_000)
 
         val transaction = transaction(serverDate, BlockIdDetails(info.head_block_id), action)
 

@@ -1544,6 +1544,14 @@ class Cyber4J @JvmOverloads constructor(
     fun getUserMetadata(user: CyberName): Either<UserMetadata, ApiResponseError> = apiService.getUserMetadata(user.resolveCanonical().name)
 
 
+    /** method will block thread until [blockNum] would consumed by prism services
+     * @param blockNum number of block to wait
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     */
+    fun waitForABlock(blockNum: Long): Either<ResultOk, ApiResponseError> = apiService.waitBlock(blockNum)
+
+
     /**get processed embed link for some raw "https://site.com/content" using iframely service
      * @param forLink raw link of site content
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
