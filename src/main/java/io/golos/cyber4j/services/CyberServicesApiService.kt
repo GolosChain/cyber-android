@@ -114,6 +114,7 @@ internal class CyberServicesApiService(
                         return@execute
                     }
 
+
                     val secret = presetSecret
                             ?: {
                                 val resp = apiClient.send(
