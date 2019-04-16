@@ -80,6 +80,8 @@ internal class CyberServicesApiService(
             activeKey: String,
             oldUser: CyberName?
     ) {
+        if (!config.performAutoAuthOnActiveUserSet) return
+
         if (oldUser != null && oldUser != newUser) {
             apiClient.unAuth()
         } else if (oldUser == null) {
@@ -93,8 +95,7 @@ internal class CyberServicesApiService(
 
 
     private fun authIfPossible(presetSecret: String? = null) {
-        println("authIfPossible")
-        println("isAuthRunning = ${isAuthRunning.get()}")
+
         if (isAuthRunning.get()) return
         if (keyStore.isActiveAccountSet()) {
             lock()

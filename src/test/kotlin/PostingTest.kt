@@ -14,7 +14,7 @@ import java.nio.charset.Charset
 import java.util.*
 
 class PostingTest {
-    private val client = Cyber4J(mainTestNetConfig)
+    private val client = Cyber4J(mainTestNetConfig.copy(performAutoAuthOnActiveUserSet = false))
     private lateinit var secondAccount: kotlin.Pair<CyberName, String>
 
     @Before
