@@ -16,6 +16,15 @@ public class GolosEosError {
                 '}';
     }
 
+    public GolosEosError() {
+    }
+
+    public GolosEosError(int code, String message, Error error) {
+        this.code = code;
+        this.message = message;
+        this.error = error;
+    }
+
     public int getCode() {
         return code;
     }
