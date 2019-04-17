@@ -6,7 +6,6 @@ import io.golos.cyber4j.utils.Pair
 import junit.framework.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
@@ -72,8 +71,8 @@ class Utils {
 
     @Test
     fun createUserTest() {
-        privateTestNetClient.getRegistrationState(null, "+73333333330")
-        privateTestNetClient.getRegistrationState(null, "+7(333)333-33-30")
+        val result = AuthUtils.generatePrivateWiFs("sename", "gcabvqhrsdxx", arrayOf(AuthType.ACTIVE))
+        println(result)
     }
 
     @Test

@@ -42,24 +42,24 @@ data class ContentBody(
         val mobile: List<ContentRow>?
 )
 
-data class Embed(val _id: String,
-                 val id: String,
-                 val type: String,
+data class Embed(val _id: String?,
+                 val id: String?,
+                 val type: String?,
                  val result: EmbedResult)
 
-data class EmbedResult(val type: String,
-                       val version: String,
-                       val title: String,
-                       val url: String,
-                       val author: String,
-                       val author_url: String,
-                       val provider_name: String,
-                       val description: String,
+data class EmbedResult(val type: String?,
+                       val version: String?,
+                       val title: String?,
+                       val url: String?,
+                       val author: String?,
+                       val author_url: String?,
+                       val provider_name: String?,
+                       val description: String?,
                        val thumbnail_url: String?,
                        val thumbnail_width: Int?,
                        val thumbnail_height: Int?,
                        val height: Int?,
-                       val html: String)
+                       val html: String?)
 
 data class DiscussionMetadata(val time: Date)
 

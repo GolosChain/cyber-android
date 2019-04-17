@@ -17,13 +17,15 @@ enum class PostsFeedType {
 
 enum class CommentsOrigin {
     COMMENTS_OF_USER,
-    COMMENTS_OF_POST;
+    COMMENTS_OF_POST,
+    REPLIES;
 
     override fun toString(): String {
 
         return when (this) {
             COMMENTS_OF_USER -> "user"
             COMMENTS_OF_POST -> "post"
+            REPLIES -> "replies"
         }
     }
 }
@@ -140,5 +142,22 @@ interface ApiService {
     fun resendSmsCode(name: String?, phone: String?): Either<ResultOk, ApiResponseError>
 
     fun waitBlock(blockNum: Long): Either<ResultOk, ApiResponseError>
+
+    fun subscribeOnMobilePushNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError>
+
+    fun unSubscribeOnNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError>
+
+    fun setNotificationSettings(deviceId: String, newBasicSettings: Any?,
+                                newWebNotifySettings: WebShowSettings?, newMobilePushSettings: MobileShowSettings?): Either<ResultOk, ApiResponseError>
+
+    fun getNotificationSettings(deviceId: String): Either<NotifySettings, ApiResponseError>
+
+    fun getEvents(userProfile: String, afterId: String?, limit: Int?, markAsViewed: Boolean?, freshOnly: Boolean?, types: List<EventType>): Either<EventsData, ApiResponseError>
+
+    fun markEventsAsRead(ids: List<String>): Either<ResultOk, ApiResponseError>
+
+    fun markAllEventsAsRead(): Either<ResultOk, ApiResponseError>
+
+    fun getUnreadCount(profileId: String): Either<FreshResult, ApiResponseError>
 }
 

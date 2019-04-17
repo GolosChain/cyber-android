@@ -1,9 +1,6 @@
 package io.golos.cyber4j.utils
 
-import com.squareup.moshi.FromJson
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.JsonReader
-import com.squareup.moshi.JsonWriter
+import com.squareup.moshi.*
 import io.golos.cyber4j.model.*
 import java.math.BigInteger
 
@@ -105,5 +102,115 @@ class ContentRowAdapter : JsonAdapter<ContentRow>() {
 
     override fun toJson(writer: JsonWriter, value: ContentRow?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+}
+
+class EventTypeAdapter : JsonAdapter<EventType>() {
+    override fun fromJson(reader: JsonReader): EventType? {
+        reader.beginObject()
+        val value = reader.nextString()
+        return when (value) {
+            "all" -> EventType.ALL
+            "vote" -> EventType.VOTE
+            "transfer" -> EventType.TRANSFER
+            "reply" -> EventType.REPLY
+            "flag" -> EventType.FLAG
+            "subscribe" -> EventType.SUBSCRIBE
+            "unsubscribe" -> EventType.UN_SUBSCRIBE
+            "mention" -> EventType.MENTION
+            "repost" -> EventType.REPOST
+            "message" -> EventType.MESSAGE
+            "reward" -> EventType.REWARD
+            "curatorReward" -> EventType.CURATOR_REWARD
+            "witnessVote" -> EventType.WITNESS_VOTE
+            "witnessCancelVote" -> EventType.WITNESS_CANCEL_VOTE
+            else -> throw java.lang.IllegalArgumentException("unknown type $value")
+        }
+    }
+
+    override fun toJson(writer: JsonWriter, value: EventType?) {
+        writer.value(value?.toString())
+    }
+}
+
+class ServiceSettingsLanguageAdapter : JsonAdapter<ServiceSettingsLanguage>() {
+    override fun fromJson(reader: JsonReader): ServiceSettingsLanguage? {
+        val langString = reader.nextString()
+        return when (langString) {
+            "ru" -> ServiceSettingsLanguage.RUSSIAN
+            "en" -> ServiceSettingsLanguage.ENGLISH
+            else -> throw  java.lang.IllegalArgumentException("unknown language $langString")
+        }
+    }
+
+    override fun toJson(writer: JsonWriter, value: ServiceSettingsLanguage?) {
+        writer.value(value?.toString())
+    }
+}
+
+class EventsAdapter {
+    @FromJson
+    fun fromJson(eventsJson: EventJson): Event = when (eventsJson.eventType) {
+        EventType.ALL -> WitnessCancelVoteEvent(0, "event_all_serialized", false, emptyList(), 0L, 0L)
+        EventType.VOTE -> VoteEvent(eventsJson.permlink!!,
+                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
+        EventType.FLAG -> FlagEvent(eventsJson.permlink!!,
+                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
+        EventType.TRANSFER -> TransferEvent(eventsJson.amount!!,
+                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
+        EventType.SUBSCRIBE -> SubscribeEvent(eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers.orEmpty(), eventsJson.createdAt, eventsJson.updatedAt)
+        EventType.UN_SUBSCRIBE -> UnSubscribeEvent(eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers.orEmpty(), eventsJson.createdAt, eventsJson.updatedAt)
+        EventType.REPLY -> ReplyEvent(eventsJson.permlink!!, eventsJson.parentPermlink!!,
+                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
+        EventType.MENTION -> MentionEvent(eventsJson.permlink!!, eventsJson.parentPermlink!!,
+                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
+        EventType.REPOST -> RepostEvent(eventsJson.permlink!!,
+                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
+        EventType.REWARD -> AwardEvent(eventsJson.reward!!, eventsJson.permlink!!,
+                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
+        EventType.CURATOR_REWARD -> CuratorAwardEvent(eventsJson.permlink!!, eventsJson.curatorTargetAuthor!!, eventsJson.curatorReward!!,
+                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
+        EventType.MESSAGE -> MessageEvent(eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers.orEmpty(), eventsJson.createdAt, eventsJson.updatedAt)
+        EventType.WITNESS_VOTE -> WitnessVoteEvent(eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers.orEmpty(), eventsJson.createdAt, eventsJson.updatedAt)
+        EventType.WITNESS_CANCEL_VOTE -> WitnessCancelVoteEvent(eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers.orEmpty(), eventsJson.createdAt, eventsJson.updatedAt)
+    }
+
+    @ToJson
+    fun toJson(event: Event): EventJson = when (event) {
+        is WitnessCancelVoteEvent -> EventJson(EventType.WITNESS_CANCEL_VOTE,
+                event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt)
+
+        is VoteEvent -> EventJson(EventType.VOTE, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
+                permlink = event.permlink)
+
+        is FlagEvent -> EventJson(EventType.FLAG, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
+                permlink = event.permlink)
+
+        is TransferEvent -> EventJson(EventType.TRANSFER, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
+                amount = event.amount)
+        is SubscribeEvent -> EventJson(EventType.SUBSCRIBE, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt)
+
+        is UnSubscribeEvent -> EventJson(EventType.UN_SUBSCRIBE, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt)
+
+        is ReplyEvent -> EventJson(EventType.REPLY, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
+                permlink = event.permlink, parentPermlink = event.parentPermlink)
+
+        is MentionEvent -> EventJson(EventType.MENTION, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
+                permlink = event.permlink, parentPermlink = event.parentPermlink)
+
+        is RepostEvent -> EventJson(EventType.REPOST, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
+                permlink = event.permlink)
+
+        is AwardEvent -> EventJson(EventType.REWARD, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
+                reward = event.reward, permlink = event.permlink)
+
+        is CuratorAwardEvent -> EventJson(EventType.CURATOR_REWARD, event.counter, event._id, event.fresh,
+                event.fromUsers, event.createdAt, event.updatedAt,
+                permlink = event.permlink, curatorTargetAuthor = event.curatorTargetAuthor,
+                curatorReward = event.curatorReward)
+
+        is MessageEvent -> EventJson(EventType.MESSAGE, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt)
+
+        is WitnessVoteEvent -> EventJson(EventType.WITNESS_VOTE, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt)
     }
 }

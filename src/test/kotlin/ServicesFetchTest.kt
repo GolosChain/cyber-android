@@ -114,6 +114,10 @@ class ServicesFetchTest {
 
         assertTrue(fetchedComment is Either.Success)
 
+        val comments1 = client.getUserReplies(postWithComments.contentId.userId.toCyberName(),
+                ContentParsingType.WEB, 10, DiscussionTimeSort.INVERTED, null)
+        assertTrue(comments1 is Either.Success)
+
     }
 
     @Test

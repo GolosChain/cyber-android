@@ -18,7 +18,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 private enum class ServicesGateMethods {
     GET_FEED, GET_POST, GET_COMMENT, GET_COMMENTS, GET_USER_METADATA, GET_SECRET, AUTH, GET_EMBED,
     GET_REGISTRATION_STATE, REG_FIRST_STEP, REG_VERIFY_PHONE, REG_SET_USER_NAME, REG_WRITE_TO_BLOCKCHAIN,
-    REG_RESEND_SMS, WAIT_BLOCK;
+    REG_RESEND_SMS, WAIT_BLOCK, PUSH_SUBSCRIBE, PUSH_UNSUBSCRIBE, GET_NOTIFS_HISTORY, MARK_VIEWED,
+    GET_UNREAD_COUNT, MARK_VIEWED_ALL, SET_SETTINGS, GET_SETTINGS;
 
     override fun toString(): String {
         return when (this) {
@@ -37,6 +38,14 @@ private enum class ServicesGateMethods {
             REG_SET_USER_NAME -> "registration.setUsername"
             REG_WRITE_TO_BLOCKCHAIN -> "registration.toBlockChain"
             REG_RESEND_SMS -> "registration.resendSmsCode"
+            PUSH_SUBSCRIBE -> "push.notifyOn"
+            PUSH_UNSUBSCRIBE -> "push.notifyOff"
+            GET_NOTIFS_HISTORY -> "push.history"
+            MARK_VIEWED -> "notify.markAsViewed"
+            GET_UNREAD_COUNT -> "push.historyFresh"
+            MARK_VIEWED_ALL -> "notify.markAllAsViewed"
+            SET_SETTINGS -> "setOptions"
+            GET_SETTINGS -> "getOptions"
         }
     }
 }
@@ -55,6 +64,9 @@ internal class CyberServicesApiService(
                         .add(UserRegistrationState::class.java, UserRegistrationStateAdapter())
                         .add(RegistrationStrategy::class.java, UserRegistrationStrategyAdapter())
                         .add(ContentRow::class.java, ContentRowAdapter())
+                        .add(EventType::class.java, EventTypeAdapter())
+                        .add(ServiceSettingsLanguage::class.java, ServiceSettingsLanguageAdapter())
+                        .add(EventsAdapter())
                         .build()
         )
 ) :
@@ -326,6 +338,81 @@ internal class CyberServicesApiService(
         )
     }
 
+    override fun subscribeOnMobilePushNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError> {
+        lockIfNeeded()
+        val request = PushSubscibeRequest(fcmToken, deviceId)
+        return apiClient.send(
+                ServicesGateMethods.PUSH_SUBSCRIBE.toString(),
+                request, ResultOk::class.java
+        )
+    }
+
+    override fun unSubscribeOnNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError> {
+        lockIfNeeded()
+        val request = PushSubscibeRequest(fcmToken, deviceId)
+        return apiClient.send(
+                ServicesGateMethods.PUSH_UNSUBSCRIBE.toString(),
+                request, ResultOk::class.java
+        )
+    }
+
+    override fun setNotificationSettings(deviceId: String,
+                                         newBasicSettings: Any?,
+                                         newWebNotifySettings: WebShowSettings?,
+                                         newMobilePushSettings: MobileShowSettings?): Either<ResultOk, ApiResponseError> {
+        lockIfNeeded()
+        val request = NotifySettings(deviceId, newBasicSettings, newWebNotifySettings, newMobilePushSettings)
+
+        return apiClient.send(
+                ServicesGateMethods.SET_SETTINGS.toString(),
+                request, ResultOk::class.java
+        )
+    }
+
+    override fun getNotificationSettings(deviceId: String): Either<NotifySettings, ApiResponseError> {
+        lockIfNeeded()
+        val request = ServicesSettingsRequest(deviceId)
+
+        return apiClient.send(
+                ServicesGateMethods.GET_SETTINGS.toString(),
+                request, NotifySettings::class.java
+        )
+    }
+
+    override fun getEvents(userProfile: String,
+                           afterId: String?,
+                           limit: Int?,
+                           markAsViewed: Boolean?,
+                           freshOnly: Boolean?,
+                           types: List<EventType>): Either<EventsData, ApiResponseError> {
+        lockIfNeeded()
+        val request = EventsRequest(userProfile, afterId, limit, types, markAsViewed, freshOnly)
+
+        return apiClient.send(
+                ServicesGateMethods.GET_NOTIFS_HISTORY.toString(),
+                request, EventsData::class.java
+        )
+    }
+
+    override fun markEventsAsRead(ids: List<String>): Either<ResultOk, ApiResponseError> {
+        lockIfNeeded()
+        val request = MarkAsReadRequest(ids)
+        return apiClient.send(ServicesGateMethods.MARK_VIEWED.toString(), request, ResultOk::class.java)
+    }
+
+    override fun markAllEventsAsRead(): Either<ResultOk, ApiResponseError> {
+        lockIfNeeded()
+        return apiClient.send(ServicesGateMethods.MARK_VIEWED_ALL.toString(), MarkAllReadRequest(), ResultOk::class.java)
+    }
+
+    override fun getUnreadCount(profileId: String): Either<FreshResult, ApiResponseError> {
+        lockIfNeeded()
+        val request = GetUnreadCountRequest(profileId)
+
+        return apiClient.send(ServicesGateMethods.GET_UNREAD_COUNT.toString(), request, FreshResult::class.java)
+    }
+
+
     @Synchronized
     private fun lockIfNeeded() {
         if (lock != null && lock!!.count > 0) lock!!.await(config.readTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
@@ -348,4 +435,6 @@ internal class CyberServicesApiService(
             ContentParsingType.RAW -> "raw"
         }
     }
+
+
 }
