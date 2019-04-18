@@ -44,8 +44,8 @@ private enum class ServicesGateMethods {
             MARK_VIEWED -> "notify.markAsViewed"
             GET_UNREAD_COUNT -> "push.historyFresh"
             MARK_VIEWED_ALL -> "notify.markAllAsViewed"
-            SET_SETTINGS -> "setOptions"
-            GET_SETTINGS -> "getOptions"
+            SET_SETTINGS -> "options.set"
+            GET_SETTINGS -> "options.get"
         }
     }
 }

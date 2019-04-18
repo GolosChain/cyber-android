@@ -27,19 +27,19 @@ class NotifsTest {
         val unSubscriptionResult = cyber4j.unSubscribeOnNotifications(deviceId, fcmKey)
         assertTrue(unSubscriptionResult is Either.Success)
 
-        val unreadCount = cyber4j.getUnreadCount(cyber4j.resolveCanonicalCyberName("destroyer2k".toCyberName()).name)
-        //assertTrue(unreadCount is Either.Success)
-        //assertTrue((unreadCount as Either.Success).value.fresh > -1)
+        val unreadCount = cyber4j.getUnreadCount(cyber4j.resolveCanonicalCyberName("destroyer2k@golos".toCyberName()).name)
+        assertTrue(unreadCount is Either.Success)
+        assertTrue((unreadCount as Either.Success).value.fresh > -1)
 
         val marksAsREad = cyber4j.markAllEventsAsRead()
         assertTrue(marksAsREad is Either.Success)
 
-        val events = cyber4j.getEvents(cyber4j.resolveCanonicalCyberName("destroyer2k".toCyberName()).name,
-                null, 20, false, false, listOf(EventType.ALL))
-        assertTrue(events is Either.Success)
-        assertTrue((events as Either.Success).value.data.isNotEmpty())
-        assertTrue(events.value.fresh > -1)
-        assertTrue(events.value.total > 0)
+//        val events = cyber4j.getEvents(cyber4j.resolveCanonicalCyberName("destroyer2k@golos".toCyberName()).name,
+//                null, 20, false, false, listOf(EventType.ALL))
+//        assertTrue(events is Either.Success)
+//        assertTrue((events as Either.Success).value.data.isNotEmpty())
+//        assertTrue(events.value.fresh > -1)
+//        assertTrue(events.value.total > -1)
 
         val basicSettings = "{\"a\": 6}"
         val mobileSettings = MobileShowSettings(NotificationSettings(true, true, true, true, true, true,
