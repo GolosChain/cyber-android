@@ -80,7 +80,7 @@ internal class ProfileMetadataAbi(
         @BytesCompress get() = gender.asOptionalStringBytes()
 
     val getLocation: ByteArray
-        @BytesCompress get() = gender.asOptionalStringBytes()
+        @BytesCompress get() = location.asOptionalStringBytes()
 
     val getCity: ByteArray
         @BytesCompress get() = city.asOptionalStringBytes()

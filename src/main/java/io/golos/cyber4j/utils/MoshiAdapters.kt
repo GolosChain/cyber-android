@@ -107,10 +107,8 @@ class ContentRowAdapter : JsonAdapter<ContentRow>() {
 
 class EventTypeAdapter : JsonAdapter<EventType>() {
     override fun fromJson(reader: JsonReader): EventType? {
-        reader.beginObject()
         val value = reader.nextString()
         return when (value) {
-            "all" -> EventType.ALL
             "vote" -> EventType.VOTE
             "transfer" -> EventType.TRANSFER
             "reply" -> EventType.REPLY
@@ -151,66 +149,80 @@ class ServiceSettingsLanguageAdapter : JsonAdapter<ServiceSettingsLanguage>() {
 class EventsAdapter {
     @FromJson
     fun fromJson(eventsJson: EventJson): Event = when (eventsJson.eventType) {
-        EventType.ALL -> WitnessCancelVoteEvent(0, "event_all_serialized", false, emptyList(), 0L, 0L)
-        EventType.VOTE -> VoteEvent(eventsJson.permlink!!,
-                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
-        EventType.FLAG -> FlagEvent(eventsJson.permlink!!,
-                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
-        EventType.TRANSFER -> TransferEvent(eventsJson.amount!!,
-                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
-        EventType.SUBSCRIBE -> SubscribeEvent(eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers.orEmpty(), eventsJson.createdAt, eventsJson.updatedAt)
-        EventType.UN_SUBSCRIBE -> UnSubscribeEvent(eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers.orEmpty(), eventsJson.createdAt, eventsJson.updatedAt)
-        EventType.REPLY -> ReplyEvent(eventsJson.permlink!!, eventsJson.parentPermlink!!,
-                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
-        EventType.MENTION -> MentionEvent(eventsJson.permlink!!, eventsJson.parentPermlink!!,
-                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
-        EventType.REPOST -> RepostEvent(eventsJson.permlink!!,
-                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
-        EventType.REWARD -> AwardEvent(eventsJson.reward!!, eventsJson.permlink!!,
-                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
-        EventType.CURATOR_REWARD -> CuratorAwardEvent(eventsJson.permlink!!, eventsJson.curatorTargetAuthor!!, eventsJson.curatorReward!!,
-                eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers, eventsJson.createdAt, eventsJson.updatedAt)
-        EventType.MESSAGE -> MessageEvent(eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers.orEmpty(), eventsJson.createdAt, eventsJson.updatedAt)
-        EventType.WITNESS_VOTE -> WitnessVoteEvent(eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers.orEmpty(), eventsJson.createdAt, eventsJson.updatedAt)
-        EventType.WITNESS_CANCEL_VOTE -> WitnessCancelVoteEvent(eventsJson.counter, eventsJson._id, eventsJson.fresh, eventsJson.fromUsers.orEmpty(), eventsJson.createdAt, eventsJson.updatedAt)
+        EventType.VOTE -> VoteEvent(eventsJson.actor!!,
+                eventsJson.post!!, eventsJson.comment, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+
+        EventType.FLAG -> FlagEvent(eventsJson.actor!!,
+                eventsJson.post!!, eventsJson.comment, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+        EventType.TRANSFER -> TransferEvent(eventsJson.value!!,
+                eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+
+        EventType.SUBSCRIBE -> SubscribeEvent(eventsJson.community!!, eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+        EventType.UN_SUBSCRIBE -> UnSubscribeEvent(eventsJson.community!!, eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+
+        EventType.REPLY -> ReplyEvent(eventsJson.post!!, eventsJson.comment!!, eventsJson.community!!,
+                eventsJson.refBlockNum!!, eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+
+        EventType.MENTION -> MentionEvent(eventsJson.post!!, eventsJson.comment!!, eventsJson.community!!,
+                eventsJson.refBlockNum!!, eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+
+        EventType.REPOST -> RepostEvent(eventsJson.post!!,
+                eventsJson.comment, eventsJson.community!!, eventsJson.refBlockNum!!,
+                eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+
+        EventType.REWARD -> AwardEvent(eventsJson.payout!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+
+        EventType.CURATOR_REWARD -> CuratorAwardEvent(eventsJson.post!!, eventsJson.comment,
+                eventsJson.payout!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+
+        EventType.MESSAGE -> MessageEvent(eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+        EventType.WITNESS_VOTE -> WitnessVoteEvent(eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+        EventType.WITNESS_CANCEL_VOTE -> WitnessCancelVoteEvent(eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+
     }
 
     @ToJson
     fun toJson(event: Event): EventJson = when (event) {
         is WitnessCancelVoteEvent -> EventJson(EventType.WITNESS_CANCEL_VOTE,
-                event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt)
+                event._id, event.fresh, event.unread, event.timestamp)
 
-        is VoteEvent -> EventJson(EventType.VOTE, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
-                permlink = event.permlink)
+        is VoteEvent -> EventJson(EventType.VOTE, event._id, event.fresh, event.unread, event.timestamp,
+                actor = event.actor, post = event.post, comment = event.comment)
 
-        is FlagEvent -> EventJson(EventType.FLAG, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
-                permlink = event.permlink)
+        is FlagEvent -> EventJson(EventType.FLAG, event._id, event.fresh, event.unread, event.timestamp,
+                actor = event.actor, post = event.post, comment = event.comment)
 
-        is TransferEvent -> EventJson(EventType.TRANSFER, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
-                amount = event.amount)
-        is SubscribeEvent -> EventJson(EventType.SUBSCRIBE, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt)
+        is TransferEvent -> EventJson(EventType.TRANSFER, event._id, event.fresh, event.unread, event.timestamp,
+                value = event.value, actor = event.actor)
 
-        is UnSubscribeEvent -> EventJson(EventType.UN_SUBSCRIBE, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt)
+        is SubscribeEvent -> EventJson(EventType.SUBSCRIBE, event._id, event.fresh, event.unread, event.timestamp,
+                community = event.community, actor = event.actor)
 
-        is ReplyEvent -> EventJson(EventType.REPLY, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
-                permlink = event.permlink, parentPermlink = event.parentPermlink)
+        is UnSubscribeEvent -> EventJson(EventType.UN_SUBSCRIBE, event._id, event.fresh, event.unread, event.timestamp,
+                community = event.community, actor = event.actor)
 
-        is MentionEvent -> EventJson(EventType.MENTION, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
-                permlink = event.permlink, parentPermlink = event.parentPermlink)
+        is ReplyEvent -> EventJson(EventType.REPLY, event._id, event.fresh, event.unread, event.timestamp,
+                post = event.post, comment = event.comment, community = event.community, refBlockNum = event.refBlockNum,
+                actor = event.actor)
 
-        is RepostEvent -> EventJson(EventType.REPOST, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
-                permlink = event.permlink)
+        is MentionEvent -> EventJson(EventType.MENTION, event._id, event.fresh, event.unread, event.timestamp,
+                post = event.post, comment = event.comment, community = event.community, refBlockNum = event.refBlockNum,
+                actor = event.actor)
 
-        is AwardEvent -> EventJson(EventType.REWARD, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt,
-                reward = event.reward, permlink = event.permlink)
+        is RepostEvent -> EventJson(EventType.REPOST, event._id, event.fresh, event.unread, event.timestamp,
+                post = event.post, comment = event.comment, community = event.community, refBlockNum = event.refBlockNum,
+                actor = event.actor)
 
-        is CuratorAwardEvent -> EventJson(EventType.CURATOR_REWARD, event.counter, event._id, event.fresh,
-                event.fromUsers, event.createdAt, event.updatedAt,
-                permlink = event.permlink, curatorTargetAuthor = event.curatorTargetAuthor,
-                curatorReward = event.curatorReward)
+        is AwardEvent -> EventJson(EventType.REWARD, event._id, event.fresh, event.unread, event.timestamp,
+                payout = event.payout)
 
-        is MessageEvent -> EventJson(EventType.MESSAGE, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt)
+        is CuratorAwardEvent -> EventJson(EventType.CURATOR_REWARD, event._id, event.fresh, event.unread, event.timestamp,
+                post = event.post, comment = event.comment, payout = event.payout)
 
-        is WitnessVoteEvent -> EventJson(EventType.WITNESS_VOTE, event.counter, event._id, event.fresh, event.fromUsers, event.createdAt, event.updatedAt)
+        is MessageEvent -> EventJson(EventType.MESSAGE, event._id, event.fresh, event.unread, event.timestamp,
+                actor = event.actor)
+
+        is WitnessVoteEvent -> EventJson(EventType.WITNESS_VOTE,
+                event._id, event.fresh, event.unread, event.timestamp)
     }
 }

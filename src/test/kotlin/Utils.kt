@@ -1,11 +1,14 @@
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Rfc3339DateJsonAdapter
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.model.*
-import io.golos.cyber4j.utils.AuthUtils
-import io.golos.cyber4j.utils.Either
-import io.golos.cyber4j.utils.Pair
-import junit.framework.Assert.assertEquals
+import io.golos.cyber4j.utils.*
+import junit.framework.Assert.*
 import org.junit.Before
 import org.junit.Test
+import java.math.BigInteger
+import java.nio.charset.Charset
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
@@ -84,4 +87,27 @@ class Utils {
         }
     }
 
+    @Test
+    fun deserializeEvents() {
+        val eventsString = (Cyber4J::class.java).getResource("/test.json").readText(Charset.defaultCharset())
+
+        assertNotNull(eventsString)
+
+        val moshi = Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter())
+                .add(BigInteger::class.java, BigIntegerAdapter())
+                .add(CyberName::class.java, CyberNameAdapter())
+                .add(UserRegistrationState::class.java, UserRegistrationStateAdapter())
+                .add(RegistrationStrategy::class.java, UserRegistrationStrategyAdapter())
+                .add(ContentRow::class.java, ContentRowAdapter())
+                .add(EventType::class.java, EventTypeAdapter())
+                .add(CyberNameAdapter())
+                .add(ServiceSettingsLanguage::class.java, ServiceSettingsLanguageAdapter())
+                .add(EventsAdapter())
+                .build()
+
+        val events = moshi.adapter<EventsData>(EventsData::class.java).fromJson(eventsString)
+        assertNotNull(events)
+
+        assertTrue(events!!.data.isNotEmpty())
+    }
 }

@@ -65,6 +65,7 @@ internal class CyberServicesApiService(
                         .add(RegistrationStrategy::class.java, UserRegistrationStrategyAdapter())
                         .add(ContentRow::class.java, ContentRowAdapter())
                         .add(EventType::class.java, EventTypeAdapter())
+                        .add(CyberNameAdapter())
                         .add(ServiceSettingsLanguage::class.java, ServiceSettingsLanguageAdapter())
                         .add(EventsAdapter())
                         .build()

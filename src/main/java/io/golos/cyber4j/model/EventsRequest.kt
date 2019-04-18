@@ -22,13 +22,12 @@ internal class EventsRequest(
 }
 
 enum class EventType {
-    ALL, VOTE, FLAG, TRANSFER, REPLY, SUBSCRIBE, UN_SUBSCRIBE,
+    VOTE, FLAG, TRANSFER, REPLY, SUBSCRIBE, UN_SUBSCRIBE,
     MENTION, REPOST, REWARD, CURATOR_REWARD, MESSAGE, WITNESS_VOTE,
     WITNESS_CANCEL_VOTE;
 
     override fun toString(): String {
         return when (this) {
-            ALL -> "all"
             VOTE -> "vote"
             TRANSFER -> "transfer"
             REPLY -> "reply"
