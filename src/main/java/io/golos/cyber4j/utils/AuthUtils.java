@@ -67,21 +67,19 @@ public class AuthUtils {
         }
         for (AuthType role : roles) {
             final String seed = login + role.toString() + password;
-            System.out.println("seed = " + seed);
             final String brainKey = join(seed.trim().split("[\\s]+"), " ");
-            System.out.println("brainKey = " + brainKey);
             byte[] hashSha256 = null;
             try {
-                System.out.println("brainKey.getBytes(\"UTF-8\") = " + Arrays.toString(brainKey.getBytes("UTF-8")));
+
                 hashSha256 = messageDigest256.digest(brainKey.getBytes("UTF-8"));
-                System.out.println("hashSha256 = " + Arrays.toString(hashSha256));
+
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
             final byte[] privateKey = addAll(new byte[]{(byte) 0x80}/*version is 128, for check*/, hashSha256);
-            System.out.println("privateKey = " + Arrays.toString(privateKey));
+
             final byte[] privateWiF = addAll(privateKey, generateChecksumSha256(privateKey));
-            System.out.println("privateWiF = " + Arrays.toString(privateWiF));
+
 
             out.put(role, Base58.encode(privateWiF));
         }
