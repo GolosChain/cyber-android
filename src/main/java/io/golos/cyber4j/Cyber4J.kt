@@ -1632,22 +1632,80 @@ class Cyber4J @JvmOverloads constructor(
      * */
     fun getEmbedOembed(forLink: String): Either<OEmbedResult, ApiResponseError> = apiService.getOEmdedEmbed(forLink)
 
+
+    /** method subscribes mobile device for push notifications in FCM.
+     * method requires authorization
+     * @param deviceId id of device or installation.
+     * @param fcmToken token of app installation in FCM.
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
     fun subscribeOnMobilePushNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError> = apiService.subscribeOnMobilePushNotifications(deviceId, fcmToken)
 
+    /** method unSubscribes mobile device from push notifications in FCM.
+     *  method requires authorization
+     * @param deviceId id of device or installation.
+     * @param fcmToken token of app installation in FCM.
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
     fun unSubscribeOnNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError> = apiService.unSubscribeOnNotifications(deviceId, fcmToken)
 
+    /**method for setting various settings for user. If any of setting param is null, this settings will not change.
+     * All setting are individual for every [deviceId]
+     * method requires authorization
+     * @param deviceId id of device or installation.
+     * @param newBasicSettings schema-free settings, used for saving app personalization.
+     * @param newWebNotifySettings settings of online web notifications.
+     * @param newMobilePushSettings settings of mobile push notifications. Uses FCM.
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
     fun setNotificationSettings(deviceId: String, newBasicSettings: Any?,
                                 newWebNotifySettings: WebShowSettings?, newMobilePushSettings: MobileShowSettings?): Either<ResultOk, ApiResponseError> = apiService.setNotificationSettings(deviceId, newBasicSettings, newWebNotifySettings, newMobilePushSettings)
 
+    /**method for retreiving user setting. Personal for evert [deviceId]
+     * method requires authorization
+     * @param deviceId id of device or installation.
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
     fun getNotificationSettings(deviceId: String): Either<NotifySettings, ApiResponseError> = apiService.getNotificationSettings(deviceId)
 
+    /**method for retreiving history of notifications.
+     * method requires authorization
+     * @param userProfile name of user which notifications to retreive.
+     * @param afterId id of next page of events. Set null if you want first page.
+     * @param limit number of event to retreive
+     * @param markAsViewed set true, if you want to set all retreived notifications as viewed
+     * @param freshOnly set true, if you want get only fresh notifcaitons
+     * @param types list of types of notifcaitons you want to get
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
     fun getEvents(userProfile: String, afterId: String?, limit: Int?, markAsViewed: Boolean?,
                   freshOnly: Boolean?, types: List<EventType>): Either<EventsData, ApiResponseError> = apiService.getEvents(userProfile, afterId, limit, markAsViewed, freshOnly, types)
 
+    /**mark certain events as read, eg returning 'unread' property as false
+     * method requires authorization
+     * @param ids list of id's to set as read
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
     fun markEventsAsRead(ids: List<String>): Either<ResultOk, ApiResponseError> = apiService.markEventsAsRead(ids)
 
+    /**mark certain all events history of authorized user as read
+     * method requires authorization
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
     fun markAllEventsAsRead(): Either<ResultOk, ApiResponseError> = apiService.markAllEventsAsRead()
 
+    /**method for retreving count of unread events of authorized user.
+     * method requires authorization
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
     fun getUnreadCount(profileId: String): Either<FreshResult, ApiResponseError> = apiService.getUnreadCount(profileId)
 
     /**method returns current state of user registration process, user gets identified by [user] or
