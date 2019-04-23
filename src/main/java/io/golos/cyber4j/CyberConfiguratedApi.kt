@@ -23,7 +23,8 @@ import io.reactivex.Single
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
-import java.io.IOException
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
 
 interface ChainApiProvider {
@@ -47,7 +48,9 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
                 .connectTimeout(config.connectionTimeOutInSeconds.toLong(), TimeUnit.SECONDS)
                 .readTimeout(config.readTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
                 .writeTimeout(config.writeTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
+                .dispatcher(Dispatcher(Executors.newSingleThreadExecutor(ThreadFactory { Thread.currentThread() })))
                 .build()
+
         api = object : CyberWayChainApi {
             val api = Api(config.blockChainHttpApiUrl, okHttpClient).chain
             override fun getInfo(): Single<Response<Info>> {
@@ -109,27 +112,26 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
             override fun pushTransaction(body: PushTransaction): Single<Response<String>> {
                 return Single.create<Response<String>> { emitter ->
 
-                    okHttpClient.newCall(Request.Builder()
-                            .url("${config.blockChainHttpApiUrl}v1/chain/push_transaction")
-                            .post(RequestBody.create(MediaType.parse("application/json"),
-                                    moshi.adapter<PushTransaction>(PushTransaction::class.java).toJson(body)))
-                            .build())
-                            .enqueue(object : Callback {
-                                override fun onFailure(call: Call, e: IOException) {
-                                    emitter.onError(e)
-                                }
+                    try {
+                        val resp = okHttpClient.newCall(Request.Builder()
+                                .url("${config.blockChainHttpApiUrl}v1/chain/push_transaction")
+                                .post(RequestBody.create(MediaType.parse("application/json"),
+                                        moshi.adapter<PushTransaction>(PushTransaction::class.java).toJson(body)))
+                                .build())
+                                .execute()
 
-                                override fun onResponse(call: Call, response: okhttp3.Response) {
-                                    val responseBody = response.body()
-                                    if (responseBody == null) emitter.onError(IllegalStateException("null response $response"))
-                                    val responseString = responseBody!!.string()
-                                    try {
-                                        emitter.onSuccess(Response.success(responseString))
-                                    } catch (e: Exception) {
-                                        emitter.onError(e)
-                                    }
-                                }
-                            })
+                        val responseBody = resp.body()
+                        if (responseBody == null) emitter.onError(IllegalStateException("null response $resp"))
+                        val responseString = responseBody!!.string()
+                        try {
+                            emitter.onSuccess(Response.success(responseString))
+                        } catch (e: Exception) {
+                            emitter.onError(e)
+                        }
+
+                    } catch (e: java.lang.Exception) {
+                        emitter.onError(e)
+                    }
                 }
             }
 
@@ -138,29 +140,28 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
                 return Single.create<List<ResolvedName>> { emitter ->
                     val type = Types.newParameterizedType(List::class.java, String::class.java)
 
-                    okHttpClient.newCall(Request.Builder()
-                            .url("${config.blockChainHttpApiUrl}v1/chain/resolve_names")
-                            .post(RequestBody.create(MediaType.parse("application/json"),
-                                    moshi.adapter<List<String>>(type).toJson(body)))
-                            .build())
-                            .enqueue(object : Callback {
-                                override fun onFailure(call: Call, e: IOException) {
-                                    emitter.onError(e)
-                                }
+                    try {
+                        val resp = okHttpClient.newCall(Request.Builder()
+                                .url("${config.blockChainHttpApiUrl}v1/chain/resolve_names")
+                                .post(RequestBody.create(MediaType.parse("application/json"),
+                                        moshi.adapter<List<String>>(type).toJson(body)))
+                                .build())
+                                .execute()
 
-                                override fun onResponse(call: Call, response: okhttp3.Response) {
-                                    val responseBody = response.body()
-                                    if (responseBody == null) emitter.onError(IllegalStateException("null response $response"))
-                                    val responseString = responseBody!!.string()
-                                    try {
-                                        val resolvedName = moshi.adapter<List<ResolvedName>>(Types.newParameterizedType(List::class.java,
-                                                ResolvedName::class.java)).fromJson(responseString)
-                                        emitter.onSuccess(resolvedName ?: listOf())
-                                    } catch (e: Exception) {
-                                        emitter.onError(e)
-                                    }
-                                }
-                            })
+                        val responseBody = resp.body()
+                        if (responseBody == null) emitter.onError(IllegalStateException("null response $resp"))
+                        val responseString = responseBody!!.string()
+                        try {
+                            val resolvedName = moshi.adapter<List<ResolvedName>>(Types.newParameterizedType(List::class.java,
+                                    ResolvedName::class.java)).fromJson(responseString)
+                            emitter.onSuccess(resolvedName ?: listOf())
+                        } catch (e: Exception) {
+                            emitter.onError(e)
+                        }
+
+                    } catch (e: java.lang.Exception) {
+                        emitter.onError(e)
+                    }
                 }
             }
         }
