@@ -38,13 +38,17 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
     private val okHttpClient: OkHttpClient
 
     init {
+        val interceptor = if (config.logger != null) HttpLoggingInterceptor(config.logger)
+        else HttpLoggingInterceptor()
+        interceptor.level =
+                when (config.logLevel) {
+                    LogLevel.BASIC -> HttpLoggingInterceptor.Level.BASIC
+                    LogLevel.BODY -> HttpLoggingInterceptor.Level.BODY
+                    LogLevel.NONE -> HttpLoggingInterceptor.Level.NONE
+                }
+
         okHttpClient = OkHttpClient.Builder()
-                .addInterceptor(HttpLoggingInterceptor().setLevel(
-                        when (config.logLevel) {
-                            LogLevel.BASIC -> HttpLoggingInterceptor.Level.BASIC
-                            LogLevel.BODY -> HttpLoggingInterceptor.Level.BODY
-                            LogLevel.NONE -> HttpLoggingInterceptor.Level.NONE
-                        }))
+                .addInterceptor(interceptor)
                 .connectTimeout(config.connectionTimeOutInSeconds.toLong(), TimeUnit.SECONDS)
                 .readTimeout(config.readTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
                 .writeTimeout(config.writeTimeoutInSeconds.toLong(), TimeUnit.SECONDS)

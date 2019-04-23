@@ -46,7 +46,7 @@ class KeyStorage {
     @Synchronized
     fun getActiveAccount(): CyberName {
         return activeAccount
-                ?: throw java.lang.IllegalStateException("active acount not set")
+                ?: throw java.lang.IllegalStateException("active account not set")
     }
 
     @Synchronized

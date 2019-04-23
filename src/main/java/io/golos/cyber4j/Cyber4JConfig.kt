@@ -1,6 +1,7 @@
 package io.golos.cyber4j
 
 import io.golos.cyber4j.utils.LogLevel
+import okhttp3.logging.HttpLoggingInterceptor
 
 data class Cyber4JConfig @JvmOverloads constructor(val blockChainHttpApiUrl: String = "http://46.4.96.246:8888/",// url of eos chain rest api
                                                    val servicesUrl: String = "ws://116.203.98.241:8080", //url of microservices gateway
@@ -12,4 +13,5 @@ data class Cyber4JConfig @JvmOverloads constructor(val blockChainHttpApiUrl: Str
                                                    val blockChainTimeZoneId: String = "GMT:0:00",//blockchain timezone. Used for proper converting between local and blockchain
                                                                                                 //date time.  Unlikely to be changed;
                                                    val logLevel: LogLevel = LogLevel.BODY,
+                                                   val logger: HttpLoggingInterceptor.Logger? = null,
                                                    val performAutoAuthOnActiveUserSet : Boolean = true)// amount of logs. set LogLevel.NONE to disable

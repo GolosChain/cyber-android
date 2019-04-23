@@ -68,7 +68,5 @@ class AccountCreationTest {
 
             return Pair(CyberName(newUser), AuthUtils.generatePrivateWiFs(newUser, pass, arrayOf(AuthType.ACTIVE))[AuthType.ACTIVE]!!)
         }
-
-
     }
 }

@@ -342,7 +342,7 @@ class Cyber4J @JvmOverloads constructor(
                     curatorRewardPercentage
             )
 
-            if (config.logLevel == LogLevel.BODY) println(
+            if (config.logLevel == LogLevel.BODY) config.logger?.log(
                     "createPostRequest = ${moshi.adapter(CreateDiscussionRequestAbi::class.java).toJson(
                             createPostRequest
                     )}"

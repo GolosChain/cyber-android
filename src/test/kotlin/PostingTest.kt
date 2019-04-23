@@ -12,9 +12,11 @@ import org.junit.Before
 import org.junit.Test
 import java.nio.charset.Charset
 import java.util.*
+import java.util.logging.Logger
 
 class PostingTest {
-    private val client = Cyber4J(mainTestNetConfig.copy(performAutoAuthOnActiveUserSet = false))
+    private val client = Cyber4J(mainTestNetConfig.copy(performAutoAuthOnActiveUserSet = false)
+           )
     private lateinit var secondAccount: kotlin.Pair<CyberName, String>
 
     @Before
