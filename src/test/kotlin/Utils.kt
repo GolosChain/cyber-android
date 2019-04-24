@@ -139,4 +139,22 @@ class Utils {
 
         assertTrue(events!!.data.isNotEmpty())
     }
+
+    @Test
+    fun testResolveName() {
+        val usernameCanonical = "xlvgwhfbffoo"
+        val usernameDomain = "destroyer2k@golos".toCyberName()
+        val resolvedCanonicalName = privateTestNetClient.resolveCanonicalCyberName(usernameCanonical.toCyberName())
+        assertEquals(usernameCanonical, resolvedCanonicalName.name)
+        assertTrue(resolvedCanonicalName.isCanonicalName)
+
+        assertTrue(!usernameDomain.isCanonicalName)
+        val resolvedDomainName = privateTestNetClient.resolveCanonicalCyberName(usernameDomain)
+
+        assertTrue(resolvedDomainName.isCanonicalName)
+        assertNotSame(usernameDomain.name, resolvedDomainName.name)
+        assertEquals(usernameDomain.name, resolvedDomainName.domainName)
+        println("resolvedCanonicalName = $resolvedCanonicalName")
+        println("resolvedDomainName = $resolvedDomainName")
+    }
 }

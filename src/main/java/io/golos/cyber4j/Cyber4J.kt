@@ -265,7 +265,7 @@ class Cyber4J @JvmOverloads constructor(
         return resolvedNamesCache.getOrPut(cyberName) {
             chainApi.resolveNames(listOf(cyberName.name))
                     .blockingGet()
-                    .map { CyberName(it.resolved_username) }
+                    .map { CyberName(it.resolved_username, cyberName.name) }
                     .firstOrNull()
                     ?: throw java.lang.IllegalArgumentException("domain name $cyberName was'n found")
         }
