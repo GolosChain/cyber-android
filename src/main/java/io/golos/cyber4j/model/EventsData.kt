@@ -117,12 +117,14 @@ class MessageEvent(val actor: Actor,
                    unread: Boolean,
                    timestamp: Date) : Event(EventType.MESSAGE, _id, fresh, unread, timestamp)
 
-class WitnessVoteEvent(_id: String,
+class WitnessVoteEvent(val actor: Actor,
+                       _id: String,
                        fresh: Boolean,
                        unread: Boolean,
                        timestamp: Date) : Event(EventType.WITNESS_VOTE, _id, fresh, unread, timestamp)
 
-class WitnessCancelVoteEvent(_id: String,
+class WitnessCancelVoteEvent(val actor: Actor,
+                             _id: String,
                              fresh: Boolean,
                              unread: Boolean,
                              timestamp: Date) : Event(EventType.WITNESS_CANCEL_VOTE, _id, fresh, unread, timestamp)

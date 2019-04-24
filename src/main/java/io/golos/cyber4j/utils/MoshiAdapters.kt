@@ -176,8 +176,8 @@ class EventsAdapter {
                 eventsJson.payout!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
 
         EventType.MESSAGE -> MessageEvent(eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
-        EventType.WITNESS_VOTE -> WitnessVoteEvent(eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
-        EventType.WITNESS_CANCEL_VOTE -> WitnessCancelVoteEvent(eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+        EventType.WITNESS_VOTE -> WitnessVoteEvent(eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
+        EventType.WITNESS_CANCEL_VOTE -> WitnessCancelVoteEvent(eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp)
 
     }
 
