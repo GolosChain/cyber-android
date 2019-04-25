@@ -20,6 +20,7 @@ import io.golos.cyber4j.services.CyberServicesApiService
 import io.golos.cyber4j.services.model.ApiResponseError
 import io.golos.cyber4j.utils.*
 import net.gcardone.junidecode.Junidecode
+import java.io.File
 import java.net.SocketTimeoutException
 import java.util.*
 import java.util.concurrent.Callable
@@ -132,6 +133,7 @@ class Cyber4J @JvmOverloads constructor(
             .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
             .add(CyberNameAdapter())
             .build()
+
 
     init {
         if (chainApiProvider == null) {
@@ -342,7 +344,7 @@ class Cyber4J @JvmOverloads constructor(
                     curatorRewardPercentage
             )
 
-            if (config.logLevel == LogLevel.BODY) config.logger?.log(
+            if (config.logLevel == LogLevel.BODY) config.httpLogger?.log(
                     "createPostRequest = ${moshi.adapter(CreateDiscussionRequestAbi::class.java).toJson(
                             createPostRequest
                     )}"
@@ -1686,27 +1688,27 @@ class Cyber4J @JvmOverloads constructor(
     fun getEvents(userProfile: String, afterId: String?, limit: Int?, markAsViewed: Boolean?,
                   freshOnly: Boolean?, types: List<EventType>): Either<EventsData, ApiResponseError> = apiService.getEvents(userProfile, afterId, limit, markAsViewed, freshOnly, types)
 
-    /**mark certain events as read, eg returning 'unread' property as false
+    /**mark certain events as unfresh, eg returning 'fresh' property as false
      * method requires authorization
      * @param ids list of id's to set as read
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
-    fun markEventsAsRead(ids: List<String>): Either<ResultOk, ApiResponseError> = apiService.markEventsAsRead(ids)
+    fun markEventsAsNotFresh(ids: List<String>): Either<ResultOk, ApiResponseError> = apiService.markEventsAsRead(ids)
 
-    /**mark certain all events history of authorized user as read
+    /**mark certain all events history of authorized user as not fresh
      * method requires authorization
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
-    fun markAllEventsAsRead(): Either<ResultOk, ApiResponseError> = apiService.markAllEventsAsRead()
+    fun markAllEventsAsNotFresh(): Either<ResultOk, ApiResponseError> = apiService.markAllEventsAsRead()
 
-    /**method for retreving count of unread events of authorized user.
+    /**method for retreving count of fresh events of authorized user.
      * method requires authorization
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
-    fun getUnreadCount(profileId: String): Either<FreshResult, ApiResponseError> = apiService.getUnreadCount(profileId)
+    fun getFreshNotificationCount(profileId: String): Either<FreshResult, ApiResponseError> = apiService.getUnreadCount(profileId)
 
     /**method returns current state of user registration process, user gets identified by [user] or
      * by [phone]
@@ -1836,6 +1838,22 @@ class Cyber4J @JvmOverloads constructor(
             )
 
         }
+    }
+
+    /** method for uploading images.
+     * @param file file with image
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
+    fun uploadImage(file: File): Either<String, GolosEosError> {
+        return try {
+            Either.Success(chainApi.uploadImage(file).blockingGet())
+        } catch (e: java.lang.Exception) {
+            Either.Failure(
+                    GolosEosError(0, e.message ?: e.localizedMessage
+                    ?: "", GolosEosError.Error(0, "", "", emptyArray()))
+            )
+        }
+
     }
 
     /** method adds listener of authorization state in cyber microservices.

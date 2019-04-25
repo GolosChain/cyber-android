@@ -106,7 +106,7 @@ public class GolosEosError {
 
     }
 
-    static class ErrorMessage{
+    public static class ErrorMessage{
         private String message;
         private String file;
         private int line_number;

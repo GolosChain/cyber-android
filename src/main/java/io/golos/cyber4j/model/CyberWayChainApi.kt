@@ -13,11 +13,11 @@ import com.memtrip.eos.http.rpc.model.producer.response.ProducerList
 import com.memtrip.eos.http.rpc.model.signing.GetRequiredKeysBody
 import com.memtrip.eos.http.rpc.model.signing.PushTransaction
 import com.memtrip.eos.http.rpc.model.signing.RequiredKeys
-import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 import io.reactivex.Single
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
+import java.io.File
 
 interface CyberWayChainApi {
 
@@ -49,7 +49,9 @@ interface CyberWayChainApi {
 
     fun getCurrencyStats(body: GetCurrencyStats): Single<Response<ResponseBody>>
 
-    fun pushTransaction(body: PushTransaction):  Single<Response<String>>
+    fun pushTransaction(body: PushTransaction): Single<Response<String>>
 
     fun resolveNames(body: List<String>): Single<List<ResolvedName>>
+
+    fun uploadImage(file: File): Single<String>
 }

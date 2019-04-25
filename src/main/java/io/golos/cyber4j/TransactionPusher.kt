@@ -42,7 +42,7 @@ internal class TransactionPusherImpl(private val chainApi: CyberWayChainApi,
 
         val signedTransaction = MySignedTransactionAbi(info.chain_id, transaction, emptyList())
 
-        if (cyber4JConfig.logLevel == LogLevel.BODY) cyber4JConfig.logger?.log("signed transaction = ${Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter()).build().adapter<MySignedTransactionAbi>(MySignedTransactionAbi::class.java).toJson(signedTransaction)}")
+        if (cyber4JConfig.logLevel == LogLevel.BODY) cyber4JConfig.httpLogger?.log("signed transaction = ${Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter()).build().adapter<MySignedTransactionAbi>(MySignedTransactionAbi::class.java).toJson(signedTransaction)}")
 
         val signature = PrivateKeySigning()
                 .sign(

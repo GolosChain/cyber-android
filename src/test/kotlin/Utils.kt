@@ -7,6 +7,7 @@ import junit.framework.Assert.*
 import okhttp3.logging.HttpLoggingInterceptor
 import org.junit.Before
 import org.junit.Test
+import java.io.File
 import java.math.BigInteger
 import java.nio.charset.Charset
 import java.util.*
@@ -15,7 +16,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
 class Utils {
-    private val privateTestNetClient = Cyber4J(mainTestNetConfig)
+    private val privateTestNetClient = Cyber4J(mainTestNetConfig.copy(performAutoAuthOnActiveUserSet = false))
     private lateinit var secondAccount: kotlin.Pair<CyberName, String>
 
     @Before
@@ -67,7 +68,7 @@ class Utils {
 
         val latch = CountDownLatch(numOfCommands)
         val client = Cyber4J(mainTestNetConfig.copy(performAutoAuthOnActiveUserSet = false,
-                logger = HttpLoggingInterceptor.Logger {
+                httpLogger = HttpLoggingInterceptor.Logger {
                     println("thread ${Thread.currentThread()}\n$it")
                 })
         )
@@ -138,6 +139,16 @@ class Utils {
         assertNotNull(events)
 
         assertTrue(events!!.data.isNotEmpty())
+    }
+
+    @Test
+    fun imageUploadTest() {
+        val img = File((Cyber4J::class.java).getResource("/test2.jpg").file!!)
+        assertNotNull(img)
+        val uploadResponse = privateTestNetClient.uploadImage(img)
+        assertTrue(uploadResponse is Either.Success)
+        println((uploadResponse as Either.Success).value)
+
     }
 
     @Test

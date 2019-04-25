@@ -16,9 +16,9 @@ import java.util.concurrent.TimeUnit
 interface ApiClient {
 
     fun <R> send(
-        method: String,
-        params: Any,
-        classOfMessageToReceive: Class<R>
+            method: String,
+            params: Any,
+            classOfMessageToReceive: Class<R>
     ): Either<R, ApiResponseError>
 
     fun unAuth()
@@ -33,8 +33,8 @@ interface AuthRequestListener {
 
 
 internal class CyberServicesWebSocketClient(
-    private val config: Cyber4JConfig,
-    private val moshi: Moshi
+        private val config: Cyber4JConfig,
+        private val moshi: Moshi
 ) : WebSocketListener(), ApiClient {
     private lateinit var webSocket: WebSocket
     private val latches = Collections.synchronizedMap<Long, CountDownLatch>(hashMapOf())
@@ -50,26 +50,26 @@ internal class CyberServicesWebSocketClient(
         }
 
         val client = OkHttpClient.Builder().addInterceptor(
-            HttpLoggingInterceptor().setLevel(
-                when (config.logLevel) {
-                    LogLevel.BASIC -> HttpLoggingInterceptor.Level.BASIC
-                    LogLevel.BODY -> HttpLoggingInterceptor.Level.BODY
-                    LogLevel.NONE -> HttpLoggingInterceptor.Level.NONE
-                }
-            )
+                HttpLoggingInterceptor().setLevel(
+                        when (config.logLevel) {
+                            LogLevel.BASIC -> HttpLoggingInterceptor.Level.BASIC
+                            LogLevel.BODY -> HttpLoggingInterceptor.Level.BODY
+                            LogLevel.NONE -> HttpLoggingInterceptor.Level.NONE
+                        }
+                )
         )
-            .connectTimeout(config.connectionTimeOutInSeconds.toLong(), TimeUnit.SECONDS)
-            .readTimeout(config.readTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
-            .writeTimeout(config.writeTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
-            .build()
+                .connectTimeout(config.connectionTimeOutInSeconds.toLong(), TimeUnit.SECONDS)
+                .readTimeout(config.readTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
+                .writeTimeout(config.writeTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
+                .build()
 
         webSocket = client.newWebSocket(Request.Builder().url(config.servicesUrl).build(), this)
     }
 
     override fun <R> send(
-        method: String,
-        params: Any,
-        classOfMessageToReceive: Class<R>
+            method: String,
+            params: Any,
+            classOfMessageToReceive: Class<R>
     ): Either<R, ApiResponseError> {
 
         connect()
@@ -78,7 +78,7 @@ internal class CyberServicesWebSocketClient(
 
         val stringToSend = moshi.adapter(ServicesMessagesWrapper::class.java).toJson(rpcMessage)
 
-        if (config.logLevel == LogLevel.BODY) println("sending: $stringToSend")
+        log("sending $stringToSend")
 
         webSocket.send(stringToSend)
 
@@ -88,10 +88,10 @@ internal class CyberServicesWebSocketClient(
         latches[id]!!.await(config.readTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
 
         val response = responseMap[id]
-            ?: throw SocketTimeoutException(
-                "socket was unable to answer " +
-                        "for request $stringToSend"
-            )
+                ?: throw SocketTimeoutException(
+                        "socket was unable to answer " +
+                                "for request $stringToSend"
+                )
 
         responseMap[id] = null
         latches[id] = null
@@ -112,7 +112,7 @@ internal class CyberServicesWebSocketClient(
         super.onFailure(webSocket, t, response)
         System.err.println("socket failure $response")
         t.printStackTrace()
-        latches.forEach(action =  {
+        latches.forEach(action = {
             it.value?.countDown()
         })
     }
@@ -120,15 +120,14 @@ internal class CyberServicesWebSocketClient(
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         System.err.println("socket is closing by $reason with code $code")
         super.onClosing(webSocket, code, reason)
-        latches.forEach(action =  {
+        latches.forEach(action = {
             it.value?.countDown()
         })
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
-        if (config.logLevel == LogLevel.BODY)
-            println("on message $text")
+        log("onMessage $text")
         try {
             val id = moshi.adapter<Identifieble>(Identifieble::class.java).fromJson(text)?.id
             if (id != null) {
@@ -137,7 +136,7 @@ internal class CyberServicesWebSocketClient(
             } else if (text.contains("\"method\":\"sign\"")) {
                 val type = Types.newParameterizedType(ServicesRequestWrapper::class.java, SecretRequest::class.java)
                 val secret = moshi.adapter<ServicesRequestWrapper<SecretRequest>>(type).fromJson(text)
-                    ?: return
+                        ?: return
 
                 authListener?.onAuthRequest(secret.params.secret)
 
@@ -159,6 +158,12 @@ internal class CyberServicesWebSocketClient(
         synchronized(this) {
             if (::webSocket.isInitialized) webSocket.close(1000, "connection drop by user request")
         }
+    }
+
+    private fun log(str: String) {
+        if (config.logLevel != LogLevel.BODY) return
+        config.socketLogger?.log(str)
+        if (config.socketLogger == null) println(str)
     }
 }
 

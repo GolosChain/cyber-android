@@ -17,12 +17,15 @@ import com.memtrip.eos.http.rpc.model.signing.RequiredKeys
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import io.golos.cyber4j.model.CyberWayChainApi
+import io.golos.cyber4j.model.ImageUploadResponse
 import io.golos.cyber4j.model.ResolvedName
 import io.golos.cyber4j.utils.LogLevel
 import io.reactivex.Single
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
+import java.io.File
+import java.io.IOException
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
@@ -38,7 +41,7 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
     private val okHttpClient: OkHttpClient
 
     init {
-        val interceptor = if (config.logger != null) HttpLoggingInterceptor(config.logger)
+        val interceptor = if (config.httpLogger != null) HttpLoggingInterceptor(config.httpLogger)
         else HttpLoggingInterceptor()
         interceptor.level =
                 when (config.logLevel) {
@@ -160,6 +163,37 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
                                     ResolvedName::class.java)).fromJson(responseString)
                             emitter.onSuccess(resolvedName ?: listOf())
                         } catch (e: Exception) {
+                            emitter.onError(e)
+                        }
+
+                    } catch (e: java.lang.Exception) {
+                        emitter.onError(e)
+                    }
+                }
+            }
+
+            override fun uploadImage(file: File): Single<String> {
+                return Single.create { emitter ->
+                    try {
+                        val resp = okHttpClient.newCall(Request.Builder()
+                                .url("https://img.golos.io/upload")
+                                .post(MultipartBody.Builder()
+                                        .setType(MultipartBody.FORM)
+                                        .addFormDataPart("file", file.name,
+                                                RequestBody.create(MediaType.get("image/png"), file))
+                                        .build())
+                                .build())
+                                .execute()
+                        try {
+                            val message = resp.body()!!.string()
+                            if (resp.isSuccessful) {
+                                val uri = moshi.adapter<ImageUploadResponse>(ImageUploadResponse::class.java).fromJson(message)
+                                emitter.onSuccess(uri!!.url)
+                            } else {
+                                emitter.onError(IOException(message))
+                            }
+
+                        } catch (e: java.lang.Exception) {
                             emitter.onError(e)
                         }
 

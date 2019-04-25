@@ -31,16 +31,18 @@ sealed class Event(val eventType: EventType,
                    val timestamp: Date)
 
 class VoteEvent(val actor: Actor,
-                val post: Post,
+                val post: Post?,
                 val comment: Comment?,
+                val community: CyberCommunity,
                 _id: String,
                 fresh: Boolean,
                 unread: Boolean,
                 timestamp: Date) : Event(EventType.VOTE, _id, fresh, unread, timestamp)
 
 class FlagEvent(val actor: Actor,
-                val post: Post,
+                val post: Post?,
                 val comment: Comment?,
+                val community: CyberCommunity,
                 _id: String,
                 fresh: Boolean,
                 unread: Boolean,

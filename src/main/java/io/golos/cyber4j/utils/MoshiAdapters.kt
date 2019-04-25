@@ -150,112 +150,114 @@ class EventsAdapter {
     @FromJson
     fun fromJson(eventsJson: EventJson): Event = when (eventsJson.eventType) {
         EventType.VOTE -> VoteEvent(
-            eventsJson.actor!!,
-            eventsJson.post!!,
-            eventsJson.comment,
-            eventsJson._id,
-            eventsJson.fresh,
-            eventsJson.unread,
-            eventsJson.timestamp
+                eventsJson.actor!!,
+                eventsJson.post,
+                eventsJson.comment,
+                eventsJson.community!!,
+                eventsJson._id,
+                eventsJson.fresh,
+                eventsJson.unread,
+                eventsJson.timestamp
         )
 
         EventType.FLAG -> FlagEvent(
-            eventsJson.actor!!,
-            eventsJson.post!!,
-            eventsJson.comment,
-            eventsJson._id,
-            eventsJson.fresh,
-            eventsJson.unread,
-            eventsJson.timestamp
+                eventsJson.actor!!,
+                eventsJson.post,
+                eventsJson.comment,
+                eventsJson.community!!,
+                eventsJson._id,
+                eventsJson.fresh,
+                eventsJson.unread,
+                eventsJson.timestamp
         )
         EventType.TRANSFER -> TransferEvent(
-            eventsJson.value!!,
-            eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp
+                eventsJson.value!!,
+                eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp
         )
 
         EventType.SUBSCRIBE -> SubscribeEvent(
-            eventsJson.community!!,
-            eventsJson.actor!!,
-            eventsJson._id,
-            eventsJson.fresh,
-            eventsJson.unread,
-            eventsJson.timestamp
+                eventsJson.community!!,
+                eventsJson.actor!!,
+                eventsJson._id,
+                eventsJson.fresh,
+                eventsJson.unread,
+                eventsJson.timestamp
         )
         EventType.UN_SUBSCRIBE -> UnSubscribeEvent(
-            eventsJson.community!!,
-            eventsJson.actor!!,
-            eventsJson._id,
-            eventsJson.fresh,
-            eventsJson.unread,
-            eventsJson.timestamp
+                eventsJson.community!!,
+                eventsJson.actor!!,
+                eventsJson._id,
+                eventsJson.fresh,
+                eventsJson.unread,
+                eventsJson.timestamp
         )
 
         EventType.REPLY -> ReplyEvent(
-            eventsJson.comment!!,
-            eventsJson.post,
-            eventsJson.parentComment,
-            eventsJson.community!!,
-            eventsJson.refBlockNum!!,
-            eventsJson.actor!!,
-            eventsJson._id,
-            eventsJson.fresh,
-            eventsJson.unread,
-            eventsJson.timestamp
+                eventsJson.comment!!,
+                eventsJson.post,
+                eventsJson.parentComment,
+                eventsJson.community!!,
+                eventsJson.refBlockNum!!,
+                eventsJson.actor!!,
+                eventsJson._id,
+                eventsJson.fresh,
+                eventsJson.unread,
+                eventsJson.timestamp
         )
 
         EventType.MENTION -> MentionEvent(
-            eventsJson.comment!!,
-            eventsJson.post,
-            eventsJson.parentComment,
-            eventsJson.community!!,
-            eventsJson.refBlockNum!!,
-            eventsJson.actor!!,
-            eventsJson._id,
-            eventsJson.fresh,
-            eventsJson.unread,
-            eventsJson.timestamp
+                eventsJson.comment!!,
+                eventsJson.post,
+                eventsJson.parentComment,
+                eventsJson.community!!,
+                eventsJson.refBlockNum!!,
+                eventsJson.actor!!,
+                eventsJson._id,
+                eventsJson.fresh,
+                eventsJson.unread,
+                eventsJson.timestamp
         )
 
         EventType.REPOST -> RepostEvent(
-            eventsJson.post!!,
-            eventsJson.comment, eventsJson.community!!, eventsJson.refBlockNum!!,
-            eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp
+                eventsJson.post!!,
+                eventsJson.comment, eventsJson.community!!, eventsJson.refBlockNum!!,
+                eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp
         )
 
         EventType.REWARD -> AwardEvent(
-            eventsJson.payout!!,
-            eventsJson._id,
-            eventsJson.fresh,
-            eventsJson.unread,
-            eventsJson.timestamp
+                eventsJson.payout!!,
+                eventsJson._id,
+                eventsJson.fresh,
+                eventsJson.unread,
+                eventsJson.timestamp
         )
 
         EventType.CURATOR_REWARD -> CuratorAwardEvent(
-            eventsJson.post, eventsJson.comment,
-            eventsJson.value!!, eventsJson.community!!,
-            eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp
+                eventsJson.post, eventsJson.comment,
+                eventsJson.value!!, eventsJson.community!!,
+                eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp
         )
 
         EventType.MESSAGE -> MessageEvent(
-            eventsJson.actor!!,
-            eventsJson._id,
-            eventsJson.fresh,
-            eventsJson.unread,
-            eventsJson.timestamp
+                eventsJson.actor!!,
+                eventsJson._id,
+                eventsJson.fresh,
+                eventsJson.unread,
+                eventsJson.timestamp
         )
         EventType.WITNESS_VOTE -> WitnessVoteEvent(
-            eventsJson.actor!!,
-            eventsJson._id,
-            eventsJson.fresh,
-            eventsJson.unread,
-            eventsJson.timestamp
+                eventsJson.actor!!,
+                eventsJson._id,
+                eventsJson.fresh,
+                eventsJson.unread,
+                eventsJson.timestamp
         )
         EventType.WITNESS_CANCEL_VOTE -> WitnessCancelVoteEvent(
-            eventsJson.actor!!,
-            eventsJson._id,
-            eventsJson.fresh,
-            eventsJson.unread,
-            eventsJson.timestamp
+                eventsJson.actor!!,
+                eventsJson._id,
+                eventsJson.fresh,
+                eventsJson.unread,
+                eventsJson.timestamp
         )
 
     }
@@ -263,71 +265,71 @@ class EventsAdapter {
     @ToJson
     fun toJson(event: Event): EventJson = when (event) {
         is WitnessCancelVoteEvent -> EventJson(
-            EventType.WITNESS_CANCEL_VOTE,
-            event._id, event.fresh, event.unread, event.timestamp
+                EventType.WITNESS_CANCEL_VOTE,
+                event._id, event.fresh, event.unread, event.timestamp
         )
 
         is VoteEvent -> EventJson(
-            EventType.VOTE, event._id, event.fresh, event.unread, event.timestamp,
-            actor = event.actor, post = event.post, comment = event.comment
+                EventType.VOTE, event._id, event.fresh, event.unread, event.timestamp,
+                actor = event.actor, post = event.post, comment = event.comment
         )
 
         is FlagEvent -> EventJson(
-            EventType.FLAG, event._id, event.fresh, event.unread, event.timestamp,
-            actor = event.actor, post = event.post, comment = event.comment
+                EventType.FLAG, event._id, event.fresh, event.unread, event.timestamp,
+                actor = event.actor, post = event.post, comment = event.comment
         )
 
         is TransferEvent -> EventJson(
-            EventType.TRANSFER, event._id, event.fresh, event.unread, event.timestamp,
-            value = event.value, actor = event.actor
+                EventType.TRANSFER, event._id, event.fresh, event.unread, event.timestamp,
+                value = event.value, actor = event.actor
         )
 
         is SubscribeEvent -> EventJson(
-            EventType.SUBSCRIBE, event._id, event.fresh, event.unread, event.timestamp,
-            community = event.community, actor = event.actor
+                EventType.SUBSCRIBE, event._id, event.fresh, event.unread, event.timestamp,
+                community = event.community, actor = event.actor
         )
 
         is UnSubscribeEvent -> EventJson(
-            EventType.UN_SUBSCRIBE, event._id, event.fresh, event.unread, event.timestamp,
-            community = event.community, actor = event.actor
+                EventType.UN_SUBSCRIBE, event._id, event.fresh, event.unread, event.timestamp,
+                community = event.community, actor = event.actor
         )
 
         is ReplyEvent -> EventJson(
-            EventType.REPLY, event._id, event.fresh, event.unread, event.timestamp,
-            post = event.post, comment = event.comment, community = event.community, refBlockNum = event.refBlockNum,
-            actor = event.actor
+                EventType.REPLY, event._id, event.fresh, event.unread, event.timestamp,
+                post = event.post, comment = event.comment, community = event.community, refBlockNum = event.refBlockNum,
+                actor = event.actor
         )
 
         is MentionEvent -> EventJson(
-            EventType.MENTION, event._id, event.fresh, event.unread, event.timestamp,
-            post = event.post, comment = event.comment, community = event.community, refBlockNum = event.refBlockNum,
-            actor = event.actor
+                EventType.MENTION, event._id, event.fresh, event.unread, event.timestamp,
+                post = event.post, comment = event.comment, community = event.community, refBlockNum = event.refBlockNum,
+                actor = event.actor
         )
 
         is RepostEvent -> EventJson(
-            EventType.REPOST, event._id, event.fresh, event.unread, event.timestamp,
-            post = event.post, comment = event.comment, community = event.community, refBlockNum = event.refBlockNum,
-            actor = event.actor
+                EventType.REPOST, event._id, event.fresh, event.unread, event.timestamp,
+                post = event.post, comment = event.comment, community = event.community, refBlockNum = event.refBlockNum,
+                actor = event.actor
         )
 
         is AwardEvent -> EventJson(
-            EventType.REWARD, event._id, event.fresh, event.unread, event.timestamp,
-            payout = event.payout
+                EventType.REWARD, event._id, event.fresh, event.unread, event.timestamp,
+                payout = event.payout
         )
 
         is CuratorAwardEvent -> EventJson(
-            EventType.CURATOR_REWARD, event._id, event.fresh, event.unread, event.timestamp,
-            post = event.post, comment = event.comment, payout = event.payout
+                EventType.CURATOR_REWARD, event._id, event.fresh, event.unread, event.timestamp,
+                post = event.post, comment = event.comment, payout = event.payout
         )
 
         is MessageEvent -> EventJson(
-            EventType.MESSAGE, event._id, event.fresh, event.unread, event.timestamp,
-            actor = event.actor
+                EventType.MESSAGE, event._id, event.fresh, event.unread, event.timestamp,
+                actor = event.actor
         )
 
         is WitnessVoteEvent -> EventJson(
-            EventType.WITNESS_VOTE,
-            event._id, event.fresh, event.unread, event.timestamp
+                EventType.WITNESS_VOTE,
+                event._id, event.fresh, event.unread, event.timestamp
         )
     }
 }

@@ -122,7 +122,7 @@ class ServicesFetchTest {
 
     @Test
     fun userMetadataFetchTest() {
-        val response = client.getUserMetadata("destroyer2k@golos".toCyberName())
+        val response = client.getUserMetadata("weqitltpglkc".toCyberName())
         assertTrue(response is Either.Success)
     }
 
