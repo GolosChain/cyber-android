@@ -64,114 +64,6 @@
       "timestamp": "2019-04-18T07:19:42.040Z"
     },
     {
-      "_id": "5cb7416155e6494548436699",
-      "community": {
-        "id": "gls",
-        "name": "Golos"
-      },
-      "fresh": false,
-      "unread": true,
-      "eventType": "transfer",
-      "actor": {
-        "id": "tst5acqsxubo"
-      },
-      "value": {
-        "amount": "0.01",
-        "currency": "GLS"
-      },
-      "timestamp": "2019-04-17T15:08:17.439Z"
-    },
-    {
-      "_id": "5cb740e61d01e62a44541b47",
-      "community": {
-        "id": "gls",
-        "name": "Golos"
-      },
-      "fresh": false,
-      "unread": true,
-      "eventType": "transfer",
-      "actor": {
-        "id": "tst5acqsxubo"
-      },
-      "value": {
-        "amount": "0.01",
-        "currency": "GLS"
-      },
-      "timestamp": "2019-04-17T15:06:14.825Z"
-    },
-    {
-      "_id": "5cb740c22aacbfb263b75bf7",
-      "community": {
-        "id": "gls",
-        "name": "Golos"
-      },
-      "fresh": false,
-      "unread": true,
-      "eventType": "transfer",
-      "actor": {
-        "id": "tst5acqsxubo"
-      },
-      "value": {
-        "amount": "0.01",
-        "currency": "GLS"
-      },
-      "timestamp": "2019-04-17T15:05:38.786Z"
-    },
-    {
-      "_id": "5cb73dab0765105f6fe2ee67",
-      "community": {
-        "id": "gls",
-        "name": "Golos"
-      },
-      "fresh": false,
-      "unread": true,
-      "eventType": "transfer",
-      "actor": {
-        "id": "tst5acqsxubo"
-      },
-      "value": {
-        "amount": "0.1",
-        "currency": "GLS"
-      },
-      "timestamp": "2019-04-17T14:52:27.369Z"
-    },
-    {
-      "_id": "5cb73d30ec23eb51be330138",
-      "community": {
-        "id": "gls",
-        "name": "Golos"
-      },
-      "fresh": false,
-      "unread": true,
-      "eventType": "transfer",
-      "actor": {
-        "id": "tst5acqsxubo"
-      },
-      "value": {
-        "amount": "0.1",
-        "currency": "GLS"
-      },
-      "timestamp": "2019-04-17T14:50:24.053Z"
-    },
-    {
-      "_id": "5cb703b48012745d8075a96d",
-      "community": {
-        "id": "gls",
-        "name": "Golos"
-      },
-      "fresh": false,
-      "unread": true,
-      "eventType": "transfer",
-      "actor": {
-        "id": "tst1nvuqglbl"
-      },
-      "value": {
-        "amount": "0.001",
-        "currency": "GLS"
-      },
-      "timestamp": "2019-04-17T10:45:08.026Z"
-    },
-    {
       "_id": "5cb481e18012747eb57597ab",
       "post": {
         "contentId": {
@@ -531,6 +423,509 @@
         "id": "tst4jqxyykpz"
       },
       "timestamp": "2019-04-13T14:38:26.265Z"
+    },
+    {
+      "_id": "5cc052219461a32891731ab1",
+      "comment": {
+        "contentId": {
+          "userId": "jestroyer2k",
+          "permlink": "re-re-vvv",
+          "refBlockNum": 15101
+        },
+        "body": "@d5gqchmbgrdj вфвы"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "parentComment": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "re-vvv",
+          "refBlockNum": 14977
+        },
+        "body": "ывфвы"
+      },
+      "fresh": false,
+      "unread": true,
+      "refBlockNum": 15101,
+      "eventType": "reply",
+      "actor": {
+        "id": "jestroyer2k"
+      },
+      "timestamp": "2019-04-24T12:10:09.109Z"
+    },
+    {
+      "_id": "5cc051ee9461a33c57731ab0",
+      "comment": {
+        "contentId": {
+          "userId": "jestroyer2k",
+          "permlink": "re-re-re-re-vvv",
+          "refBlockNum": 15083
+        },
+        "body": "@d5gqchmbgrdj уйцуццйу"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "parentComment": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "re-re-re-vvv",
+          "refBlockNum": 15050
+        },
+        "body": "@jestroyer2k цукцку"
+      },
+      "fresh": false,
+      "unread": true,
+      "refBlockNum": 15083,
+      "eventType": "reply",
+      "actor": {
+        "id": "jestroyer2k"
+      },
+      "timestamp": "2019-04-24T12:09:18.103Z"
+    },
+    {
+      "_id": "5cc051b89461a3690d731aaf",
+      "comment": {
+        "contentId": {
+          "userId": "jestroyer2k",
+          "permlink": "re-re-re-re-vvv",
+          "refBlockNum": 15066
+        },
+        "body": "@d5gqchmbgrdj ывыв"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "parentComment": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "re-re-re-vvv",
+          "refBlockNum": 15050
+        },
+        "body": "@jestroyer2k цукцку"
+      },
+      "fresh": false,
+      "unread": true,
+      "refBlockNum": 15066,
+      "eventType": "reply",
+      "actor": {
+        "id": "jestroyer2k"
+      },
+      "timestamp": "2019-04-24T12:08:24.147Z"
+    },
+    {
+      "_id": "5cc051a99461a3e761731aae",
+      "comment": {
+        "contentId": {
+          "userId": "jestroyer2k",
+          "permlink": "re-re-vvv",
+          "refBlockNum": 15061
+        },
+        "body": "@d5gqchmbgrdj фыЫы"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "parentComment": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "re-vvv",
+          "refBlockNum": 14977
+        },
+        "body": "ывфвы"
+      },
+      "fresh": false,
+      "unread": true,
+      "refBlockNum": 15061,
+      "eventType": "reply",
+      "actor": {
+        "id": "jestroyer2k"
+      },
+      "timestamp": "2019-04-24T12:08:09.151Z"
+    },
+    {
+      "_id": "5cc050bf9461a3af90731aad",
+      "comment": {
+        "contentId": {
+          "userId": "jestroyer2k",
+          "permlink": "re-re-vvv",
+          "refBlockNum": 14982
+        },
+        "body": "@d5gqchmbgrdj ыфывфыв"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "parentComment": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "re-vvv",
+          "refBlockNum": 14977
+        },
+        "body": "ывфвы"
+      },
+      "fresh": false,
+      "unread": true,
+      "refBlockNum": 14982,
+      "eventType": "reply",
+      "actor": {
+        "id": "jestroyer2k"
+      },
+      "timestamp": "2019-04-24T12:04:15.141Z"
+    },
+    {
+      "_id": "5cc047359461a3102c731a9e",
+      "post": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "test-post",
+          "refBlockNum": 13498
+        },
+        "title": "Test post"
+      },
+      "comment": {
+        "contentId": {
+          "userId": "tst4devxbaxp",
+          "permlink": "re-test-post",
+          "refBlockNum": 14169
+        },
+        "body": "@destroyer2k@golos"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "fresh": false,
+      "unread": true,
+      "refBlockNum": 14169,
+      "eventType": "reply",
+      "actor": {
+        "id": "tst4devxbaxp"
+      },
+      "timestamp": "2019-04-24T11:23:33.086Z"
+    },
+    {
+      "_id": "5cc046c99461a36495731a9d",
+      "post": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "test-post",
+          "refBlockNum": 13498
+        },
+        "title": "Test post"
+      },
+      "comment": {
+        "contentId": {
+          "userId": "tst4devxbaxp",
+          "permlink": "re-test-post",
+          "refBlockNum": 14132
+        },
+        "body": "Hello yes this is me again"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "fresh": false,
+      "unread": true,
+      "refBlockNum": 14132,
+      "eventType": "reply",
+      "actor": {
+        "id": "tst4devxbaxp"
+      },
+      "timestamp": "2019-04-24T11:21:45.099Z"
+    },
+    {
+      "_id": "5cc0467b9461a3b892731a99",
+      "post": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "test-post",
+          "refBlockNum": 13498
+        },
+        "title": "Test post"
+      },
+      "comment": {
+        "contentId": {
+          "userId": "tst4devxbaxp",
+          "permlink": "re-test-post",
+          "refBlockNum": 14107
+        },
+        "body": "@destroyer2k@golos"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "fresh": false,
+      "unread": true,
+      "refBlockNum": 14107,
+      "eventType": "reply",
+      "actor": {
+        "id": "tst4devxbaxp"
+      },
+      "timestamp": "2019-04-24T11:20:27.092Z"
+    },
+    {
+      "_id": "5cc0464e9461a3eee3731a98",
+      "post": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "test-post",
+          "refBlockNum": 13498
+        },
+        "title": "Test post"
+      },
+      "comment": {
+        "contentId": {
+          "userId": "tst4devxbaxp",
+          "permlink": "re-test-post",
+          "refBlockNum": 14091
+        },
+        "body": "once again :)"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "fresh": false,
+      "unread": true,
+      "refBlockNum": 14091,
+      "eventType": "reply",
+      "actor": {
+        "id": "tst4devxbaxp"
+      },
+      "timestamp": "2019-04-24T11:19:42.102Z"
+    },
+    {
+      "_id": "5cc043d29461a30e98731a94",
+      "post": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "test-post",
+          "refBlockNum": 13498
+        },
+        "title": "Test post"
+      },
+      "comment": {
+        "contentId": {
+          "userId": "tst4devxbaxp",
+          "permlink": "re-test-post",
+          "refBlockNum": 13880
+        },
+        "body": "again"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "fresh": false,
+      "unread": true,
+      "refBlockNum": 13880,
+      "eventType": "reply",
+      "actor": {
+        "id": "tst4devxbaxp"
+      },
+      "timestamp": "2019-04-24T11:09:06.090Z"
+    },
+    {
+      "_id": "5cc0431e9461a3c306731a93",
+      "post": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "test-post",
+          "refBlockNum": 13498
+        },
+        "title": "Test post"
+      },
+      "comment": {
+        "contentId": {
+          "userId": "tst4devxbaxp",
+          "permlink": "re-test-post",
+          "refBlockNum": 13820
+        },
+        "body": "lol"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "fresh": false,
+      "unread": true,
+      "refBlockNum": 13820,
+      "eventType": "reply",
+      "actor": {
+        "id": "tst4devxbaxp"
+      },
+      "timestamp": "2019-04-24T11:06:06.107Z"
+    },
+    {
+      "_id": "5cc042c79461a30788731a92",
+      "post": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "test-post",
+          "refBlockNum": 13498
+        },
+        "title": "Test post"
+      },
+      "comment": {
+        "contentId": {
+          "userId": "tst4devxbaxp",
+          "permlink": "re-test-post",
+          "refBlockNum": 13791
+        },
+        "body": "wuuuuut @destroyer2k@golos"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "fresh": false,
+      "unread": true,
+      "refBlockNum": 13791,
+      "eventType": "reply",
+      "actor": {
+        "id": "tst4devxbaxp"
+      },
+      "timestamp": "2019-04-24T11:04:39.104Z"
+    },
+    {
+      "_id": "5cc02dfa9461a393ab731a71",
+      "post": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "vvv",
+          "refBlockNum": 48752
+        },
+        "title": "ввв   аааа"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "fresh": false,
+      "unread": true,
+      "eventType": "curatorReward",
+      "actor": {
+        "id": "gls.publish"
+      },
+      "value": {
+        "amount": "2161.557",
+        "currency": "GLS"
+      },
+      "timestamp": "2019-04-24T09:35:54.132Z"
+    },
+    {
+      "_id": "5cc02dfa9461a37a51731a72",
+      "post": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "vvv",
+          "refBlockNum": 48752
+        },
+        "title": "ввв   аааа"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "fresh": false,
+      "unread": true,
+      "eventType": "curatorReward",
+      "actor": {
+        "id": "gls.publish"
+      },
+      "value": {
+        "amount": "2161.557",
+        "currency": "GLS"
+      },
+      "timestamp": "2019-04-24T09:35:54.138Z"
+    },
+    {
+      "_id": "5cc02dfa9461a344b0731a70",
+      "post": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "vvv",
+          "refBlockNum": 48752
+        },
+        "title": "ввв   аааа"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "fresh": false,
+      "unread": true,
+      "eventType": "curatorReward",
+      "actor": {
+        "id": "gls.publish"
+      },
+      "value": {
+        "amount": "2161.557",
+        "currency": "GLS"
+      },
+      "timestamp": "2019-04-24T09:35:54.114Z"
+    },
+    {
+      "_id": "5cc02afd9461a3adf5731a64",
+      "post": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "fff",
+          "refBlockNum": 48497
+        },
+        "title": "ффф"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "fresh": false,
+      "unread": true,
+      "eventType": "curatorReward",
+      "actor": {
+        "id": "gls.publish"
+      },
+      "value": {
+        "amount": "8.582",
+        "currency": "GLS"
+      },
+      "timestamp": "2019-04-24T09:23:09.076Z"
+    },
+    {
+      "_id": "5cc02afd9461a37be4731a65",
+      "post": {
+        "contentId": {
+          "userId": "d5gqchmbgrdj",
+          "permlink": "fff",
+          "refBlockNum": 48497
+        },
+        "title": "ффф"
+      },
+      "community": {
+        "id": "gls",
+        "name": "Golos"
+      },
+      "fresh": false,
+      "unread": true,
+      "eventType": "curatorReward",
+      "actor": {
+        "id": "gls.publish"
+      },
+      "value": {
+        "amount": "12.874",
+        "currency": "GLS"
+      },
+      "timestamp": "2019-04-24T09:23:09.079Z"
     }
   ]
 }
+
