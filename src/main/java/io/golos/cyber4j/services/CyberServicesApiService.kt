@@ -362,7 +362,7 @@ internal class CyberServicesApiService(
                                          newWebNotifySettings: WebShowSettings?,
                                          newMobilePushSettings: MobileShowSettings?): Either<ResultOk, ApiResponseError> {
         lockIfNeeded()
-        val request = NotifySettings(deviceId, newBasicSettings, newWebNotifySettings, newMobilePushSettings)
+        val request = UserSettings(deviceId, newBasicSettings, newWebNotifySettings, newMobilePushSettings)
 
         return apiClient.send(
                 ServicesGateMethods.SET_SETTINGS.toString(),
@@ -370,13 +370,13 @@ internal class CyberServicesApiService(
         )
     }
 
-    override fun getNotificationSettings(deviceId: String): Either<NotifySettings, ApiResponseError> {
+    override fun getNotificationSettings(deviceId: String): Either<UserSettings, ApiResponseError> {
         lockIfNeeded()
         val request = ServicesSettingsRequest(deviceId)
 
         return apiClient.send(
                 ServicesGateMethods.GET_SETTINGS.toString(),
-                request, NotifySettings::class.java
+                request, UserSettings::class.java
         )
     }
 

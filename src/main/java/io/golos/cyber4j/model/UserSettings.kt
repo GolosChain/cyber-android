@@ -32,7 +32,7 @@ enum class ServiceSettingsLanguage {
 }
 
 
-class NotifySettings(
+class UserSettings(
         //device id
         val profile: String,
         val basic: Any?,

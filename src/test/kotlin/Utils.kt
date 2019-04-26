@@ -22,8 +22,8 @@ class Utils {
     @Before
     fun before() {
         privateTestNetClient.keyStorage.addAccountKeys(
-                testInMainTestNetAccount.first,
-                setOf(Pair(AuthType.ACTIVE, testInMainTestNetAccount.second))
+            testInMainTestNetAccount.first,
+            setOf(Pair(AuthType.ACTIVE, testInMainTestNetAccount.second))
         )
         secondAccount = testInMainTestNetAccountSecond
     }
@@ -32,30 +32,30 @@ class Utils {
     fun cyberNameTest() {
         val cyber4j = privateTestNetClient
         val posts = (cyber4j.getUserPosts(
-                testInMainTestNetAccount.first,
-                ContentParsingType.MOBILE,
-                100,
-                DiscussionTimeSort.SEQUENTIALLY
+            testInMainTestNetAccount.first,
+            ContentParsingType.MOBILE,
+            100,
+            DiscussionTimeSort.SEQUENTIALLY
         ) as Either.Success)
         val firstPost = posts.value.items.first()
         val second = posts.value.items[1]
 
         cyber4j.vote(
-                firstPost.contentId.userId.toCyberName(), firstPost.contentId.permlink, firstPost.contentId.refBlockNum,
-                (Math.random() * 10_000).toShort()
+            firstPost.contentId.userId.toCyberName(), firstPost.contentId.permlink, firstPost.contentId.refBlockNum,
+            (Math.random() * 10_000).toShort()
         ) as Either.Success
         cyber4j.vote(
-                firstPost.contentId.userId.toCyberName(), firstPost.contentId.permlink, firstPost.contentId.refBlockNum,
-                (Math.random() * -10_000).toShort()
+            firstPost.contentId.userId.toCyberName(), firstPost.contentId.permlink, firstPost.contentId.refBlockNum,
+            (Math.random() * -10_000).toShort()
         ) as Either.Success
 
         cyber4j.vote(
-                second.contentId.userId.toCyberName(), second.contentId.permlink, second.contentId.refBlockNum,
-                (Math.random() * 10_000).toShort()
+            second.contentId.userId.toCyberName(), second.contentId.permlink, second.contentId.refBlockNum,
+            (Math.random() * 10_000).toShort()
         ) as Either.Success
         cyber4j.vote(
-                second.contentId.userId.toCyberName(), second.contentId.permlink, second.contentId.refBlockNum,
-                (Math.random() * -10_000).toShort()
+            second.contentId.userId.toCyberName(), second.contentId.permlink, second.contentId.refBlockNum,
+            (Math.random() * -10_000).toShort()
         ) as Either.Success
     }
 
@@ -67,14 +67,15 @@ class Utils {
         val numOfCommands = 2
 
         val latch = CountDownLatch(numOfCommands)
-        val client = Cyber4J(mainTestNetConfig.copy(performAutoAuthOnActiveUserSet = false,
+        val client = Cyber4J(
+            mainTestNetConfig.copy(performAutoAuthOnActiveUserSet = false,
                 httpLogger = HttpLoggingInterceptor.Logger {
                     println("thread ${Thread.currentThread()}\n$it")
                 })
         )
         client.keyStorage.addAccountKeys(
-                testInMainTestNetAccount.first,
-                setOf(Pair(AuthType.ACTIVE, testInMainTestNetAccount.second))
+            testInMainTestNetAccount.first,
+            setOf(Pair(AuthType.ACTIVE, testInMainTestNetAccount.second))
         )
 
         (0 until numOfCommands).forEach {
@@ -94,8 +95,10 @@ class Utils {
 
     private fun expensiveTask(client: Cyber4J) {
         val rnd = Math.random()
-        if (rnd > 0.49) client.createPost("title ${Thread.currentThread()}",
-                "body", emptyList(), DiscussionCreateMetadata(emptyList(), emptyList()), null)
+        if (rnd > 0.49) client.createPost(
+            "title ${Thread.currentThread()}",
+            "body", emptyList(), DiscussionCreateMetadata(emptyList(), emptyList()), null
+        )
         else client.deleteUserMetadata()
     }
 
@@ -108,10 +111,10 @@ class Utils {
     fun createPosts() {
         (0..10).forEach {
             privateTestNetClient.createPost(
-                    "title", "body $it", emptyList(), DiscussionCreateMetadata(
+                "title", "body $it", emptyList(), DiscussionCreateMetadata(
                     emptyList(),
                     emptyList()
-            ), null
+                ), null
             )
             Thread.sleep(300)
         }
@@ -124,16 +127,16 @@ class Utils {
         assertNotNull(eventsString)
 
         val moshi = Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter())
-                .add(BigInteger::class.java, BigIntegerAdapter())
-                .add(CyberName::class.java, CyberNameAdapter())
-                .add(UserRegistrationState::class.java, UserRegistrationStateAdapter())
-                .add(RegistrationStrategy::class.java, UserRegistrationStrategyAdapter())
-                .add(ContentRow::class.java, ContentRowAdapter())
-                .add(EventType::class.java, EventTypeAdapter())
-                .add(CyberNameAdapter())
-                .add(ServiceSettingsLanguage::class.java, ServiceSettingsLanguageAdapter())
-                .add(EventsAdapter())
-                .build()
+            .add(BigInteger::class.java, BigIntegerAdapter())
+            .add(CyberName::class.java, CyberNameAdapter())
+            .add(UserRegistrationState::class.java, UserRegistrationStateAdapter())
+            .add(RegistrationStrategy::class.java, UserRegistrationStrategyAdapter())
+            .add(ContentRow::class.java, ContentRowAdapter())
+            .add(EventType::class.java, EventTypeAdapter())
+            .add(CyberNameAdapter())
+            .add(ServiceSettingsLanguage::class.java, ServiceSettingsLanguageAdapter())
+            .add(EventsAdapter())
+            .build()
 
         val events = moshi.adapter<EventsData>(EventsData::class.java).fromJson(eventsString)
         assertNotNull(events)

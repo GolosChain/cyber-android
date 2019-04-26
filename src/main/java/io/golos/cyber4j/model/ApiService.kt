@@ -150,7 +150,7 @@ interface ApiService {
     fun setNotificationSettings(deviceId: String, newBasicSettings: Any?,
                                 newWebNotifySettings: WebShowSettings?, newMobilePushSettings: MobileShowSettings?): Either<ResultOk, ApiResponseError>
 
-    fun getNotificationSettings(deviceId: String): Either<NotifySettings, ApiResponseError>
+    fun getNotificationSettings(deviceId: String): Either<UserSettings, ApiResponseError>
 
     fun getEvents(userProfile: String, afterId: String?, limit: Int?, markAsViewed: Boolean?, freshOnly: Boolean?, types: List<EventType>): Either<EventsData, ApiResponseError>
 

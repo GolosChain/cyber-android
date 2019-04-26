@@ -300,7 +300,7 @@ class Cyber4J @JvmOverloads constructor(
     }
 
     /**
-     * @hide method for creating message structure in cyberway blockchain
+     * @hide method for creating message  (mssg) structure in cyberway blockchain
      * @see createPost
      * @see createComment
      * */
@@ -364,9 +364,7 @@ class Cyber4J @JvmOverloads constructor(
 
 
     /** method for creating comment, using active credentials from [keyStorage]
-     *
-     *
-     * @param body body test of post. Must be not empty
+     * @param body body of a comment. Must be not empty
      * @param parentAccount user name of author of parent post. must be not blank
      * @param parentPermlink parentPermlink of parent post. must be not blank
      * @param parentDiscussionRefBlockNum ref_block_num of parent post. must be not 0
@@ -1663,8 +1661,9 @@ class Cyber4J @JvmOverloads constructor(
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
-    fun setNotificationSettings(deviceId: String, newBasicSettings: Any?,
-                                newWebNotifySettings: WebShowSettings?, newMobilePushSettings: MobileShowSettings?): Either<ResultOk, ApiResponseError> = apiService.setNotificationSettings(deviceId, newBasicSettings, newWebNotifySettings, newMobilePushSettings)
+    fun setUserSettings(deviceId: String, newBasicSettings: Any?,
+                        newWebNotifySettings: WebShowSettings?,
+                        newMobilePushSettings: MobileShowSettings?): Either<ResultOk, ApiResponseError> = apiService.setNotificationSettings(deviceId, newBasicSettings, newWebNotifySettings, newMobilePushSettings)
 
     /**method for retreiving user setting. Personal for evert [deviceId]
      * method requires authorization
@@ -1672,7 +1671,7 @@ class Cyber4J @JvmOverloads constructor(
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
-    fun getNotificationSettings(deviceId: String): Either<NotifySettings, ApiResponseError> = apiService.getNotificationSettings(deviceId)
+    fun getUserSettings(deviceId: String): Either<UserSettings, ApiResponseError> = apiService.getNotificationSettings(deviceId)
 
     /**method for retreiving history of notifications.
      * method requires authorization

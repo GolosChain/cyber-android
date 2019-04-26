@@ -12,8 +12,8 @@ class NotifsTest {
     val cyber4j = Cyber4J(mainTestNetConfig)
     @Before
     fun before() {
-        cyber4j.keyStorage.addAccountKeys(CyberName("destroyer2k@golos"),
-                setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
+        cyber4j.keyStorage.addAccountKeys(CyberName("yhlmjmqfqexl"),
+                setOf(Pair(AuthType.ACTIVE, "5KcFFtzmeYeGt6HoWcZys282TnVVS2X1PdBgGzUsNXyRXdXsTcn")))
     }
 
     @Test
@@ -27,14 +27,14 @@ class NotifsTest {
         val unSubscriptionResult = cyber4j.unSubscribeOnNotifications(deviceId, fcmKey)
         assertTrue(unSubscriptionResult is Either.Success)
 
-        val unreadCount = cyber4j.getFreshNotificationCount(cyber4j.resolveCanonicalCyberName("destroyer2k@golos".toCyberName()).name)
+        val unreadCount = cyber4j.getFreshNotificationCount(cyber4j.resolveCanonicalCyberName("yhlmjmqfqexl".toCyberName()).name)
         assertTrue(unreadCount is Either.Success)
         assertTrue((unreadCount as Either.Success).value.fresh > -1)
 
         val marksAsREad = cyber4j.markAllEventsAsNotFresh()
         assertTrue(marksAsREad is Either.Success)
 
-        val events = cyber4j.getEvents(cyber4j.resolveCanonicalCyberName("destroyer2k@golos".toCyberName()).name,
+        val events = cyber4j.getEvents(cyber4j.resolveCanonicalCyberName("yhlmjmqfqexl".toCyberName()).name,
                 null, 100, false, false, EventType.values().toList())
         assertTrue(events is Either.Success)
         assertTrue((events as Either.Success).value.data.isNotEmpty())
@@ -45,10 +45,10 @@ class NotifsTest {
         val mobileSettings = MobileShowSettings(NotificationSettings(true, true, true, true, true, true,
                 false, false, false, false, false, false, false), ServiceSettingsLanguage.RUSSIAN)
 
-        val setSettingsResult = cyber4j.setNotificationSettings(deviceId, basicSettings, null, mobileSettings)
+        val setSettingsResult = cyber4j.setUserSettings(deviceId, basicSettings, null, mobileSettings)
         assertTrue(setSettingsResult is Either.Success)
 
-        val getSettingsResult = cyber4j.getNotificationSettings(deviceId)
+        val getSettingsResult = cyber4j.getUserSettings(deviceId)
         assertTrue(getSettingsResult is Either.Success)
 
         assertEquals(mobileSettings, (getSettingsResult as Either.Success).value.push)
