@@ -37,10 +37,36 @@ public class UserMetadata {
     private CyberName userId;
     private String username;
     private UserRegistration registration;
+    private Subscribers subscribers;
+    private Date createdAt;
+    private boolean isSubscribed;
 
+    public boolean isSubscribed() {
+        return isSubscribed;
+    }
+
+    public void setSubscribed(boolean subscribed) {
+        isSubscribed = subscribed;
+    }
+
+    public Subscribers getSubscribers() {
+        return subscribers;
+    }
+
+    public void setSubscribers(Subscribers subscribers) {
+        this.subscribers = subscribers;
+    }
 
     public UserSubscriptions getSubscriptions() {
         return subscriptions;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     public void setSubscriptions(UserSubscriptions subscriptions) {
@@ -97,22 +123,60 @@ public class UserMetadata {
         this.registration = registration;
     }
 
-    @Override
-    public String toString() {
-        return "UserMetadata{" +
-                "personal=" + personal +
-                ", subscriptions=" + subscriptions +
-                ", stats=" + stats +
-                ", userId=" + userId +
-                ", username='" + username + '\'' +
-                ", registration=" + registration + "}";
+
+    public static class Subscribers {
+        private int usersCount;
+        private int communitiesCount;
+
+        public int getUsersCount() {
+            return usersCount;
+        }
+
+        public void setUsersCount(int usersCount) {
+            this.usersCount = usersCount;
+        }
+
+        public int getCommunitiesCount() {
+            return communitiesCount;
+        }
+
+        public void setCommunitiesCount(int communitiesCount) {
+            this.communitiesCount = communitiesCount;
+        }
+
     }
 
-    static class UserPersonalData {
-        @Nullable private String avatarUrl;
-        @Nullable private String coverUrl;
-        @Nullable private String biography;
-        @Nullable private Contacts contacts;
+    public static class SubsribedUser {
+        private String id;
+        private String avatarUrl;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getAvatarUrl() {
+            return avatarUrl;
+        }
+
+        public void setAvatarUrl(String avatarUrl) {
+            this.avatarUrl = avatarUrl;
+        }
+
+    }
+
+    public static class UserPersonalData {
+        @Nullable
+        private String avatarUrl;
+        @Nullable
+        private String coverUrl;
+        @Nullable
+        private String biography;
+        @Nullable
+        private Contacts contacts;
 
         public UserPersonalData(@Nullable String avatarUrl, @Nullable String coverUrl, @Nullable String biography, @Nullable Contacts contacts) {
             this.avatarUrl = avatarUrl;
@@ -156,23 +220,17 @@ public class UserMetadata {
         public void setContacts(@Nullable Contacts contacts) {
             this.contacts = contacts;
         }
-
-        @Override
-        public String toString() {
-            return "UserPersonalData{" +
-                    "avatarUrl='" + avatarUrl + '\'' +
-                    ", coverUrl='" + coverUrl + '\'' +
-                    ", biography='" + biography + '\'' +
-                    ", contacts=" + contacts +
-                    '}';
-        }
     }
 
-    static class Contacts {
-        @Nullable private String facebook;
-        @Nullable private String telegram;
-        @Nullable private String whatsApp;
-        @Nullable private String weChat;
+    public static class Contacts {
+        @Nullable
+        private String facebook;
+        @Nullable
+        private String telegram;
+        @Nullable
+        private String whatsApp;
+        @Nullable
+        private String weChat;
 
         public Contacts(@Nullable String facebook, @Nullable String telegram, @Nullable String whatsApp, @Nullable String weChat) {
             this.facebook = facebook;
@@ -228,7 +286,7 @@ public class UserMetadata {
         }
     }
 
-    static class UserRegistration {
+    public static class UserRegistration {
         private Date time;
 
         public UserRegistration(Date time) {
@@ -243,16 +301,19 @@ public class UserMetadata {
             this.time = time;
         }
 
-        @Override
-        public String toString() {
-            return "UserRegistration{" +
-                    "time=" + time +
-                    '}';
-        }
     }
 
-    static class UserStats {
+    public static class UserStats {
         private long postsCount;
+        private long commentsCount;
+
+        public long getCommentsCount() {
+            return commentsCount;
+        }
+
+        public void setCommentsCount(long commentsCount) {
+            this.commentsCount = commentsCount;
+        }
 
         public UserStats(long postsCount) {
             this.postsCount = postsCount;
@@ -266,34 +327,30 @@ public class UserMetadata {
             this.postsCount = postsCount;
         }
 
-        @Override
-        public String toString() {
-            return "UserStats{" +
-                    "postsCount=" + postsCount +
-                    '}';
+    }
+
+    public static class UserSubscriptions {
+        private int usersCount;
+        private int communitiesCount;
+
+        public int getUsersCount() {
+            return usersCount;
+        }
+
+
+        public void setUsersCount(int usersCount) {
+            this.usersCount = usersCount;
+        }
+
+        public int getCommunitiesCount() {
+            return communitiesCount;
+        }
+
+        public void setCommunitiesCount(int communitiesCount) {
+            this.communitiesCount = communitiesCount;
+        }
+
+
         }
     }
 
-    static class UserSubscriptions {
-        private List<CyberCommunity> communities;
-
-        public UserSubscriptions(List<CyberCommunity> communities) {
-            this.communities = communities;
-        }
-
-        public List<CyberCommunity> getCommunities() {
-            return communities;
-        }
-
-        public void setCommunities(List<CyberCommunity> communities) {
-            this.communities = communities;
-        }
-
-        @Override
-        public String toString() {
-            return "UserSubscriptions{" +
-                    "communities=" + communities +
-                    '}';
-        }
-    }
-}

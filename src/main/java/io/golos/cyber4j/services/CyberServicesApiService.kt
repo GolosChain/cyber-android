@@ -278,6 +278,7 @@ internal class CyberServicesApiService(
     }
 
     override fun getUserMetadata(userId: String): Either<UserMetadata, ApiResponseError> {
+        lockIfNeeded()
         return apiClient.send(
                 ServicesGateMethods.GET_USER_METADATA.toString(),
                 UserMetaDataRequest(userId), UserMetadata::class.java

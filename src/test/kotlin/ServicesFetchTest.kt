@@ -4,10 +4,18 @@ import io.golos.cyber4j.model.*
 import io.golos.cyber4j.utils.Either
 import io.golos.cyber4j.utils.Pair
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 class ServicesFetchTest {
-    private val client = Cyber4J(Cyber4JConfig(servicesUrl = "ws://116.203.98.241:8080"))
+    private val client = Cyber4J(Cyber4JConfig())
+
+    @Before
+    fun before() {
+        client.keyStorage.addAccountKeys(testInMainTestNetAccount.first, setOf(
+            Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)
+        ))
+    }
 
     @Test
     fun fetchPostsTest() {
@@ -122,7 +130,7 @@ class ServicesFetchTest {
 
     @Test
     fun userMetadataFetchTest() {
-        val response = client.getUserMetadata("weqitltpglkc".toCyberName())
+        val response = client.getUserMetadata("destroyer2k@golos".toCyberName())
         assertTrue(response is Either.Success)
     }
 

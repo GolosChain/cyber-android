@@ -412,7 +412,7 @@ class Cyber4J @JvmOverloads constructor(
 
     /***
      * method for setting metadata of active user from [keyStorage]
-     * null in any field means erasure of corresponding property, not update
+     * null in any field means skipping property (i.e field will not changed), while blank string means property erasure
      * field names are self-describing
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * @throws IllegalStateException if active account not set
