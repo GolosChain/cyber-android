@@ -1,16 +1,5 @@
-package io.golos.cyber4j.model
+package io.golos.cyber4j.services.model
 
-//transfer		string		Попытаться получить переводы
-//reply		string		Попытаться получить ответы
-//subscribe		string		Попытаться получить подписки
-//unsubscribe		string		Попытаться получить отписки
-//mention		string		Попытаться получить упоминания
-//repost		string		Попытаться получить репосты
-//reward		string		Попытаться получить авторские награды
-//curatorReward		string		Попытаться получить кураторские награды
-//message		string		Попытаться получить сообщения
-//witnessVote		string		Попытаться получить голоса за делегатство
-//witnessCancelVote
 internal class EventsRequest(
         val profile: String,
         val afterId: String?,

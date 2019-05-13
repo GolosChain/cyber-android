@@ -20,3 +20,41 @@ internal class UserMetaDataRequest(val userId: String)
 internal class GetSecretRequest
 
 internal class ServicesAuthRequest(val user: String, val sign: String, val secret: String)
+
+enum class PostsFeedType {
+    COMMUNITY, SUBSCRIPTIONS, USER_POSTS;
+
+    override fun toString(): String {
+        return when (this) {
+            COMMUNITY -> "community"
+            SUBSCRIPTIONS -> "subscriptions"
+            USER_POSTS -> "byUser"
+        }
+    }
+}
+
+enum class CommentsOrigin {
+    COMMENTS_OF_USER,
+    COMMENTS_OF_POST,
+    REPLIES;
+
+    override fun toString(): String {
+
+        return when (this) {
+            COMMENTS_OF_USER -> "user"
+            COMMENTS_OF_POST -> "post"
+            REPLIES -> "replies"
+        }
+    }
+}
+
+enum class DiscussionTimeSort {
+    SEQUENTIALLY, INVERTED;
+
+    override fun toString(): String {
+        return when (this) {
+            SEQUENTIALLY -> "time"
+            INVERTED -> "timeDesc"
+        }
+    }
+}

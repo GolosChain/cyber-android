@@ -1,6 +1,9 @@
-package io.golos.cyber4j.model;
+package io.golos.cyber4j.services.model;
 
 import com.squareup.moshi.Json;
+
+import io.golos.cyber4j.model.CyberName;
+import io.golos.cyber4j.services.model.UserRegistrationState;
 
 public class UserRegistrationStateResult {
     @Json(name = "currentState")

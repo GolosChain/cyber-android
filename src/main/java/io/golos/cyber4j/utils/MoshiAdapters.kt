@@ -2,6 +2,7 @@ package io.golos.cyber4j.utils
 
 import com.squareup.moshi.*
 import io.golos.cyber4j.model.*
+import io.golos.cyber4j.services.model.*
 import java.math.BigInteger
 
 

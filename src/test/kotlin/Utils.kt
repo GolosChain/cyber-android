@@ -2,6 +2,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.model.*
+import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
 import junit.framework.Assert.*
 import okhttp3.logging.HttpLoggingInterceptor

@@ -17,7 +17,7 @@ import com.memtrip.eos.http.rpc.model.signing.RequiredKeys
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import io.golos.cyber4j.model.CyberWayChainApi
-import io.golos.cyber4j.model.ImageUploadResponse
+import io.golos.cyber4j.services.model.ImageUploadResponse
 import io.golos.cyber4j.model.ResolvedName
 import io.golos.cyber4j.utils.LogLevel
 import io.reactivex.Single

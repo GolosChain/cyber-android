@@ -1,5 +1,9 @@
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.model.*
+import io.golos.cyber4j.services.model.EventType
+import io.golos.cyber4j.services.model.MobileShowSettings
+import io.golos.cyber4j.services.model.NotificationSettings
+import io.golos.cyber4j.services.model.ServiceSettingsLanguage
 import io.golos.cyber4j.utils.Either
 import io.golos.cyber4j.utils.Pair
 import junit.framework.Assert.assertEquals

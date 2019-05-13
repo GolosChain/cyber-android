@@ -17,7 +17,7 @@ import com.memtrip.eos.http.rpc.model.info.Info
 import com.squareup.moshi.Moshi
 import io.golos.cyber4j.model.*
 import io.golos.cyber4j.services.CyberServicesApiService
-import io.golos.cyber4j.services.model.ApiResponseError
+import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
 import net.gcardone.junidecode.Junidecode
 import java.io.File
@@ -1475,7 +1475,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param user user, which post to fetch
      * @param permlink permlink of post to fetch
      * @param refBlockNum ref_block_num of post to fetch
-     * @param type type of parsing to apply to content. According to [type] returning [DiscussionsResult]'s [DiscussionContent] may vary:
+     * @param parsingType type of parsing to apply to content. According to [parsingType] returning [DiscussionsResult]'s [DiscussionContent] may vary:
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
@@ -1497,7 +1497,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param user user, which comment to fetch
      * @param permlink permlink of comment to fetch
      * @param refBlockNum ref_block_num of comment to fetch
-     * @param type type of parsing to apply to content. According to [type] returning [DiscussionsResult]'s [DiscussionContent] may vary:
+     * @param parsingType type of parsing to apply to content. According to [parsingType] returning [DiscussionsResult]'s [DiscussionContent] may vary:
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
@@ -1517,7 +1517,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param user user of original post
      * @param permlink permlink of original post
      * @param refBlockNum ref_block_num of original post
-     * @param parsingType type of parsing to apply to content. According to [type] returning [DiscussionsResult]'s [DiscussionContent] may vary:
+     * @param parsingType type of parsing to apply to content. According to [parsingType] returning [DiscussionsResult]'s [DiscussionContent] may vary:
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit number of comments to fetch. Comments are fetched sequentially, without concerning on comment level
@@ -1548,7 +1548,7 @@ class Cyber4J @JvmOverloads constructor(
     /** method for fetching replies to particular user
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
      * @param user user which replies to fetch
-     * @param parsingType type of parsing to apply to content. According to [type] returning [DiscussionsResult]'s [DiscussionContent] may vary:
+     * @param parsingType type of parsing to apply to content. According to [parsingType] returning [DiscussionsResult]'s [DiscussionContent] may vary:
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit number of comments to fetch. Comments are fetched sequentially, without concerning on comment level
@@ -1574,7 +1574,7 @@ class Cyber4J @JvmOverloads constructor(
     /** method for fetching comments particular user
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
      * @param user name of user, which comments we need
-     * @param type type of parsing to apply to content. According to [type] returning [DiscussionsResult]'s [DiscussionContent] may vary:
+     * @param parsingType type of parsing to apply to content. According to [parsingType] returning [DiscussionsResult]'s [DiscussionContent] may vary:
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit number of comments to fetch.
@@ -1599,22 +1599,41 @@ class Cyber4J @JvmOverloads constructor(
                     user.resolveCanonical().name, null, null
             )
 
+    /**Do not use, would be changed soon*/
+    fun getSubscriptionsToUsers(ofUser: CyberName, limit: Int, sequenceKey: String?) = apiService.getSubscriptions(ofUser.resolveCanonical(), limit, SubscriptionType.USER, sequenceKey)
+
+    /**Do not use, would be changed soon*/
+    fun getSubscriptionsToCommunities(ofUser: CyberName, limit: Int, sequenceKey: String?) = apiService.getSubscriptions(ofUser.resolveCanonical(), limit, SubscriptionType.COMMUNITY, sequenceKey)
+
+    /**Do not use, would be changed soon*/
+    fun getUsersSubscribedToUser(user: CyberName, limit: Int, sequenceKey: String?) = apiService.getSubscribers(user.resolveCanonical(), limit, SubscriptionType.USER, sequenceKey)
+
+    /**Do not use, would be changed soon*/
+    fun getCommunitiesSubscribedToUser(ofUser: CyberName, limit: Int, sequenceKey: String?) = apiService.getSubscribers(ofUser.resolveCanonical(), limit, SubscriptionType.COMMUNITY, sequenceKey)
+
 
     /** method for fetching  metedata of some user
      * @param user name of user, which metadata is  fetched
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
-    fun getUserMetadata(user: CyberName): Either<UserMetadata, ApiResponseError> =
+    fun getUserMetadata(user: CyberName): Either<UserMetadataResult, ApiResponseError> =
             apiService.getUserMetadata(user.resolveCanonical().name)
 
 
     /** method will block thread until [blockNum] would consumed by prism services
-     * @param blockNum number of block to wait
+     * @param blockNum num of block to wait
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
     fun waitForABlock(blockNum: Long): Either<ResultOk, ApiResponseError> = apiService.waitBlock(blockNum)
+
+    /** method will block thread until [transactionId] would be consumed by prism services. Old transaction are not stored in services.
+     * @param transactionId id of transaction to wait
+     * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     */
+    fun waitForTransaction(transactionId: String): Either<ResultOk, ApiResponseError> = apiService.waitForTransaction(transactionId)
 
 
     /**get processed embed link for some raw "https://site.com/content" using iframely service

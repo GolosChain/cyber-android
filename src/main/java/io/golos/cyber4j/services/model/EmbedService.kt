@@ -1,4 +1,4 @@
-package io.golos.cyber4j.model
+package io.golos.cyber4j.services.model
 
 internal enum class EmbedService {
     OEMBED, IFRAMELY;

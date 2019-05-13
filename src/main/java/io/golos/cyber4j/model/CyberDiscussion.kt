@@ -1,5 +1,6 @@
 package io.golos.cyber4j.model
 
+import io.golos.cyber4j.services.model.CyberCommunity
 import java.math.BigInteger
 import java.util.*
 

@@ -18,8 +18,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 private enum class ServicesGateMethods {
     GET_FEED, GET_POST, GET_COMMENT, GET_COMMENTS, GET_USER_METADATA, GET_SECRET, AUTH, GET_EMBED,
     GET_REGISTRATION_STATE, REG_FIRST_STEP, REG_VERIFY_PHONE, REG_SET_USER_NAME, REG_WRITE_TO_BLOCKCHAIN,
-    REG_RESEND_SMS, WAIT_BLOCK, PUSH_SUBSCRIBE, PUSH_UNSUBSCRIBE, GET_NOTIFS_HISTORY, MARK_VIEWED,
-    GET_UNREAD_COUNT, MARK_VIEWED_ALL, SET_SETTINGS, GET_SETTINGS;
+    REG_RESEND_SMS, WAIT_BLOCK, WAIT_FOR_TRANSACTION, PUSH_SUBSCRIBE, PUSH_UNSUBSCRIBE, GET_NOTIFS_HISTORY, MARK_VIEWED,
+    GET_UNREAD_COUNT, MARK_VIEWED_ALL, SET_SETTINGS, GET_SETTINGS, GET_SUBSCRIPTIONS, GET_SUBSCRIBERS;
 
     override fun toString(): String {
         return when (this) {
@@ -28,6 +28,7 @@ private enum class ServicesGateMethods {
             GET_COMMENT -> "content.getComment"
             GET_COMMENTS -> "content.getComments"
             WAIT_BLOCK -> "content.waitForBlock"
+            WAIT_FOR_TRANSACTION -> "content.waitForTransaction"
             GET_USER_METADATA -> "content.getProfile"
             GET_SECRET -> "auth.generateSecret"
             GET_EMBED -> "frame.getEmbed"
@@ -46,6 +47,8 @@ private enum class ServicesGateMethods {
             MARK_VIEWED_ALL -> "notify.markAllAsViewed"
             SET_SETTINGS -> "options.set"
             GET_SETTINGS -> "options.get"
+            GET_SUBSCRIPTIONS -> "content.getSubscriptions"
+            GET_SUBSCRIBERS -> "content.getSubscribers"
         }
     }
 }
@@ -218,7 +221,15 @@ internal class CyberServicesApiService(
     override fun waitBlock(blockNum: Long): Either<ResultOk, ApiResponseError> {
         return apiClient.send(
                 ServicesGateMethods.WAIT_BLOCK.toString(),
-                WaitForBlockRequest(blockNum),
+                WaitRequest(blockNum, null),
+                ResultOk::class.java
+        )
+    }
+
+    override fun waitForTransaction(transactionId: String): Either<ResultOk, ApiResponseError> {
+        return apiClient.send(
+                ServicesGateMethods.WAIT_FOR_TRANSACTION.toString(),
+                WaitRequest(null, transactionId),
                 ResultOk::class.java
         )
     }
@@ -263,6 +274,16 @@ internal class CyberServicesApiService(
         )
     }
 
+    override fun getSubscriptions(ofUser: CyberName, limit: Int, type: SubscriptionType, sequenceKey: String?): Either<SubscriptionsResponse, ApiResponseError> {
+        return apiClient.send(ServicesGateMethods.GET_SUBSCRIPTIONS.toString(),
+                SubscriptionsRequest(ofUser, limit, type, sequenceKey), SubscriptionsResponse::class.java)
+    }
+
+    override fun getSubscribers(ofUser: CyberName, limit: Int, type: SubscriptionType, sequenceKey: String?): Either<SubscribersResponse, ApiResponseError> {
+        return apiClient.send(ServicesGateMethods.GET_SUBSCRIBERS.toString(),
+                SubscribersRequest(ofUser, limit, type, sequenceKey), SubscribersResponse::class.java)
+    }
+
     override fun getIframelyEmbed(forLink: String): Either<IFramelyEmbedResult, ApiResponseError> {
         return apiClient.send(
                 ServicesGateMethods.GET_EMBED.toString(),
@@ -277,11 +298,11 @@ internal class CyberServicesApiService(
         )
     }
 
-    override fun getUserMetadata(userId: String): Either<UserMetadata, ApiResponseError> {
+    override fun getUserMetadata(userId: String): Either<UserMetadataResult, ApiResponseError> {
         lockIfNeeded()
         return apiClient.send(
                 ServicesGateMethods.GET_USER_METADATA.toString(),
-                UserMetaDataRequest(userId), UserMetadata::class.java
+                UserMetaDataRequest(userId), UserMetadataResult::class.java
         )
     }
 

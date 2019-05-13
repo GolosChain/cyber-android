@@ -1,5 +1,7 @@
-package io.golos.cyber4j.model
+package io.golos.cyber4j.services.model
 
+import io.golos.cyber4j.model.CyberName
+import io.golos.cyber4j.model.DiscussionId
 import java.util.*
 
 

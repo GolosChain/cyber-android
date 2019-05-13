@@ -1,36 +1,12 @@
-package io.golos.cyber4j.model;
+package io.golos.cyber4j.services.model;
 
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
-import java.util.List;
 
-//personal: {
-//        avatarUrl: {
-//        type: String,
-//        },
-//        coverUrl: {
-//        type: String,
-//        },
-//        biography: {
-//        type: String,
-//        },
-//        contacts: {
-//        facebook: {
-//        type: String,
-//        },
-//        telegram: {
-//        type: String,
-//        },
-//        whatsApp: {
-//        type: String,
-//        },
-//        weChat: {
-//        type: String,
-//        },
-//        },
-//        },
-public class UserMetadata {
+import io.golos.cyber4j.model.CyberName;
+
+public class UserMetadataResult {
     private UserPersonalData personal;
     private UserSubscriptions subscriptions;
     private UserStats stats;
@@ -114,7 +90,7 @@ public class UserMetadata {
         this.registration = registration;
     }
 
-    public UserMetadata(UserPersonalData personal, UserSubscriptions subscriptions, UserStats stats, CyberName userId, String username, UserRegistration registration) {
+    public UserMetadataResult(UserPersonalData personal, UserSubscriptions subscriptions, UserStats stats, CyberName userId, String username, UserRegistration registration) {
         this.personal = personal;
         this.subscriptions = subscriptions;
         this.stats = stats;
@@ -351,6 +327,6 @@ public class UserMetadata {
         }
 
 
-        }
     }
+}
 

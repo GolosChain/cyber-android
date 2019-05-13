@@ -1,6 +1,9 @@
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.Cyber4JConfig
 import io.golos.cyber4j.model.*
+import io.golos.cyber4j.services.model.AuthListener
+import io.golos.cyber4j.services.model.ContentParsingType
+import io.golos.cyber4j.services.model.DiscussionTimeSort
 import io.golos.cyber4j.utils.Pair
 import junit.framework.Assert.fail
 import org.junit.Before

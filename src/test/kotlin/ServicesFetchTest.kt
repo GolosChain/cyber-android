@@ -1,6 +1,11 @@
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.Cyber4JConfig
-import io.golos.cyber4j.model.*
+import io.golos.cyber4j.model.AuthType
+import io.golos.cyber4j.model.CyberName
+import io.golos.cyber4j.model.DiscussionCreateMetadata
+import io.golos.cyber4j.model.Tag
+import io.golos.cyber4j.services.model.ContentParsingType
+import io.golos.cyber4j.services.model.DiscussionTimeSort
 import io.golos.cyber4j.utils.Either
 import io.golos.cyber4j.utils.Pair
 import org.junit.Assert.assertTrue
@@ -13,7 +18,7 @@ class ServicesFetchTest {
     @Before
     fun before() {
         client.keyStorage.addAccountKeys(testInMainTestNetAccount.first, setOf(
-            Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)
+                Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)
         ))
     }
 
@@ -148,6 +153,20 @@ class ServicesFetchTest {
 
     }
 
+
+    @Test
+    fun testSubscriptionsAndSubscribers() {
+        val subscriptionsToUsers = client.getSubscriptionsToUsers(CyberName("destroyer2k@golos"), 10, null)
+        assertTrue((subscriptionsToUsers as Either.Success).value.items.isNotEmpty())
+        val subscriptionsToCommunitites = client.getSubscriptionsToCommunities(CyberName("destroyer2k@golos"), 10, null)
+        assertTrue((subscriptionsToCommunitites as Either.Success).value.items.isNotEmpty())
+
+        val subscribedUsers = client.getUsersSubscribedToUser(CyberName("destroyer2k@golos"), 10, null)
+        assertTrue((subscribedUsers as Either.Success).value.items.isNotEmpty())
+        val subscribedCommunitites = client.getCommunitiesSubscribedToUser(CyberName("destroyer2k@golos"), 10, null)
+        assertTrue((subscribedCommunitites as Either.Success).value.items.isNotEmpty())
+    }
+
     @Test
     fun waitForABlockTest() {
         client.keyStorage.addAccountKeys(testInMainTestNetAccount.first, setOf(
@@ -160,6 +179,21 @@ class ServicesFetchTest {
                 null)
         val blockNum = (result as Either.Success).value.processed.block_num
         val waitResult = client.waitForABlock(blockNum)
+        assertTrue(waitResult is Either.Success)
+    }
+
+    @Test
+    fun waitForTransactionTest() {
+        client.keyStorage.addAccountKeys(testInMainTestNetAccount.first, setOf(
+                Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)
+        ))
+        val result = client.createPost("",
+                "post",
+                emptyList<Tag>(),
+                DiscussionCreateMetadata(emptyList(), emptyList()),
+                null)
+        val blockId = (result as Either.Success).value.processed.id
+        val waitResult = client.waitForTransaction(blockId)
         assertTrue(waitResult is Either.Success)
     }
 }
