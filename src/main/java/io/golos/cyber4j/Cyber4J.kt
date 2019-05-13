@@ -41,7 +41,7 @@ private enum class CyberActions : CyberContract.CyberAction {
     UPDATE_META, DELETE_METADATA, TRANSFER, PIN,
     UN_PIN, BLOCK, UN_BLOCK,
     ISSUE, REBLOG, VOTE_FOR_WITNESS, UNVOTE_WITNESS,
-    REGISTER_WITNESS, UNREGISTER_WITNESS;
+    REGISTER_WITNESS, UNREGISTER_WITNESS, START_WITNESS, STOP_WITNESS;
 
     override fun toString(): String {
         return when (this) {
@@ -66,6 +66,8 @@ private enum class CyberActions : CyberContract.CyberAction {
             UNVOTE_WITNESS -> "unvotewitn"
             REGISTER_WITNESS -> "regwitness"
             UNREGISTER_WITNESS -> "unregwitness"
+            START_WITNESS -> "startwitness"
+            STOP_WITNESS -> "stopwitness"
         }
     }
 }
@@ -100,7 +102,8 @@ private enum class CyberContracts : CyberContract {
             TOKEN -> listOf(CyberActions.TRANSFER)
             CYBER_TOKEN -> listOf(CyberActions.ISSUE, CyberActions.OPEN_VESTING)
             ISSUER -> emptyList()
-            CTRL -> listOf(CyberActions.VOTE_FOR_WITNESS, CyberActions.UNVOTE_WITNESS)
+            CTRL -> listOf(CyberActions.VOTE_FOR_WITNESS, CyberActions.UNVOTE_WITNESS,
+                    CyberActions.START_WITNESS, CyberActions.STOP_WITNESS)
         }
     }
 
@@ -176,9 +179,9 @@ class Cyber4J @JvmOverloads constructor(
             tokenProp: Long = 0L
     ): Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError> {
 
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.PUBLICATION, CyberActions.CREATE_DISCUSSION)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
         return createPost(
                 activeAccountName,
                 activeAccountKey,
@@ -390,9 +393,9 @@ class Cyber4J @JvmOverloads constructor(
             vestPayment: Boolean = true,
             tokenProp: Long = 0L
     ): Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError> {
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.PUBLICATION, CyberActions.CREATE_DISCUSSION)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
 
         return createComment(
                 activeAccountName,
@@ -451,9 +454,9 @@ class Cyber4J @JvmOverloads constructor(
             targetPointB: String? = null
     ): Either<TransactionSuccessful<ProfileMetadataUpdateResult>, GolosEosError> {
 
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.SOCIAL, CyberActions.UPDATE_META)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
 
         return setUserMetadata(
                 activeAccountName, activeAccountKey, type, app, email, phone,
@@ -558,9 +561,9 @@ class Cyber4J @JvmOverloads constructor(
      */
     fun deleteUserMetadata(): Either<TransactionSuccessful<ProfileMetadataDeleteResult>, GolosEosError> {
 
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.SOCIAL, CyberActions.DELETE_METADATA)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
         return deleteUserMetadata(activeAccountName, activeAccountKey)
     }
 
@@ -734,16 +737,15 @@ class Cyber4J @JvmOverloads constructor(
             newJsonMetadata: DiscussionCreateMetadata
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
 
-        val postAuthor = keyStorage.getActiveAccount()
-        val key = (keyStorage
-                .getAccountKeys(postAuthor)?.find { it.first == AuthType.ACTIVE }
-                ?: throw IllegalStateException("could not find active keys for user $postAuthor")).second
+        val activeUser = resolveKeysFor(CyberContracts.PUBLICATION, CyberActions.UPDATE_DISCUSSION)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
 
         return updateDiscussion(
-                postAuthor,
+                activeAccountName,
                 postPermlink,
                 postRefBlockNum,
-                key,
+                activeAccountKey,
                 newTitle,
                 newBody,
                 "ru",
@@ -767,16 +769,15 @@ class Cyber4J @JvmOverloads constructor(
             newCategories: List<Tag>,
             newJsonMetadata: DiscussionCreateMetadata
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
-        val commentAuthor = keyStorage.getActiveAccount()
-        val key = (keyStorage
-                .getAccountKeys(commentAuthor)?.find { it.first == AuthType.ACTIVE }
-                ?: throw IllegalStateException("could not find active keys for user $commentAuthor")).second
+        val activeUser = resolveKeysFor(CyberContracts.PUBLICATION, CyberActions.UPDATE_DISCUSSION)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
 
         return updateDiscussion(
-                commentAuthor,
+                activeAccountName,
                 commentPermlink,
                 commentRefBlockNum,
-                key,
+                activeAccountKey,
                 "",
                 newBody,
                 "ru",
@@ -830,9 +831,9 @@ class Cyber4J @JvmOverloads constructor(
     ):
             Either<TransactionSuccessful<DeleteResult>, GolosEosError> {
 
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.PUBLICATION, CyberActions.DELETE_DISCUSSION)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
 
         return deletePostOrComment(activeAccountKey, activeAccountName, postOrCommentPermlink, postOrCommentRefBlockNum)
     }
@@ -852,9 +853,9 @@ class Cyber4J @JvmOverloads constructor(
             permlinkOfPostToReblog: String,
             refBlockNumOfPostToReblog: Long
     ): Either<TransactionSuccessful<ReblogResult>, GolosEosError> {
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.SOCIAL, CyberActions.REBLOG)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
 
         return reblog(
                 activeAccountKey,
@@ -951,9 +952,9 @@ class Cyber4J @JvmOverloads constructor(
     fun voteForAWitness(
             witness: CyberName
     ): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.CTRL, CyberActions.VOTE_FOR_WITNESS)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
 
         return voteForAWitness(activeAccountKey, activeAccountName, witness)
     }
@@ -1002,10 +1003,9 @@ class Cyber4J @JvmOverloads constructor(
     fun unVoteForAWitness(
             witness: CyberName
     ): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
-
+        val activeUser = resolveKeysFor(CyberContracts.CTRL, CyberActions.UNVOTE_WITNESS)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
         return unVoteForAWitness(activeAccountKey, activeAccountName, witness)
     }
 
@@ -1044,6 +1044,7 @@ class Cyber4J @JvmOverloads constructor(
         return callTilTimeoutExceptionVanishes(callable)
     }
 
+
     /** register a witness. This method assumes that you have active account in [keyStorage]. method
      * will try to create witness of active account
      * @param websiteUrl url of proposals of active account as witness
@@ -1052,9 +1053,9 @@ class Cyber4J @JvmOverloads constructor(
 
 
     fun registerAWitness(websiteUrl: String): Either<TransactionSuccessful<Any>, GolosEosError> {
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.CTRL, CyberActions.REGISTER_WITNESS)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
 
         return registerAWitness(activeAccountKey, activeAccountName, websiteUrl)
     }
@@ -1096,11 +1097,90 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun unRegisterWitness(): Either<TransactionSuccessful<WitnessVoteResult>, GolosEosError> {
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.CTRL, CyberActions.UNREGISTER_WITNESS)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
 
         return unRegisterWitness(activeAccountKey, activeAccountName)
+    }
+
+    /** starts balloting of a witness
+     * @param userActiveKey active key of [witness], who wants to start
+     * @param witness name of witness to start
+     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     */
+    fun startWitness(
+            witness: CyberName,
+            userActiveKey: String
+    ): Either<TransactionSuccessful<WitnessNameResult>, GolosEosError> {
+        val callable = Callable {
+            val squisher = createBinaryConverter()
+
+            val witnessRequest = WitnessNameAbi(witness.resolveCanonical())
+
+            val operationHex = squisher.squishWitnessNameAbi(witnessRequest).toHex()
+
+            pushTransaction<WitnessNameResult>(
+                    CyberContracts.CTRL,
+                    CyberActions.START_WITNESS,
+                    MyTransactionAuthorizationAbi(witness.resolveCanonical().name),
+                    operationHex,
+                    userActiveKey
+            )
+
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
+    /** starts balloting of a witness. Method uses active account from [keyStorage] as witness name.
+     * Method assumes, that active account  is set
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     */
+    fun startWitness(): Either<TransactionSuccessful<WitnessNameResult>, GolosEosError> {
+        val activeUser = resolveKeysFor(CyberContracts.CTRL, CyberActions.START_WITNESS)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
+        return startWitness(activeAccountName, activeAccountKey)
+    }
+
+    /** stops balloting of a witness. You cannot vote for a stopped witness, but unvoting is availible.
+     * If there is not votes for a witness you can delete it.
+     * @param userActiveKey active key of [witness], who wants to stop
+     * @param witness name of witness to stop
+     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     */
+    fun stopWitness(
+            witness: CyberName,
+            userActiveKey: String
+    ): Either<TransactionSuccessful<WitnessNameResult>, GolosEosError> {
+        val callable = Callable {
+            val squisher = createBinaryConverter()
+
+            val witnessRequest = WitnessNameAbi(witness.resolveCanonical())
+
+            val operationHex = squisher.squishWitnessNameAbi(witnessRequest).toHex()
+
+            pushTransaction<WitnessNameResult>(
+                    CyberContracts.CTRL,
+                    CyberActions.STOP_WITNESS,
+                    MyTransactionAuthorizationAbi(witness.resolveCanonical().name),
+                    operationHex,
+                    userActiveKey
+            )
+
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+    /** stops balloting of a witness. You cannot vote for a stopped witness, but unvoting is availible.
+     * If there is not votes for a witness you can delete it.
+     * This method assumes that you have added account with keys to [keyStorage]
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     */
+    fun stopWitness(): Either<TransactionSuccessful<WitnessNameResult>, GolosEosError> {
+        val activeUser = resolveKeysFor(CyberContracts.CTRL, CyberActions.STOP_WITNESS)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
+        return startWitness(activeAccountName, activeAccountKey)
     }
 
     /**vote for post or comment, using credentials of active account from [keyStorage]
@@ -1117,9 +1197,16 @@ class Cyber4J @JvmOverloads constructor(
             postOrCommentRefBlockNum: Long,
             voteStrength: Short
     ): Either<TransactionSuccessful<VoteResult>, GolosEosError> {
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.PUBLICATION,
+                when {
+                    voteStrength == 0.toShort() -> CyberActions.UN_VOTE
+                    voteStrength > 0.toShort() -> CyberActions.UP_VOTE
+                    else -> CyberActions.DOWN_VOTE
+                }
+
+        )
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
 
         return vote(
                 activeAccountName, activeAccountKey, postOrCommentAuthor, postOrCommentPermlink,
@@ -1935,9 +2022,13 @@ class Cyber4J @JvmOverloads constructor(
             currency: String,
             memo: String = ""
     ): Either<TransactionSuccessful<TransferResult>, GolosEosError> {
+        val activeUser = resolveKeysFor(CyberContracts.TOKEN, CyberActions.TRANSFER)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
+
         return transfer(
-                keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }!!.second,
-                keyStorage.getActiveAccount(),
+                activeAccountKey,
+                activeAccountName,
                 to,
                 amount,
                 currency,
@@ -1950,9 +2041,9 @@ class Cyber4J @JvmOverloads constructor(
      * @throws IllegalStateException if active user not set.
      */
     fun pin(pinning: CyberName): Either<TransactionSuccessful<PinResult>, GolosEosError> {
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.SOCIAL, CyberActions.PIN)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
         return pin(activeAccountKey, activeAccountName, pinning)
     }
 
@@ -1990,9 +2081,9 @@ class Cyber4J @JvmOverloads constructor(
      * @throws IllegalStateException if active user not set.
      */
     fun unPin(pinning: CyberName): Either<TransactionSuccessful<PinResult>, GolosEosError> {
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.SOCIAL, CyberActions.UN_PIN)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
         return unPin(activeAccountKey, activeAccountName, pinning)
     }
 
@@ -2031,9 +2122,9 @@ class Cyber4J @JvmOverloads constructor(
      * @throws IllegalStateException if active user not set.
      */
     fun block(user: CyberName): Either<TransactionSuccessful<BlockUserResult>, GolosEosError> {
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.SOCIAL, CyberActions.BLOCK)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
         return block(activeAccountKey, activeAccountName, user)
     }
 
@@ -2069,9 +2160,9 @@ class Cyber4J @JvmOverloads constructor(
      * @throws IllegalStateException if active user not set.
      */
     fun unBlock(user: CyberName): Either<TransactionSuccessful<BlockUserResult>, GolosEosError> {
-        val activeAccountName = keyStorage.getActiveAccount()
-        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        val activeUser = resolveKeysFor(CyberContracts.SOCIAL, CyberActions.UN_BLOCK)
+        val activeAccountName = activeUser.first
+        val activeAccountKey = activeUser.second
         return unBlock(activeAccountKey, activeAccountName, user)
     }
 
@@ -2103,6 +2194,13 @@ class Cyber4J @JvmOverloads constructor(
     }
 
     private fun CyberName.resolveCanonical() = resolveCanonicalCyberName(this)
+
+    private fun resolveKeysFor(contract: CyberContracts, action: CyberActions): kotlin.Pair<CyberName, String> {
+        val activeAccountName = keyStorage.getActiveAccount()
+        val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
+                ?: throw IllegalStateException("you must set active key to account $activeAccountName")
+        return activeAccountName to activeAccountKey
+    }
 }
 
 private fun CyberName.toTransactionAuthAbi(): MyTransactionAuthorizationAbi = MyTransactionAuthorizationAbi(this.name)
