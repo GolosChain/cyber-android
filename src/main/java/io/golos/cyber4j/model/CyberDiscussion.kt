@@ -40,7 +40,8 @@ data class ContentBody(
         val preview: String?,
         val full: String?,
         val raw: String?,
-        val mobile: List<ContentRow>?
+        val mobile: List<ContentRow>?,
+        val mobilePreview: List<ContentRow>?
 )
 
 data class Embed(val _id: String?,
