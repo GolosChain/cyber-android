@@ -16,7 +16,7 @@ data class CyberDiscussion(
         val meta: DiscussionMetadata
 )
 
-data class DiscussionAuthor(val userId: CyberName, val username: String)
+data class DiscussionAuthor(val userId: CyberName, val username: String, val avatarUrl: String)
 
 data class DiscussionId(
         val userId: String,

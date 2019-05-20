@@ -27,7 +27,7 @@ class ServicesFetchTest {
         val postsResponse = client.getCommunityPosts(
                 "gls",
                 ContentParsingType.MOBILE,
-                100,
+                11,
                 DiscussionTimeSort.INVERTED,
                 null
         )
