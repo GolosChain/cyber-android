@@ -13,6 +13,6 @@ data class Cyber4JConfig @JvmOverloads constructor(val blockChainHttpApiUrl: Str
                                                    val blockChainTimeZoneId: String = "GMT:0:00",//blockchain timezone. Used for proper converting between local and blockchain
                                                                                                 //date time.  Unlikely to be changed;
                                                    val logLevel: LogLevel = LogLevel.BODY,// amount of logs. set LogLevel.NONE to disable
-                                                   val httpLogger: HttpLoggingInterceptor.Logger? = null,
+                                                   val httpLogger: HttpLoggingInterceptor.Logger? = HttpLoggingInterceptor.Logger.DEFAULT,
                                                    val socketLogger: HttpLoggingInterceptor.Logger? = null,
                                                    val performAutoAuthOnActiveUserSet : Boolean = true)

@@ -41,7 +41,8 @@ private enum class CyberActions : CyberContract.CyberAction {
     UPDATE_META, DELETE_METADATA, TRANSFER, PIN,
     UN_PIN, BLOCK, UN_BLOCK,
     ISSUE, REBLOG, VOTE_FOR_WITNESS, UNVOTE_WITNESS,
-    REGISTER_WITNESS, UNREGISTER_WITNESS, START_WITNESS, STOP_WITNESS;
+    REGISTER_WITNESS, UNREGISTER_WITNESS, START_WITNESS, STOP_WITNESS,
+    SET_NEW_USER_NAME;
 
     override fun toString(): String {
         return when (this) {
@@ -68,12 +69,13 @@ private enum class CyberActions : CyberContract.CyberAction {
             UNREGISTER_WITNESS -> "unregwitness"
             START_WITNESS -> "startwitness"
             STOP_WITNESS -> "stopwitness"
+            SET_NEW_USER_NAME -> "newusername"
         }
     }
 }
 
 private enum class CyberContracts : CyberContract {
-    PUBLICATION, CYBER, VESTING, SOCIAL, TOKEN, CYBER_TOKEN, ISSUER, CTRL;
+    PUBLICATION, CYBER, VESTING, SOCIAL, TOKEN, CYBER_TOKEN, ISSUER, CTRL, DOMAIN;
 
     override fun getActions(): List<CyberContract.CyberAction> {
         return when (this) {
@@ -86,6 +88,7 @@ private enum class CyberContracts : CyberContract {
                     CyberActions.UN_VOTE,
                     CyberActions.REBLOG
             )
+            DOMAIN -> listOf(CyberActions.SET_NEW_USER_NAME)
 
             CYBER -> listOf(CyberActions.NEW_ACCOUNT)
 
@@ -117,6 +120,7 @@ private enum class CyberContracts : CyberContract {
             TOKEN -> "cyber.token"
             ISSUER -> "gls.issuer"
             CTRL -> "gls.ctrl"
+            DOMAIN -> "cyber.domain"
         }
     }
 }
@@ -1171,6 +1175,7 @@ class Cyber4J @JvmOverloads constructor(
         }
         return callTilTimeoutExceptionVanishes(callable)
     }
+
     /** stops balloting of a witness. You cannot vote for a stopped witness, but unvoting is availible.
      * If there is not votes for a witness you can delete it.
      * This method assumes that you have added account with keys to [keyStorage]
@@ -1471,6 +1476,44 @@ class Cyber4J @JvmOverloads constructor(
         return callTilTimeoutExceptionVanishes(issuerTokenCallable)
     }
 
+    /**method sets  nickname for active user. Method assumes, that there is some active user in [keyStorage]
+     * Nick must match [0-9a-z.-]{1,32}
+     * @param owner owner of domain
+     * @param newUserName new nickName for user
+     * @param creatorKey active key of [owner]
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
+    fun newUserName(owner: CyberName,
+                    newUserName: String,
+                    creatorKey: String): Either<TransactionSuccessful<CreateUserNameResult>, GolosEosError> {
+        return newUserName(owner, resolveKeysFor(CyberContracts.DOMAIN, CyberActions.SET_NEW_USER_NAME).first,
+                newUserName, creatorKey)
+    }
+
+    /**method sets  nickname [forUser].
+     * Nick must match [0-9a-z.-]{1,32}
+     * @param owner owner of domain
+     * @param newUserName new nickName for user
+     * @param creatorKey active key of [owner]
+     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * */
+    fun newUserName(owner: CyberName,
+                    forUser: CyberName,
+                    newUserName: String,
+                    creatorKey: String): Either<TransactionSuccessful<CreateUserNameResult>, GolosEosError> {
+        if (!newUserName.matches("[0-9a-z.-]{1,32}".toRegex())) throw java.lang.IllegalArgumentException("nick must match [0-9a-z.-]{1,32}")
+        val setUserNameCallable = Callable {
+            val result = createBinaryConverter()
+                    .squishCreateUserNameAbi(CreateUserNameAbi(owner,
+                            forUser.resolveCanonical(),
+                            newUserName))
+                    .toHex()
+            pushTransaction<CreateUserNameResult>(CyberContracts.DOMAIN,
+                    CyberActions.SET_NEW_USER_NAME, MyTransactionAuthorizationAbi(owner), result, creatorKey)
+        }
+        return callTilTimeoutExceptionVanishes(setUserNameCallable)
+    }
+
     /** method for fetching posts of certain community from cyberway microservices.
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
      * @param communityId id of community
@@ -1485,7 +1528,6 @@ class Cyber4J @JvmOverloads constructor(
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
-
 
     fun getCommunityPosts(
             communityId: String,
