@@ -2,10 +2,10 @@ package io.golos.cyber4j.model;
 
 public class VestingReponse {
     private CyberName owner;
-    private Symbol symbol;
+    private String symbol;
     private String ram_payer;
 
-    public VestingReponse(CyberName owner, Symbol symbol, String ram_payer) {
+    public VestingReponse(CyberName owner, String symbol, String ram_payer) {
         this.owner = owner;
         this.symbol = symbol;
         this.ram_payer = ram_payer;
@@ -19,11 +19,11 @@ public class VestingReponse {
         this.owner = owner;
     }
 
-    public Symbol getSymbol() {
+    public String getSymbol() {
         return symbol;
     }
 
-    public void setSymbol(Symbol symbol) {
+    public void setSymbol(String symbol) {
         this.symbol = symbol;
     }
 

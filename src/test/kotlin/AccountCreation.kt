@@ -33,25 +33,9 @@ class AccountCreationTest {
 
         val accCreationResult = client.createAccount(newUser, pass, eosCreateKey)
 
+        assertTrue("account creation failure on main net for user $newUser", accCreationResult is Either.Success)
+
         print("name = $newUser activeKey = $activeKey")
-
-
-//        assertTrue("account creation failure on main net for user $newUser", accCreationResult is Either.Success)
-//
-//        val result = client.openTokenBalance(newUser.toCyberName(), eosCreateKey)
-//        println((result as Either.Success).value.extractResult())
-//
-//        val issuseResult = client.issueTokens(newUser.toCyberName(), eosCreateKey, "3.000 GLS")
-//
-//        issuseResult as Either.Success
-//
-//        val transferToIssuer = client.transfer(activeKey, newUser.toCyberName(), "gls.vesting".toCyberName(), "0.100", "GLS")
-//
-//        transferToIssuer as Either.Success
-
-//        val transferResult = client.transfer(activeKey, newUser.toCyberName(), "destroyer2k".toCyberName(), "0.010", "GLS")
-//
-//        transferResult as Either.Success
 
     }
 

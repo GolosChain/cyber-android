@@ -3,9 +3,9 @@ package io.golos.cyber4j.model;
 public class TransferResult {
     private CyberName from;
     private CyberName to;
-    private CurrencyQuantity quantity;
+    private String quantity;
 
-    public TransferResult(CyberName from, CyberName to, CurrencyQuantity quantity) {
+    public TransferResult(CyberName from, CyberName to, String quantity) {
         this.from = from;
         this.to = to;
         this.quantity = quantity;
@@ -27,11 +27,11 @@ public class TransferResult {
         this.to = to;
     }
 
-    public CurrencyQuantity getQuantity() {
+    public String getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(CurrencyQuantity quantity) {
+    public void setQuantity(String quantity) {
         this.quantity = quantity;
     }
 

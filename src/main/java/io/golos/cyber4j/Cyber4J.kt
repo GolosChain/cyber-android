@@ -75,7 +75,7 @@ private enum class CyberActions : CyberContract.CyberAction {
 }
 
 private enum class CyberContracts : CyberContract {
-    PUBLICATION, CYBER, VESTING, SOCIAL, TOKEN, CYBER_TOKEN, ISSUER, CTRL, DOMAIN;
+    PUBLICATION, GLS, CYBER, VESTING, SOCIAL, TOKEN, CYBER_TOKEN, CTRL, DOMAIN;
 
     override fun getActions(): List<CyberContract.CyberAction> {
         return when (this) {
@@ -90,7 +90,7 @@ private enum class CyberContracts : CyberContract {
             )
             DOMAIN -> listOf(CyberActions.SET_NEW_USER_NAME)
 
-            CYBER -> listOf(CyberActions.NEW_ACCOUNT)
+            GLS -> listOf(CyberActions.NEW_ACCOUNT)
 
             VESTING -> listOf(CyberActions.OPEN_VESTING)
 
@@ -102,9 +102,9 @@ private enum class CyberContracts : CyberContract {
                     CyberActions.BLOCK,
                     CyberActions.UN_BLOCK
             )
+            CYBER -> listOf()
             TOKEN -> listOf(CyberActions.TRANSFER)
             CYBER_TOKEN -> listOf(CyberActions.ISSUE, CyberActions.OPEN_VESTING)
-            ISSUER -> emptyList()
             CTRL -> listOf(CyberActions.VOTE_FOR_WITNESS, CyberActions.UNVOTE_WITNESS,
                     CyberActions.START_WITNESS, CyberActions.STOP_WITNESS)
         }
@@ -113,14 +113,14 @@ private enum class CyberContracts : CyberContract {
     override fun toString(): String {
         return when (this) {
             PUBLICATION -> "gls.publish"
-            CYBER -> "cyber"
+            GLS -> "gls"
             CYBER_TOKEN -> "cyber.token"
             VESTING -> "gls.vesting"
             SOCIAL -> "gls.social"
             TOKEN -> "cyber.token"
-            ISSUER -> "gls.issuer"
             CTRL -> "gls.ctrl"
             DOMAIN -> "cyber.domain"
+            CYBER -> "cyber"
         }
     }
 }
@@ -1276,7 +1276,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param newAccountMasterPassword master password for generating keys for newly created account.
      * method uses [AuthUtils.generatePrivateWiFs] for generating private key - so can you. Also
      * [AuthUtils.generatePublicWiFs] for acquiring public keys
-     * @param cyberCreatePermissionKey key of "cyber" for "newaccount" action with "createuser" permission
+     * @param cyberCreatePermissionKey key of "gls" for "newaccount" action with "active" permission
      * @throws IllegalStateException if method failed to open vesting or token balance, issue tokens or transfer it to "gls.vesting
      *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
@@ -1286,7 +1286,7 @@ class Cyber4J @JvmOverloads constructor(
             cyberCreatePermissionKey: String
     ): Either<TransactionSuccessful<AccountCreationResult>, GolosEosError> {
         CyberName(newAccountName)
-        val creatorAccountName = CyberContracts.CYBER.toString()
+        val creatorAccountName = CyberContracts.GLS.toString()
 
         val keys = AuthUtils.generatePublicWiFs(newAccountName, newAccountMasterPassword, AuthType.values())
 
@@ -1294,7 +1294,7 @@ class Cyber4J @JvmOverloads constructor(
             val writer = AbiBinaryGenTransactionWriter(CompressionType.NONE)
 
             val newAccArgs = NewAccountArgs(
-                    CyberContracts.CYBER.toString(),
+                    CyberContracts.GLS.toString(),
                     newAccountName,
                     AccountRequiredAuthAbi(
                             1,
@@ -1312,7 +1312,8 @@ class Cyber4J @JvmOverloads constructor(
             val hex = writer.squishNewAccountBody(newAccBody).toHex()
             pushTransaction<AccountCreationResult>(
                     CyberContracts.CYBER,
-                    CyberActions.NEW_ACCOUNT, MyTransactionAuthorizationAbi(creatorAccountName, "createuser"),
+                    CyberActions.NEW_ACCOUNT, MyTransactionAuthorizationAbi(creatorAccountName,
+                    "createuser"),
                     hex,
                     cyberCreatePermissionKey
             )
@@ -1338,7 +1339,7 @@ class Cyber4J @JvmOverloads constructor(
         val issueResult = issueTokens(newAccountName.toCyberName(), cyberCreatePermissionKey, "3.000 GOLOS")
 
         if (issueResult is Either.Failure) throw IllegalStateException(
-                "error initializing of account $newAccountName" +
+                "error initializing of account $newAccountName\n" +
                         "during issueTokens()"
         )
 
@@ -1395,7 +1396,7 @@ class Cyber4J @JvmOverloads constructor(
             type: UserBalance,
             cyberCreatePermissionKey: String
     ): Either<TransactionSuccessful<VestingReponse>, GolosEosError> {
-        val creatorAccountName = CyberContracts.CYBER.toString()
+        val creatorAccountName = CyberContracts.GLS.toString()
 
         val createVestingCallable = Callable {
             val writer = createBinaryConverter()
@@ -1429,7 +1430,7 @@ class Cyber4J @JvmOverloads constructor(
 
     /** method for issuing tokens for [forUser] recipient. Also, used as part of new account creation in [createAccount]
      * @param forUser account name
-     * @param issuerKey key of "gls.issuer" with "issue" permission
+     * @param issuerKey key of "gls" with "issue" permission
      * @param amount amount of tokens to issue.  Must have 3 points precision, like 12.000 or 0.001
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
@@ -1445,26 +1446,31 @@ class Cyber4J @JvmOverloads constructor(
             val actionAbis = ArrayList<MyActionAbi>()
 
             val writer = createBinaryConverter()
-            val issueRequest = IssueRequestAbi(CyberContracts.ISSUER.toString().toCyberName(), amount, memo)
+            val issueRequest = IssueRequestAbi(CyberContracts.GLS.toString().toCyberName(), amount, memo)
             val result = writer.squishIssueRequestAbi(issueRequest)
-            var hex = result.toHex()
 
-            actionAbis.add(
-                    MyActionAbi(
-                            CyberContracts.CYBER_TOKEN.toString(), CyberActions.ISSUE.toString(),
-                            listOf(MyTransactionAuthorizationAbi(CyberContracts.ISSUER.toString(), "issue")), hex
-                    )
+            if (config.logLevel == LogLevel.BODY) config.httpLogger
+                    ?.log("issue request  = ${moshi.adapter<IssueRequestAbi>(IssueRequestAbi::class.java).toJson(issueRequest)}")
+
+            var hex = result.toHex()
+            val issueAbi = MyActionAbi(
+                    CyberContracts.CYBER_TOKEN.toString(), CyberActions.ISSUE.toString(),
+                    listOf(MyTransactionAuthorizationAbi(CyberContracts.GLS.toString(), "issue")), hex
             )
+            if (config.logLevel == LogLevel.BODY) config.httpLogger
+                    ?.log("issue transaction = ${moshi.adapter<MyActionAbi>(MyActionAbi::class.java).toJson(issueAbi)}")
+
+            actionAbis.add(issueAbi)
 
 
             hex = createBinaryConverter().squishMyTransferArgsAbi(
-                    MyTransferArgsAbi(CyberContracts.ISSUER.toString(), forUser.resolveCanonical().name, amount, memo)
+                    MyTransferArgsAbi(CyberContracts.GLS.toString(), forUser.resolveCanonical().name, amount, memo)
             ).toHex()
 
             actionAbis.add(
                     MyActionAbi(
                             CyberContracts.CYBER_TOKEN.toString(), CyberActions.TRANSFER.toString(),
-                            listOf(MyTransactionAuthorizationAbi(CyberContracts.ISSUER.toString(), "issue")), hex
+                            listOf(MyTransactionAuthorizationAbi(CyberContracts.GLS.toString(), "issue")), hex
                     )
             )
 
