@@ -12,10 +12,10 @@ public class CreateDiscussionResult {
     private String headermssg;
     private String bodymssg;
     private String languagemssg = "ru";
-    private List<Tag> tags;
+    private List<String> tags;
     private String jsonmetadata = "";
 
-    public CreateDiscussionResult(ResultDiscussionId message_id, ResultDiscussionId parent_id, List<Beneficiary> beneficiaries, long tokenprop, boolean vestpayment, String headermssg, String bodymssg, String languagemssg, List<Tag> tags, String jsonmetadata) {
+    public CreateDiscussionResult(ResultDiscussionId message_id, ResultDiscussionId parent_id, List<Beneficiary> beneficiaries, long tokenprop, boolean vestpayment, String headermssg, String bodymssg, String languagemssg, List<String> tags, String jsonmetadata) {
         this.message_id = message_id;
         this.parent_id = parent_id;
         this.beneficiaries = beneficiaries;
@@ -92,11 +92,11 @@ public class CreateDiscussionResult {
         this.languagemssg = languagemssg;
     }
 
-    public List<Tag> getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 

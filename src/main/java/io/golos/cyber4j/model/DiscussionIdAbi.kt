@@ -7,19 +7,15 @@ import com.memtrip.eos.abi.writer.StringCompress
 
 @Abi
 internal class DiscussionIdAbi(private val name: CyberName,
-                               private val permLink: String,
-                               private val refBlockNum: Long) {
+                               private val permLink: String) {
     val getName: String
         @NameCompress get() = name.name
 
     val getPermLink: String
         @StringCompress get() = permLink
 
-    val getRefBlockNum: Long
-        @LongCompress get() = refBlockNum
-
     override fun toString(): String {
-        return "DiscussionIdAbi(name=$name, permLink='$permLink', refBlockNum=$refBlockNum)"
+        return "DiscussionIdAbi(name=$name, permLink='$permLink'"
     }
 
 }

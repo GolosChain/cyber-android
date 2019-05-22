@@ -42,20 +42,20 @@ class Utils {
         val second = posts.value.items[1]
 
         cyber4j.vote(
-            firstPost.contentId.userId.toCyberName(), firstPost.contentId.permlink, firstPost.contentId.refBlockNum,
+            firstPost.contentId.userId.toCyberName(), firstPost.contentId.permlink,
             (Math.random() * 10_000).toShort()
         ) as Either.Success
         cyber4j.vote(
-            firstPost.contentId.userId.toCyberName(), firstPost.contentId.permlink, firstPost.contentId.refBlockNum,
+            firstPost.contentId.userId.toCyberName(), firstPost.contentId.permlink,
             (Math.random() * -10_000).toShort()
         ) as Either.Success
 
         cyber4j.vote(
-            second.contentId.userId.toCyberName(), second.contentId.permlink, second.contentId.refBlockNum,
+            second.contentId.userId.toCyberName(), second.contentId.permlink,
             (Math.random() * 10_000).toShort()
         ) as Either.Success
         cyber4j.vote(
-            second.contentId.userId.toCyberName(), second.contentId.permlink, second.contentId.refBlockNum,
+            second.contentId.userId.toCyberName(), second.contentId.permlink,
             (Math.random() * -10_000).toShort()
         ) as Either.Success
     }

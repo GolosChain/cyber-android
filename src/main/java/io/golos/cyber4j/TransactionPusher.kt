@@ -75,6 +75,7 @@ internal class TransactionPusherImpl(private val chainApi: CyberWayChainApi,
 
                 Either.Success(value)
             } catch (e: Exception) {
+                e.printStackTrace()
                 Either.Failure(moshi.adapter<io.golos.cyber4j.model.GolosEosError>(io.golos.cyber4j.model.GolosEosError::class.java).fromJson(response)!!)
             }
 

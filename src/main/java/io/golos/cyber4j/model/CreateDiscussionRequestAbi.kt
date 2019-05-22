@@ -33,14 +33,11 @@ internal class CreateDiscussionRequestAbi(private val discussionIdAbi: Discussio
     val getParentDiscussionIdAbi: DiscussionIdAbi
         @ChildCompress get() = parentDiscussionIdAbi
 
-    val getParentRecId: Long
-        @LongCompress get() = 0
-
     val getBeneficiaries: List<Beneficiary>
         @CollectionCompress get() = beneficiaries
 
-    val getTokenProp: Long
-        @LongCompress get() = tokenprop
+    val getTokenProp: Short
+        @ShortCompress get() = tokenprop.toShort()
 
     val getVestPayement: Byte
         @ByteCompress get() = (if (vestpayment) 1 else 0).toByte()

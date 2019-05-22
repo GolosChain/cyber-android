@@ -232,7 +232,7 @@ class Cyber4J @JvmOverloads constructor(
         return createPostOrComment(
                 fromAccount, userActiveKey,
                 title, body, formatPostPermlink(title),
-                "", CyberName(), 0L, tags, curatorRewardPercentage, beneficiaries, metadata, vestPayment, tokenProp
+                "", CyberName(), tags, curatorRewardPercentage, beneficiaries, metadata, vestPayment, tokenProp
         )
     }
 
@@ -319,7 +319,6 @@ class Cyber4J @JvmOverloads constructor(
             permlink: String,
             parentPermlink: String,
             parentAccount: CyberName,
-            parentDiscussionRefBlockId: Long,
             tags: List<io.golos.cyber4j.model.Tag>,
             curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
@@ -330,16 +329,11 @@ class Cyber4J @JvmOverloads constructor(
 
         val callable = Callable<Either<TransactionSuccessful<CreateDiscussionResult>, GolosEosError>> {
 
-            val chainInfo = chainApi.getInfo().blockingGet().body()!!
-
-
             val createPostRequest = io.golos.cyber4j.model.CreateDiscussionRequestAbi(
                     DiscussionIdAbi(
                             fromAccount.resolveCanonical(),
-                            permlink,
-                            BlockIdDetails(chainInfo.head_block_id).blockNum.toLong()
-                    ),
-                    DiscussionIdAbi(parentAccount.resolveCanonical(), parentPermlink, parentDiscussionRefBlockId),
+                            permlink),
+                    DiscussionIdAbi(parentAccount.resolveCanonical(), parentPermlink),
                     beneficiaries,
                     title,
                     body,
@@ -362,7 +356,7 @@ class Cyber4J @JvmOverloads constructor(
                     CyberContracts.PUBLICATION, CyberActions.CREATE_DISCUSSION,
                     MyTransactionAuthorizationAbi(fromAccount.resolveCanonical().name), result.toHex(),
                     userActiveKey,
-                    chainInfo
+                    null
             )
         }
 
@@ -374,7 +368,6 @@ class Cyber4J @JvmOverloads constructor(
      * @param body body of a comment. Must be not empty
      * @param parentAccount user name of author of parent post. must be not blank
      * @param parentPermlink parentPermlink of parent post. must be not blank
-     * @param parentDiscussionRefBlockNum ref_block_num of parent post. must be not 0
      * @param categories categories (tags) of a comment
      * @param metadata metadata of a comment. Can be empty
      * @param beneficiaries beneficiaries of a post. Can be empty
@@ -389,7 +382,6 @@ class Cyber4J @JvmOverloads constructor(
             body: String,
             parentAccount: CyberName,
             parentPermlink: String,
-            parentDiscussionRefBlockNum: Long,
             categories: List<Tag>,
             metadata: DiscussionCreateMetadata,
             curatorRewardPercentage: Short?,
@@ -407,7 +399,6 @@ class Cyber4J @JvmOverloads constructor(
                 body,
                 parentAccount,
                 parentPermlink,
-                parentDiscussionRefBlockNum,
                 categories,
                 metadata,
                 curatorRewardPercentage,
@@ -594,7 +585,6 @@ class Cyber4J @JvmOverloads constructor(
             body: String,
             parentAccount: CyberName,
             parentPermlink: String,
-            parentDiscussionRefBlockNum: Long,
             categories: List<Tag>,
             metadata: DiscussionCreateMetadata,
             curatorRewardPercentage: Short?,
@@ -619,7 +609,6 @@ class Cyber4J @JvmOverloads constructor(
                 commentPermlink,
                 parentPermlink,
                 parentAccount,
-                parentDiscussionRefBlockNum,
                 categories,
                 curatorRewardPercentage,
                 beneficiaries,
@@ -635,7 +624,6 @@ class Cyber4J @JvmOverloads constructor(
     private fun updateDiscussion(
             discussionAuthor: CyberName,
             discussionPermlink: String,
-            discussionRefBlockNum: Long,
             userActiveKey: String,
             newTitle: String,
             newBody: String,
@@ -646,7 +634,7 @@ class Cyber4J @JvmOverloads constructor(
 
         val callable = Callable {
             val updateRequest = UpdateDiscussionRequestAbi(
-                    DiscussionIdAbi(discussionAuthor.resolveCanonical(), discussionPermlink, discussionRefBlockNum),
+                    DiscussionIdAbi(discussionAuthor.resolveCanonical(), discussionPermlink),
                     newTitle, newBody, newTags,
                     newLanguage, moshi.adapter(DiscussionCreateMetadata::class.java).toJson(newJsonMetadata)
             )
@@ -665,7 +653,6 @@ class Cyber4J @JvmOverloads constructor(
      * @param postAuthor used account as authority and author
      * @param userActiveKey active key of [postAuthor]
      * @param postPermlink of post to update
-     * @param postRefBlockNum ref_block_num of post to update
      * @param newTitle new title of a post. Currently must be fewer, then 256 symbols
      * @param newBody new body a of post. Must be not blank
      * @param newTags new tags a of post
@@ -677,7 +664,6 @@ class Cyber4J @JvmOverloads constructor(
             userActiveKey: String,
             postAuthor: CyberName,
             postPermlink: String,
-            postRefBlockNum: Long,
             newTitle: String,
             newBody: String,
             newTags: List<Tag>,
@@ -686,7 +672,6 @@ class Cyber4J @JvmOverloads constructor(
         return updateDiscussion(
                 postAuthor,
                 postPermlink,
-                postRefBlockNum,
                 userActiveKey,
                 newTitle,
                 newBody,
@@ -700,7 +685,6 @@ class Cyber4J @JvmOverloads constructor(
      * @param userActiveKey active key pf [commentAuthor]
      * @param commentAuthor author of original comment
      * @param commentPermlink permlink of comment
-     * @param commentRefBlockNum ref_block_num of comment to update
      * @param newBody new body a of post. Must be not blank
      * @param categories new categories of comment.
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
@@ -709,21 +693,19 @@ class Cyber4J @JvmOverloads constructor(
             userActiveKey: String,
             commentAuthor: CyberName,
             commentPermlink: String,
-            commentRefBlockNum: Long,
             newBody: String,
             categories: List<Tag>,
             newJsonMetadata: DiscussionCreateMetadata
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
 
         return updateDiscussion(
-                commentAuthor, commentPermlink, commentRefBlockNum, userActiveKey,
+                commentAuthor, commentPermlink, userActiveKey,
                 "", newBody, "ru", categories, newJsonMetadata
         )
     }
 
     /** method updating post, using credential of active account from [keyStorage]
      * @param postPermlink of post to update
-     * @param postRefBlockNum ref_block_num of post to update
      * @param newTitle new title of a post. Currently must be fewer, then 256 symbols
      * @param newBody new body a of post. Must be not blank
      * @param newTags new tags a of post
@@ -732,9 +714,7 @@ class Cyber4J @JvmOverloads constructor(
      * @throws IllegalStateException if active account not set
      */
 
-    fun updatePost(
-            postPermlink: String,
-            postRefBlockNum: Long,
+    fun updatePost(postPermlink: String,
             newTitle: String,
             newBody: String,
             newTags: List<Tag>,
@@ -748,7 +728,6 @@ class Cyber4J @JvmOverloads constructor(
         return updateDiscussion(
                 activeAccountName,
                 postPermlink,
-                postRefBlockNum,
                 activeAccountKey,
                 newTitle,
                 newBody,
@@ -760,7 +739,6 @@ class Cyber4J @JvmOverloads constructor(
 
     /** method updating comment using credentials of active account from [keyStorage]
      * @param commentPermlink permlink of comment.
-     * @param commentRefBlockNum ref_block_num of comment to update
      * @param newBody new body a of post. Must be not blank
      * @param newCategories new list of categories of a comment
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
@@ -768,7 +746,6 @@ class Cyber4J @JvmOverloads constructor(
      */
     fun updateComment(
             commentPermlink: String,
-            commentRefBlockNum: Long,
             newBody: String,
             newCategories: List<Tag>,
             newJsonMetadata: DiscussionCreateMetadata
@@ -780,7 +757,6 @@ class Cyber4J @JvmOverloads constructor(
         return updateDiscussion(
                 activeAccountName,
                 commentPermlink,
-                commentRefBlockNum,
                 activeAccountKey,
                 "",
                 newBody,
@@ -793,14 +769,12 @@ class Cyber4J @JvmOverloads constructor(
     /** method deletion post of comment
      * @param userActiveKey active key of [postOrCommentAuthor]
      * @param postOrCommentPermlink permlink of entity to delete
-     * @param postOrCommentRefBlockNum ref_block_num of entity to delete
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
     fun deletePostOrComment(
             userActiveKey: String,
             postOrCommentAuthor: CyberName,
-            postOrCommentPermlink: String,
-            postOrCommentRefBlockNum: Long
+            postOrCommentPermlink: String
     ): Either<TransactionSuccessful<DeleteResult>, GolosEosError> {
         val callable = Callable {
             pushTransaction<DeleteResult>(
@@ -811,8 +785,7 @@ class Cyber4J @JvmOverloads constructor(
                             DeleteDiscussionRequestAbi(
                                     DiscussionIdAbi(
                                             postOrCommentAuthor.resolveCanonical(),
-                                            postOrCommentPermlink,
-                                            postOrCommentRefBlockNum
+                                            postOrCommentPermlink
                                     )
                             )
                     ).toHex(),
@@ -825,21 +798,18 @@ class Cyber4J @JvmOverloads constructor(
 
     /** method deletion post of comment, using credentials of active account from [keyStorage]
      * @param postOrCommentPermlink permlink of entity to delete
-     * @param postOrCommentRefBlockNum ref_block_num of entity to delete
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * @throws IllegalStateException if active account not set
      */
     fun deletePostOrComment(
-            postOrCommentPermlink: String,
-            postOrCommentRefBlockNum: Long
-    ):
+            postOrCommentPermlink: String):
             Either<TransactionSuccessful<DeleteResult>, GolosEosError> {
 
         val activeUser = resolveKeysFor(CyberContracts.PUBLICATION, CyberActions.DELETE_DISCUSSION)
         val activeAccountName = activeUser.first
         val activeAccountKey = activeUser.second
 
-        return deletePostOrComment(activeAccountKey, activeAccountName, postOrCommentPermlink, postOrCommentRefBlockNum)
+        return deletePostOrComment(activeAccountKey, activeAccountName, postOrCommentPermlink)
     }
 
 
@@ -847,15 +817,13 @@ class Cyber4J @JvmOverloads constructor(
      * This method assumes that you have added account with keys to [keyStorage]
      * @param authorOfPostToReblog author of entity to reblog
      * @param permlinkOfPostToReblog permlink of entity to reblog
-     * @param refBlockNumOfPostToReblog ref_block_num of entity to  reblog
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * @throws IllegalStateException if active account not set
      */
 
     fun reblog(
             authorOfPostToReblog: CyberName,
-            permlinkOfPostToReblog: String,
-            refBlockNumOfPostToReblog: Long
+            permlinkOfPostToReblog: String
     ): Either<TransactionSuccessful<ReblogResult>, GolosEosError> {
         val activeUser = resolveKeysFor(CyberContracts.SOCIAL, CyberActions.REBLOG)
         val activeAccountName = activeUser.first
@@ -865,8 +833,7 @@ class Cyber4J @JvmOverloads constructor(
                 activeAccountKey,
                 activeAccountName,
                 authorOfPostToReblog,
-                permlinkOfPostToReblog,
-                refBlockNumOfPostToReblog
+                permlinkOfPostToReblog
         )
     }
 
@@ -876,15 +843,13 @@ class Cyber4J @JvmOverloads constructor(
      * @param reblogger name of a person, who want to reblog entity
      * @param authorOfPostToReblog author of entity to reblog
      * @param permlinkOfPostToReblog permlink of entity to reblog
-     * @param refBlockNumOfPostToReblog ref_block_num of entity to  reblog
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
     fun reblog(
             userActiveKey: String,
             reblogger: CyberName,
             authorOfPostToReblog: CyberName,
-            permlinkOfPostToReblog: String,
-            refBlockNumOfPostToReblog: Long
+            permlinkOfPostToReblog: String
     ): Either<TransactionSuccessful<ReblogResult>, GolosEosError> {
         val callable = Callable {
             val squisher = createBinaryConverter()
@@ -893,8 +858,7 @@ class Cyber4J @JvmOverloads constructor(
                     reblogger,
                     DiscussionIdAbi(
                             authorOfPostToReblog.resolveCanonical(),
-                            permlinkOfPostToReblog,
-                            refBlockNumOfPostToReblog
+                            permlinkOfPostToReblog
                     )
             )
 
@@ -1199,7 +1163,6 @@ class Cyber4J @JvmOverloads constructor(
     fun vote(
             postOrCommentAuthor: CyberName,
             postOrCommentPermlink: String,
-            postOrCommentRefBlockNum: Long,
             voteStrength: Short
     ): Either<TransactionSuccessful<VoteResult>, GolosEosError> {
         val activeUser = resolveKeysFor(CyberContracts.PUBLICATION,
@@ -1214,8 +1177,7 @@ class Cyber4J @JvmOverloads constructor(
         val activeAccountKey = activeUser.second
 
         return vote(
-                activeAccountName, activeAccountKey, postOrCommentAuthor, postOrCommentPermlink,
-                postOrCommentRefBlockNum, voteStrength
+                activeAccountName, activeAccountKey, postOrCommentAuthor, postOrCommentPermlink, voteStrength
         )
     }
 
@@ -1223,8 +1185,6 @@ class Cyber4J @JvmOverloads constructor(
      * @param fromAccount account name of voter
      * @param userActiveKey active key of [fromAccount]
      * @param postOrCommentAuthor author of post or comment
-     * @param postOrCommentPermlink permlink of post or comment
-     * @param postOrCommentRefBlockNum ref_block_num of post or comment
      * @param voteStrength voting strength. Might be [-10_000..10_000]. Set 0 to unvote
      *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * */
@@ -1233,14 +1193,13 @@ class Cyber4J @JvmOverloads constructor(
             userActiveKey: String,
             postOrCommentAuthor: CyberName,
             postOrCommentPermlink: String,
-            postOrCommentRefBlockNum: Long,
             voteStrength: Short
     ): Either<TransactionSuccessful<VoteResult>, GolosEosError> {
         val callable = Callable {
             val squisher = createBinaryConverter()
 
             val discussionId =
-                    DiscussionIdAbi(postOrCommentAuthor.resolveCanonical(), postOrCommentPermlink, postOrCommentRefBlockNum)
+                    DiscussionIdAbi(postOrCommentAuthor.resolveCanonical(), postOrCommentPermlink)
 
             val operationHex = if (voteStrength == 0.toShort()) squisher
                     .squishUnVoteRequestAbi(UnVoteRequestAbi(fromAccount.resolveCanonical(), discussionId)).toHex()
