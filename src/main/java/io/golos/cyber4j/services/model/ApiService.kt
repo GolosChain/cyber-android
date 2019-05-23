@@ -26,12 +26,10 @@ interface ApiService {
 
     fun getPost(userId: String,
                 permlink: String,
-                refBlockNum: Long,
                 parsingType: ContentParsingType): Either<CyberDiscussion, ApiResponseError>
 
     fun getComment(userId: String,
                    permlink: String,
-                   refBlockNum: Long,
                    parsingType: ContentParsingType): Either<CyberDiscussion, ApiResponseError>
 
     fun getComments(sort: DiscussionTimeSort,
@@ -40,8 +38,7 @@ interface ApiService {
                     origin: CommentsOrigin,
                     parsingType: ContentParsingType,
                     userId: String?,
-                    permlink: String?,
-                    refBlockNum: Long?): Either<DiscussionsResult, ApiResponseError>
+                    permlink: String?): Either<DiscussionsResult, ApiResponseError>
 
 
     fun getUserMetadata(userId: String): Either<UserMetadataResult, ApiResponseError>

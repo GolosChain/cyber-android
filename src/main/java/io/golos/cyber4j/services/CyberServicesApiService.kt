@@ -207,13 +207,12 @@ internal class CyberServicesApiService(
     override fun getPost(
             userId: String,
             permlink: String,
-            refBlockNum: Long,
             parsingType: ContentParsingType
     ): Either<CyberDiscussion, ApiResponseError> {
         lockIfNeeded()
         return apiClient.send(
                 ServicesGateMethods.GET_POST.toString(),
-                DiscussionRequests(userId, permlink, refBlockNum, parsingType.asContentType()),
+                DiscussionRequests(userId, permlink, parsingType.asContentType()),
                 CyberDiscussion::class.java
         )
     }
@@ -237,7 +236,6 @@ internal class CyberServicesApiService(
     override fun getComment(
             userId: String,
             permlink: String,
-            refBlockNum: Long,
             parsingType: ContentParsingType
     ): Either<CyberDiscussion, ApiResponseError> {
         lockIfNeeded()
@@ -245,7 +243,6 @@ internal class CyberServicesApiService(
                 ServicesGateMethods.GET_COMMENT.toString(), DiscussionRequests(
                 userId,
                 permlink,
-                refBlockNum,
                 parsingType.asContentType()
         ), CyberDiscussion::class.java
         )
@@ -256,7 +253,7 @@ internal class CyberServicesApiService(
             limit: Int, origin: CommentsOrigin,
             parsingType: ContentParsingType,
             userId: String?,
-            permlink: String?, refBlockNum: Long?
+            permlink: String?
     ): Either<DiscussionsResult, ApiResponseError> {
 
         lockIfNeeded()
@@ -268,8 +265,7 @@ internal class CyberServicesApiService(
                         parsingType.asContentType(),
                         origin.toString(),
                         userId,
-                        permlink,
-                        refBlockNum
+                        permlink
                 ), DiscussionsResult::class.java
         )
     }

@@ -43,6 +43,7 @@ class AccountCreationTest {
     companion object {
         private val eosCreateKey = (Cyber4J::class.java).getResource("/eoscreateacckey.txt").readText(Charset.defaultCharset())
 
+
         fun createNewAccount(forConfig: Cyber4JConfig = mainTestNetConfig): Pair<CyberName, String> {
             val commun = io.golos.cyber4j.Cyber4J(forConfig)
             val pass = UUID.randomUUID().toString()

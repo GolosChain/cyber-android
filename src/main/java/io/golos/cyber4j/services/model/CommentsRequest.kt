@@ -9,5 +9,4 @@ internal class CommentsRequest(val sortBy: String,
                                val contentType: String,
                                val type: String,
                                val userId: String?,
-                               val permlink: String?,
-                               val refBlockNum: Long?)
+                               val permlink: String?)

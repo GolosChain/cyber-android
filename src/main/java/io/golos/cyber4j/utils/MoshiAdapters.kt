@@ -1,7 +1,10 @@
 package io.golos.cyber4j.utils
 
 import com.squareup.moshi.*
-import io.golos.cyber4j.model.*
+import io.golos.cyber4j.model.ContentRow
+import io.golos.cyber4j.model.CyberName
+import io.golos.cyber4j.model.ImageRow
+import io.golos.cyber4j.model.TextRow
 import io.golos.cyber4j.services.model.*
 import java.math.BigInteger
 
@@ -88,7 +91,16 @@ class ContentRowAdapter : JsonAdapter<ContentRow>() {
                 "type" -> type = reader.nextString()
                 "content" -> content = reader.nextString()
                 "src" -> src = reader.nextString()
-                else -> reader.nextString()
+                else -> {
+                    try {
+                        val unknownToke = reader.peek()
+                        if (unknownToke == JsonReader.Token.NULL) reader.nextNull<Any?>()
+                        else reader.nextString()
+
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
             }
         }
 

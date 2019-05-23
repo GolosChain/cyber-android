@@ -3,20 +3,17 @@ import io.golos.cyber4j.model.AuthType
 import io.golos.cyber4j.model.CyberName
 import io.golos.cyber4j.model.DiscussionCreateMetadata
 import io.golos.cyber4j.model.Tag
-import io.golos.cyber4j.utils.AuthUtils
 import io.golos.cyber4j.utils.Either
 import io.golos.cyber4j.utils.Pair
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.nio.charset.Charset
 import java.util.*
-import java.util.logging.Logger
 
 class PostingTest {
     private val client = Cyber4J(mainTestNetConfig.copy(performAutoAuthOnActiveUserSet = false)
-           )
+    )
     private lateinit var secondAccount: kotlin.Pair<CyberName, String>
 
     @Before
@@ -167,7 +164,11 @@ class PostingTest {
 
         val postMessageId = (postResponse as Either.Success).value.extractResult().message_id
 
-        val reblogResult = client.reblog(postMessageId.author, postMessageId.permlink)
+        val reblogResult = client.reblog(secondAccount.second,
+                secondAccount.first,
+                postMessageId.author,
+                postMessageId.permlink,
+                "reblog title", "reblog body")
 
         assertTrue(reblogResult is Either.Success)
 

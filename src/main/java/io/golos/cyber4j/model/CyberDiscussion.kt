@@ -20,8 +20,7 @@ data class DiscussionAuthor(val userId: CyberName, val username: String, val ava
 
 data class DiscussionId(
         val userId: String,
-        val permlink: String,
-        val refBlockNum: Long
+        val permlink: String
 )
 
 

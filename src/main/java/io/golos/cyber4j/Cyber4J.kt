@@ -9,7 +9,6 @@ import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.Acco
 import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.AccountRequiredAuthAbi
 import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewAccountArgs
 import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewAccountBody
-import com.memtrip.eos.core.block.BlockIdDetails
 import com.memtrip.eos.core.crypto.EosPrivateKey
 import com.memtrip.eos.core.hex.DefaultHexWriter
 import com.memtrip.eos.http.rpc.model.account.request.AccountName
@@ -715,10 +714,10 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun updatePost(postPermlink: String,
-            newTitle: String,
-            newBody: String,
-            newTags: List<Tag>,
-            newJsonMetadata: DiscussionCreateMetadata
+                   newTitle: String,
+                   newBody: String,
+                   newTags: List<Tag>,
+                   newJsonMetadata: DiscussionCreateMetadata
     ): Either<TransactionSuccessful<UpdateDiscussionResult>, GolosEosError> {
 
         val activeUser = resolveKeysFor(CyberContracts.PUBLICATION, CyberActions.UPDATE_DISCUSSION)
@@ -817,13 +816,17 @@ class Cyber4J @JvmOverloads constructor(
      * This method assumes that you have added account with keys to [keyStorage]
      * @param authorOfPostToReblog author of entity to reblog
      * @param permlinkOfPostToReblog permlink of entity to reblog
+     * @param title idk
+     * @param body idk
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      * @throws IllegalStateException if active account not set
      */
 
     fun reblog(
             authorOfPostToReblog: CyberName,
-            permlinkOfPostToReblog: String
+            permlinkOfPostToReblog: String,
+            title: String,
+            body: String
     ): Either<TransactionSuccessful<ReblogResult>, GolosEosError> {
         val activeUser = resolveKeysFor(CyberContracts.SOCIAL, CyberActions.REBLOG)
         val activeAccountName = activeUser.first
@@ -833,7 +836,9 @@ class Cyber4J @JvmOverloads constructor(
                 activeAccountKey,
                 activeAccountName,
                 authorOfPostToReblog,
-                permlinkOfPostToReblog
+                permlinkOfPostToReblog,
+                title,
+                body
         )
     }
 
@@ -842,6 +847,8 @@ class Cyber4J @JvmOverloads constructor(
      * @param userActiveKey active key of perso, who want to reblog [authorOfPostToReblog]'s entity
      * @param reblogger name of a person, who want to reblog entity
      * @param authorOfPostToReblog author of entity to reblog
+     * @param title idk
+     * @param body idk
      * @param permlinkOfPostToReblog permlink of entity to reblog
      * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
      */
@@ -849,7 +856,9 @@ class Cyber4J @JvmOverloads constructor(
             userActiveKey: String,
             reblogger: CyberName,
             authorOfPostToReblog: CyberName,
-            permlinkOfPostToReblog: String
+            permlinkOfPostToReblog: String,
+            title: String,
+            body: String
     ): Either<TransactionSuccessful<ReblogResult>, GolosEosError> {
         val callable = Callable {
             val squisher = createBinaryConverter()
@@ -859,7 +868,7 @@ class Cyber4J @JvmOverloads constructor(
                     DiscussionIdAbi(
                             authorOfPostToReblog.resolveCanonical(),
                             permlinkOfPostToReblog
-                    )
+                    ), title, body
             )
 
             val operationHex = squisher.squishReblogRequestAbi(reblogRequest).toHex()
@@ -1149,7 +1158,7 @@ class Cyber4J @JvmOverloads constructor(
         val activeUser = resolveKeysFor(CyberContracts.CTRL, CyberActions.STOP_WITNESS)
         val activeAccountName = activeUser.first
         val activeAccountKey = activeUser.second
-        return startWitness(activeAccountName, activeAccountKey)
+        return stopWitness(activeAccountName, activeAccountKey)
     }
 
     /**vote for post or comment, using credentials of active account from [keyStorage]
@@ -1568,7 +1577,6 @@ class Cyber4J @JvmOverloads constructor(
      * in [CyberDiscussion] returned by this method, in [ContentBody] [ContentBody.full] is not empty
      * @param user user, which post to fetch
      * @param permlink permlink of post to fetch
-     * @param refBlockNum ref_block_num of post to fetch
      * @param parsingType type of parsing to apply to content. According to [parsingType] returning [DiscussionsResult]'s [DiscussionContent] may vary:
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
@@ -1581,16 +1589,14 @@ class Cyber4J @JvmOverloads constructor(
     fun getPost(
             user: CyberName,
             permlink: String,
-            refBlockNum: Long,
             parsingType: ContentParsingType
-    ) = apiService.getPost(user.resolveCanonical().name, permlink, refBlockNum, parsingType)
+    ) = apiService.getPost(user.resolveCanonical().name, permlink, parsingType)
 
 
     /** method for fetching particular comment
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
      * @param user user, which comment to fetch
      * @param permlink permlink of comment to fetch
-     * @param refBlockNum ref_block_num of comment to fetch
      * @param parsingType type of parsing to apply to content. According to [parsingType] returning [DiscussionsResult]'s [DiscussionContent] may vary:
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
@@ -1602,15 +1608,13 @@ class Cyber4J @JvmOverloads constructor(
     fun getComment(
             user: CyberName,
             permlink: String,
-            refBlockNum: Long,
             parsingType: ContentParsingType
-    ) = apiService.getComment(user.resolveCanonical().name, permlink, refBlockNum, parsingType)
+    ) = apiService.getComment(user.resolveCanonical().name, permlink, parsingType)
 
     /** method for fetching comments particular post
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
      * @param user user of original post
      * @param permlink permlink of original post
-     * @param refBlockNum ref_block_num of original post
      * @param parsingType type of parsing to apply to content. According to [parsingType] returning [DiscussionsResult]'s [DiscussionContent] may vary:
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
@@ -1626,7 +1630,6 @@ class Cyber4J @JvmOverloads constructor(
     fun getCommentsOfPost(
             user: CyberName,
             permlink: String,
-            refBlockNum: Long,
             parsingType: ContentParsingType,
             limit: Int,
             sort: DiscussionTimeSort,
@@ -1636,8 +1639,7 @@ class Cyber4J @JvmOverloads constructor(
             apiService.getComments(
                     sort, sequenceKey, limit,
                     CommentsOrigin.COMMENTS_OF_POST, parsingType,
-                    user.resolveCanonical().name, permlink, refBlockNum
-            )
+                    user.resolveCanonical().name, permlink)
 
     /** method for fetching replies to particular user
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
@@ -1663,7 +1665,7 @@ class Cyber4J @JvmOverloads constructor(
             apiService.getComments(
                     sort, sequenceKey, limit,
                     CommentsOrigin.REPLIES, parsingType,
-                    user.resolveCanonical().name, null, null)
+                    user.resolveCanonical().name, null)
 
     /** method for fetching comments particular user
      * return objects may differ, depending on auth state of current user. for details @see [addAuthListener]
@@ -1690,8 +1692,7 @@ class Cyber4J @JvmOverloads constructor(
             apiService.getComments(
                     sort, sequenceKey, limit,
                     CommentsOrigin.COMMENTS_OF_USER, parsingType,
-                    user.resolveCanonical().name, null, null
-            )
+                    user.resolveCanonical().name, null)
 
     /**Do not use, would be changed soon*/
     fun getSubscriptionsToUsers(ofUser: CyberName, limit: Int, sequenceKey: String?) = apiService.getSubscriptions(ofUser.resolveCanonical(), limit, SubscriptionType.USER, sequenceKey)

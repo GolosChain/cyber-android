@@ -43,14 +43,13 @@ class ServicesFetchTest {
         val postResponse = client.getPost(
                 post.contentId.userId.toCyberName(),
                 post.contentId.permlink,
-                post.contentId.refBlockNum,
                 ContentParsingType.MOBILE
         )
 
         assertTrue(postResponse is Either.Success)
 
         val comments = client.getCommentsOfPost(
-                post.author!!.userId.name.toCyberName(), post.contentId.permlink, post.contentId.refBlockNum,
+                post.author!!.userId.name.toCyberName(), post.contentId.permlink,
                 ContentParsingType.RAW,
                 100,
                 DiscussionTimeSort.INVERTED,
@@ -62,7 +61,7 @@ class ServicesFetchTest {
         val commentsOfUser = client.getCommentsOfUser(
                 post.author!!.userId.name.toCyberName(),
                 ContentParsingType.MOBILE,
-                100,
+                10,
                 DiscussionTimeSort.INVERTED,
                 null
         )
@@ -110,7 +109,6 @@ class ServicesFetchTest {
         val comments = client.getCommentsOfPost(
                 postWithComments.contentId.userId.toCyberName(),
                 postWithComments.contentId.permlink,
-                postWithComments.contentId.refBlockNum,
                 ContentParsingType.MOBILE,
                 1, DiscussionTimeSort.SEQUENTIALLY, null
         )
@@ -121,7 +119,7 @@ class ServicesFetchTest {
 
         val fetchedComment = client.getComment(
                 comment.contentId.userId.toCyberName(),
-                comment.contentId.permlink, comment.contentId.refBlockNum,
+                comment.contentId.permlink,
                 ContentParsingType.MOBILE
         )
 
