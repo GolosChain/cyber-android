@@ -16,8 +16,8 @@ class NotifsTest {
     val cyber4j = Cyber4J(mainTestNetConfig)
     @Before
     fun before() {
-        cyber4j.keyStorage.addAccountKeys(CyberName("yhlmjmqfqexl"),
-                setOf(Pair(AuthType.ACTIVE, "5KcFFtzmeYeGt6HoWcZys282TnVVS2X1PdBgGzUsNXyRXdXsTcn")))
+        cyber4j.keyStorage.addAccountKeys(CyberName("destroyer2k@golos"),
+                setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
     }
 
     @Test

@@ -98,10 +98,10 @@ internal class CyberServicesApiService(
     ) {
         if (!config.performAutoAuthOnActiveUserSet) return
 
-        if (oldUser != null && oldUser != newUser) {
-            apiClient.unAuth()
-        } else if (oldUser == null) {
-            authIfPossible()
+        when {
+            oldUser != null && oldUser != newUser -> apiClient.unAuth()
+            oldUser == null -> authIfPossible()
+            oldUser == newUser -> authListeners.forEach { it.onAuthSuccess(keyStore.getActiveAccount()) }
         }
     }
 

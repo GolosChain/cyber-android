@@ -210,7 +210,6 @@ class EventsAdapter {
                 eventsJson.post,
                 eventsJson.parentComment,
                 eventsJson.community!!,
-                eventsJson.refBlockNum!!,
                 eventsJson.actor!!,
                 eventsJson._id,
                 eventsJson.fresh,
@@ -223,7 +222,6 @@ class EventsAdapter {
                 eventsJson.post,
                 eventsJson.parentComment,
                 eventsJson.community!!,
-                eventsJson.refBlockNum!!,
                 eventsJson.actor!!,
                 eventsJson._id,
                 eventsJson.fresh,
@@ -233,7 +231,7 @@ class EventsAdapter {
 
         EventType.REPOST -> RepostEvent(
                 eventsJson.post!!,
-                eventsJson.comment, eventsJson.community!!, eventsJson.refBlockNum!!,
+                eventsJson.comment, eventsJson.community!!,
                 eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp
         )
 
@@ -309,19 +307,19 @@ class EventsAdapter {
 
         is ReplyEvent -> EventJson(
                 EventType.REPLY, event._id, event.fresh, event.unread, event.timestamp,
-                post = event.post, comment = event.comment, community = event.community, refBlockNum = event.refBlockNum,
+                post = event.post, comment = event.comment, community = event.community,
                 actor = event.actor
         )
 
         is MentionEvent -> EventJson(
                 EventType.MENTION, event._id, event.fresh, event.unread, event.timestamp,
-                post = event.post, comment = event.comment, community = event.community, refBlockNum = event.refBlockNum,
+                post = event.post, comment = event.comment, community = event.community,
                 actor = event.actor
         )
 
         is RepostEvent -> EventJson(
                 EventType.REPOST, event._id, event.fresh, event.unread, event.timestamp,
-                post = event.post, comment = event.comment, community = event.community, refBlockNum = event.refBlockNum,
+                post = event.post, comment = event.comment, community = event.community,
                 actor = event.actor
         )
 
