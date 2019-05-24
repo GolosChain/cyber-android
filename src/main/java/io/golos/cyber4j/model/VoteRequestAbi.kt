@@ -1,9 +1,6 @@
 package io.golos.cyber4j.model
 
-import com.memtrip.eos.abi.writer.Abi
-import com.memtrip.eos.abi.writer.ChildCompress
-import com.memtrip.eos.abi.writer.IntCompress
-import com.memtrip.eos.abi.writer.NameCompress
+import com.memtrip.eos.abi.writer.*
 
 @Abi
 internal class VoteRequestAbi(private val voter: CyberName,
@@ -17,8 +14,8 @@ internal class VoteRequestAbi(private val voter: CyberName,
         @ChildCompress get() = discussionIdAbi
 
 
-    val getWeight: Int
-        @IntCompress get() = weight.toInt()
+    val getWeight: Short
+        @ShortCompress get() = weight
 
     override fun toString(): String {
         return "VoteRequestAbi(voter=$voter, discussionIdAbi=$discussionIdAbi, weight=$weight)"
