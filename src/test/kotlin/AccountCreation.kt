@@ -14,8 +14,8 @@ class AccountCreationTest {
 
 
     @Test
-    fun testAccountCreationOnMainnet() {
-        val client = io.golos.cyber4j.Cyber4J(mainTestNetConfig)
+    fun testAccountCreation() {
+        val client = getClient()
         val pass = UUID.randomUUID().toString()
         val newUser = generateRandomCommunName()
         val accCreationResult = client.createAccount(newUser, pass, eosCreateKey)
@@ -25,8 +25,8 @@ class AccountCreationTest {
     }
 
     @Test
-    fun testAccreation() {
-        val client = io.golos.cyber4j.Cyber4J(Cyber4JConfig(blockChainHttpApiUrl = "http://46.4.96.246:8888/"))
+    fun createAccountAndPrintIt() {
+        val client = getClient()
         val pass = UUID.randomUUID().toString()
         val newUser = generateRandomCommunName()
         val activeKey = AuthUtils.generatePrivateWiFs(newUser, pass, arrayOf(AuthType.ACTIVE))[AuthType.ACTIVE]!!
@@ -44,12 +44,12 @@ class AccountCreationTest {
         private val eosCreateKey = (Cyber4J::class.java).getResource("/eoscreateacckey.txt").readText(Charset.defaultCharset())
 
 
-        fun createNewAccount(forConfig: Cyber4JConfig = mainTestNetConfig): Pair<CyberName, String> {
-            val commun = io.golos.cyber4j.Cyber4J(forConfig)
+        fun createNewAccount(forConfig: Cyber4JConfig): Pair<CyberName, String> {
+            val client = io.golos.cyber4j.Cyber4J(forConfig)
             val pass = UUID.randomUUID().toString()
             val newUser = generateRandomCommunName()
 
-            commun.createAccount(newUser, pass, eosCreateKey) as Either.Success
+            client.createAccount(newUser, pass, eosCreateKey) as Either.Success
 
             return Pair(CyberName(newUser), AuthUtils.generatePrivateWiFs(newUser, pass, arrayOf(AuthType.ACTIVE))[AuthType.ACTIVE]!!)
         }

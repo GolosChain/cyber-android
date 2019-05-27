@@ -1,3 +1,6 @@
+import io.golos.cyber4j.Cyber4J
+import io.golos.cyber4j.KeyStorage
+import io.golos.cyber4j.model.AuthType
 import io.golos.cyber4j.model.CyberName
 import io.golos.cyber4j.model.TransactionSuccessful
 
@@ -12,3 +15,9 @@ fun generateRandomCommunName(): String {
     }
     return builder.toString()
 }
+
+val KeyStorage.activeAccountPair: Pair<CyberName, String>
+    get() = Pair(getActiveAccount(), this.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }!!.second)
+
+val Cyber4J.activeAccountPair
+    get() = keyStorage.activeAccountPair

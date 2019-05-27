@@ -7,13 +7,13 @@ import org.junit.Test
 import java.util.*
 
 class RegistrationTest {
-    private val cyber4J = Cyber4J()
+    private val client = getClient()
     val unExistingPhone = generatePhone()
     val pass = (Cyber4J::class.java).getResource("/phonekey.txt").readText()
 
     @Test
     fun testGetState() {
-        val state = cyber4J.getRegistrationState(null, "+773217337584")
+        val state = client.getRegistrationState(null, "+773217337584")
 
         assertTrue(state is Either.Success)
     }
@@ -22,20 +22,20 @@ class RegistrationTest {
     fun testAccCreationThroughGate() {
         val accName = generateRandomCommunName()
 
-        val firstStepSuccess = cyber4J.firstUserRegistrationStep("any12", unExistingPhone, pass)
+        val firstStepSuccess = client.firstUserRegistrationStep("any12", unExistingPhone, pass)
 
         assertTrue(firstStepSuccess is Either.Success)
 
         println(firstStepSuccess)
 
 
-        val secondStep = cyber4J.verifyPhoneForUserRegistration(unExistingPhone, (firstStepSuccess as Either.Success).value.code)
+        val secondStep = client.verifyPhoneForUserRegistration(unExistingPhone, (firstStepSuccess as Either.Success).value.code)
 
         assertTrue(secondStep is Either.Success)
 
         println(secondStep)
 
-        val thirdStep = cyber4J.setVerifiedUserName(accName.toCyberName(), unExistingPhone)
+        val thirdStep = client.setVerifiedUserName(accName.toCyberName(), unExistingPhone)
 
         assertTrue(thirdStep is Either.Success)
 
@@ -43,7 +43,7 @@ class RegistrationTest {
 
         val keys = AuthUtils.generatePublicWiFs(accName, generatePass(), AuthType.values())
 
-        val lastStep = cyber4J.writeUserToBlockChain(accName.toCyberName(), keys[AuthType.OWNER]!!,
+        val lastStep = client.writeUserToBlockChain(accName.toCyberName(), keys[AuthType.OWNER]!!,
                 keys[AuthType.ACTIVE]!!,
                 keys[AuthType.POSTING]!!,
                 keys[AuthType.MEMO]!!)

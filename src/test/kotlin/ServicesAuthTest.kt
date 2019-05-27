@@ -10,6 +10,7 @@ import org.junit.Before
 import org.junit.Test
 
 class ServicesAuthTest {
+    private lateinit var client:Cyber4J
 
     @Before
     fun before() {

@@ -1,11 +1,8 @@
-import io.golos.cyber4j.Cyber4J
-import io.golos.cyber4j.model.*
 import io.golos.cyber4j.services.model.EventType
 import io.golos.cyber4j.services.model.MobileShowSettings
 import io.golos.cyber4j.services.model.NotificationSettings
 import io.golos.cyber4j.services.model.ServiceSettingsLanguage
 import io.golos.cyber4j.utils.Either
-import io.golos.cyber4j.utils.Pair
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import org.junit.Before
@@ -13,11 +10,10 @@ import org.junit.Test
 import java.util.*
 
 class NotifsTest {
-    val cyber4j = Cyber4J(mainTestNetConfig)
+    val cyber4j = getClient()
     @Before
     fun before() {
-        cyber4j.keyStorage.addAccountKeys(CyberName("destroyer2k@golos"),
-                setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
+
     }
 
     @Test
@@ -57,7 +53,7 @@ class NotifsTest {
 
         assertEquals(mobileSettings, (getSettingsResult as Either.Success).value.push)
 
-        println( "unread = ${(cyber4j.getFreshNotificationCount("destroyer2k@golos") as Either.Success).value.fresh }")
+        println("unread = ${(cyber4j.getFreshNotificationCount("destroyer2k@golos") as Either.Success).value.fresh}")
 
     }
 }

@@ -1,26 +1,27 @@
 import io.golos.cyber4j.Cyber4J
-import io.golos.cyber4j.model.*
+import io.golos.cyber4j.model.CreateDiscussionResult
+import io.golos.cyber4j.model.CyberName
+import io.golos.cyber4j.model.DiscussionCreateMetadata
+import io.golos.cyber4j.model.Tag
 import io.golos.cyber4j.utils.Either
-import io.golos.cyber4j.utils.Pair
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 class VotingTest {
 
-    private val client = Cyber4J(mainTestNetConfig)
+    private lateinit var client: Cyber4J
     private lateinit var postCreateResult: CreateDiscussionResult
     private lateinit var secndTestAccount: kotlin.Pair<CyberName, String>
 
     @Before
     fun before() {
-        client.keyStorage.addAccountKeys(testInMainTestNetAccount.first,
-                setOf(Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)))
+        client = getClient()
         postCreateResult = (client.createPost("sdgsdg", "gdssdg",
                 listOf(Tag("test")), DiscussionCreateMetadata(emptyList(), listOf()), 0)
                 as Either.Success).value.processed.action_traces.first().act.data
 
-        secndTestAccount = testInMainTestNetAccountSecond
+        secndTestAccount = account()
     }
 
     @Test

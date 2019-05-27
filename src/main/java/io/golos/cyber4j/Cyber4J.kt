@@ -125,7 +125,7 @@ private enum class CyberContracts : CyberContract {
 }
 
 class Cyber4J @JvmOverloads constructor(
-        private val config: io.golos.cyber4j.Cyber4JConfig = io.golos.cyber4j.Cyber4JConfig(),
+        val config: io.golos.cyber4j.Cyber4JConfig = io.golos.cyber4j.Cyber4JConfig(),
         chainApiProvider: io.golos.cyber4j.ChainApiProvider? = null,
         val keyStorage: KeyStorage = KeyStorage(),
         private val apiService: ApiService = CyberServicesApiService(config, keyStorage)

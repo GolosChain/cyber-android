@@ -1,54 +1,80 @@
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.Cyber4JConfig
+import io.golos.cyber4j.model.AuthType
 import io.golos.cyber4j.model.CyberName
 import io.golos.cyber4j.utils.Either
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 
-val mainTestNetConfig = Cyber4JConfig(blockChainHttpApiUrl = "http://46.4.96.246:8888/")
+enum class CONFIG_TYPE {
+    STABLE, DEV, UNSTABLE
+}
 
-//val privateTestNetConfig = Cyber4JConfig(blockChainHttpApiUrl = "http://159.69.85.233:8888/")
+private val unstableConfig = Cyber4JConfig(blockChainHttpApiUrl = "http://116.202.4.46:8888/",
+        servicesUrl = "wss://159.69.33.136:8080")
 
-private val cyber4J: Cyber4J = Cyber4J()
+private val devConfig = Cyber4JConfig(blockChainHttpApiUrl = "http://46.4.96.246:8888/",
+        servicesUrl = "ws://159.69.33.136:8080")
 
-private fun CyberName.checkAccount(): Boolean {
-    val acc = cyber4J.getUserAccount(this)
+private val stableConfig = Cyber4JConfig(blockChainHttpApiUrl = "http://116.202.4.39:8888//",
+        servicesUrl = "wss://116.203.98.241:8080")
+
+private fun CONFIG_TYPE.toConfig() = when (this) {
+    CONFIG_TYPE.STABLE -> stableConfig
+    CONFIG_TYPE.DEV -> devConfig
+    CONFIG_TYPE.UNSTABLE -> unstableConfig
+}
+
+private fun CyberName.checkAccount(forConfig: CONFIG_TYPE): Boolean {
+    val acc = Cyber4J(forConfig.toConfig()).getUserAccount(this)
     return acc is Either.Success
 }
 
 private val delimeter = "###"
 
-private fun accountForFile(file: File): Pair<CyberName, String> {
+private fun getAccount(sourceFile: File,
+                       configType: CONFIG_TYPE): Pair<CyberName, String> {
     val out: Pair<CyberName, String>
 
-    out = if (!file.exists()) {
-        AccountCreationTest.createNewAccount(mainTestNetConfig)
+    out = if (!sourceFile.exists()) {
+        AccountCreationTest.createNewAccount(devConfig)
     } else {
-        val contents = file.readText().split(delimeter)
+        val contents = sourceFile.readText().split(delimeter)
 
-        if (contents.isEmpty() || contents.size != 2) AccountCreationTest.createNewAccount(mainTestNetConfig)
+        if (contents.isEmpty() || contents.size != 2) AccountCreationTest.createNewAccount(devConfig)
 
         val cyberName = CyberName(contents[0])
         val key = contents[1]
-        if (!cyberName.checkAccount()) {
-            AccountCreationTest.createNewAccount(mainTestNetConfig)
+        if (!cyberName.checkAccount(configType)) {
+            AccountCreationTest.createNewAccount(devConfig)
         } else cyberName to key
     }
-    file.writeText("${out.first.name}$delimeter${out.second}")
+    sourceFile.writeText("${out.first.name}$delimeter${out.second}")
     return out
 }
 
-val testInMainTestNetAccount: Pair<CyberName, String> by lazy {
-    accountForFile(File(File(".").canonicalPath, "/first_acc.txt"))
+private fun firstAccount(forConfig: CONFIG_TYPE = CONFIG_TYPE.DEV): Pair<CyberName, String> {
+    return getAccount(File(File(".").canonicalPath, "/first_acc_$forConfig.txt"), forConfig)
     //  Pair(CyberName("destroyer2k@golos"), "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")
-
 }
 
+private val savedAccs = ConcurrentHashMap<CONFIG_TYPE, Pair<CyberName, String>>()
 
-val testInMainTestNetAccountSecond: Pair<CyberName, String> by lazy {
-    accountForFile(File(File(".").canonicalPath, "/second_acc.txt"))
+fun account(forConfig: CONFIG_TYPE = CONFIG_TYPE.DEV): Pair<CyberName, String> {
+    return savedAccs.getOrPut(forConfig) {
+        getAccount(File(File(".").canonicalPath,
+                "/second_acc_$forConfig.txt"), forConfig)
+    }
 }
 
-//val testingAccountInPrivateTestNet by lazy { AccountCreationTest.createNewAccount(privateTestNetConfig) }
+@Synchronized
+fun getClient(ofType: CONFIG_TYPE = CONFIG_TYPE.DEV): Cyber4J {
+    return Cyber4J(config = ofType.toConfig())
+            .apply {
+                val account = firstAccount(ofType)
+                keyStorage.addAccountKeys(account.first,
+                        setOf(io.golos.cyber4j.utils.Pair(AuthType.ACTIVE, account.second)))
+            }
+}
 
-//val testingAccountInPrivateTestNetSecond by lazy { AccountCreationTest.createNewAccount(privateTestNetConfig) }
 

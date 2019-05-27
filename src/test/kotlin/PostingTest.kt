@@ -1,10 +1,8 @@
-import io.golos.cyber4j.Cyber4J
-import io.golos.cyber4j.model.AuthType
+import io.golos.cyber4j.model.Beneficiary
 import io.golos.cyber4j.model.CyberName
 import io.golos.cyber4j.model.DiscussionCreateMetadata
 import io.golos.cyber4j.model.Tag
 import io.golos.cyber4j.utils.Either
-import io.golos.cyber4j.utils.Pair
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -12,24 +10,23 @@ import org.junit.Test
 import java.util.*
 
 class PostingTest {
-    private val client = Cyber4J(mainTestNetConfig.copy(performAutoAuthOnActiveUserSet = false)
-    )
+    private val client = getClient()
+
     private lateinit var secondAccount: kotlin.Pair<CyberName, String>
 
     @Before
     fun before() {
-        client.keyStorage.addAccountKeys(testInMainTestNetAccount.first,
-                setOf(Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)))
-        secondAccount = testInMainTestNetAccountSecond
+        secondAccount = account()
     }
 
     val testMetadata = DiscussionCreateMetadata(listOf(DiscussionCreateMetadata.EmbedmentsUrl("test_url")), listOf("тээст"))
 
     @Test
-    fun testPostOnPrivateTestNet() {
+    fun postingTest() {
 
         val postResponse = client.createPost("тестовый заголовок-${UUID.randomUUID()}",
-                "тестовое тело поста", listOf(Tag("test")), testMetadata, createRandomCurationReward())
+                "тестовое тело поста", listOf(Tag("test")), testMetadata, createRandomCurationReward(),
+                listOf(Beneficiary(secondAccount.first, 2_500)))
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
@@ -37,7 +34,7 @@ class PostingTest {
 
         val commentCreationResult = client.createComment("тестовый коммент",
                 postResult.message_id.author, postResult.message_id.permlink,
-                listOf(), testMetadata, createRandomCurationReward())
+                listOf(), testMetadata, createRandomCurationReward(), listOf(Beneficiary(secondAccount.first, 2_500)))
 
         assertTrue("comment creation fail on test net", commentCreationResult is Either.Success)
 
@@ -77,8 +74,9 @@ class PostingTest {
 
         Thread.sleep(1_000)
 
-        val updateResponseSecond = client.updatePost(testInMainTestNetAccount.second,
-                testInMainTestNetAccount.first, postResult.message_id.permlink,
+
+        val updateResponseSecond = client.updatePost(client.activeAccountPair.second,
+                client.activeAccountPair.first, postResult.message_id.permlink,
                 "new title1", "new body1", listOf(Tag("test")), testMetadata)
 
         assertTrue("post update fail on test net", updateResponseSecond is Either.Success)
@@ -119,14 +117,15 @@ class PostingTest {
 
         Thread.sleep(1_000)
 
-        val updateResponseSecond = client.updateComment(testInMainTestNetAccount.second,
-                testInMainTestNetAccount.first, commentCreationResult.message_id.permlink,
-                "new body1", listOf(Tag("test")), testMetadata)
+        val updateResponseSecond = client.updateComment(client.activeAccountPair.second,
+                client.activeAccountPair.first,
+                commentCreationResult.message_id.permlink,
+                "new body1", listOf(Tag("test")),
+                testMetadata)
 
         assertTrue("comment update fail on test net", updateResponseSecond is Either.Success)
         val updateResultSecond = (updateResponseSecond as Either.Success).value.extractResult()
         assertEquals("body was not updated", "new body1", updateResultSecond.bodymssg)
-
 
     }
 

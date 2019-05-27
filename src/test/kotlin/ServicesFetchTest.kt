@@ -1,25 +1,19 @@
-import io.golos.cyber4j.Cyber4J
-import io.golos.cyber4j.Cyber4JConfig
-import io.golos.cyber4j.model.AuthType
 import io.golos.cyber4j.model.CyberName
 import io.golos.cyber4j.model.DiscussionCreateMetadata
 import io.golos.cyber4j.model.Tag
 import io.golos.cyber4j.services.model.ContentParsingType
 import io.golos.cyber4j.services.model.DiscussionTimeSort
 import io.golos.cyber4j.utils.Either
-import io.golos.cyber4j.utils.Pair
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 class ServicesFetchTest {
-    private val client = Cyber4J(Cyber4JConfig())
+    private val client = getClient()
 
     @Before
     fun before() {
-        client.keyStorage.addAccountKeys(testInMainTestNetAccount.first, setOf(
-                Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)
-        ))
+
     }
 
     @Test
@@ -167,9 +161,6 @@ class ServicesFetchTest {
 
     @Test
     fun waitForABlockTest() {
-        client.keyStorage.addAccountKeys(testInMainTestNetAccount.first, setOf(
-                Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)
-        ))
         val result = client.createPost("",
                 "post",
                 emptyList<Tag>(),
@@ -182,9 +173,7 @@ class ServicesFetchTest {
 
     @Test
     fun waitForTransactionTest() {
-        client.keyStorage.addAccountKeys(testInMainTestNetAccount.first, setOf(
-                Pair(AuthType.ACTIVE, testInMainTestNetAccount.second)
-        ))
+
         val result = client.createPost("",
                 "post",
                 emptyList<Tag>(),

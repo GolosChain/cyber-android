@@ -1,18 +1,16 @@
 package io.golos.cyber4j.model
 
-import com.memtrip.eos.abi.writer.Abi
-import com.memtrip.eos.abi.writer.IntCompress
-import com.memtrip.eos.abi.writer.NameCompress
+import com.memtrip.eos.abi.writer.*
 
 @Abi
 class Beneficiary(private val account: CyberName,
-                  private val deductprcnt: Int) {
+                  private val deductprcnt: Short) {
 
 
     val getAccount: String
         @NameCompress get() = account.name
 
-    val getDeduct: Int
-        @IntCompress get() = deductprcnt
+    val getDeduct: Short
+        @ShortCompress get() = deductprcnt
 
 }
