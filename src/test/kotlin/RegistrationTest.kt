@@ -27,7 +27,7 @@ class RegistrationTest {
 
     @Test
     fun testAccCreationThroughGate() {
-        val accName = "az-aza-az-99"
+        val accName = "vasyan_rulez-az99"
 
         val firstStepSuccess = client.firstUserRegistrationStep("any12", unExistingPhone, pass)
 
