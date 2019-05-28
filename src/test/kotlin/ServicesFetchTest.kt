@@ -148,7 +148,7 @@ class ServicesFetchTest {
 
     @Test
     fun testSubscriptionsAndSubscribers() {
-        val subscriptionsToUsers = client.getSubscriptionsToUsers(CyberName("destroyer2k@golos"), 10, null)
+        val subscriptionsToUsers = client.getSubscriptionsToUsers(CyberName("destroyer2k"), 10, null)
         assertTrue((subscriptionsToUsers as Either.Success).value.items.isNotEmpty())
         val subscriptionsToCommunitites = client.getSubscriptionsToCommunities(CyberName("destroyer2k@golos"), 10, null)
         assertTrue((subscriptionsToCommunitites as Either.Success).value.items.isNotEmpty())

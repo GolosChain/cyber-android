@@ -2,7 +2,9 @@ import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.model.AuthType
 import io.golos.cyber4j.utils.AuthUtils
 import io.golos.cyber4j.utils.Either
+import junit.framework.Assert.assertNotNull
 import junit.framework.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import java.util.*
 
@@ -10,6 +12,11 @@ class RegistrationTest {
     private val client = getClient()
     val unExistingPhone = generatePhone()
     val pass = (Cyber4J::class.java).getResource("/phonekey.txt").readText()
+
+    @Before
+    fun before(){
+        client.unAuth()
+    }
 
     @Test
     fun testGetState() {
@@ -20,7 +27,7 @@ class RegistrationTest {
 
     @Test
     fun testAccCreationThroughGate() {
-        val accName = generateRandomCommunName()
+        val accName = "az-aza-az-99"
 
         val firstStepSuccess = client.firstUserRegistrationStep("any12", unExistingPhone, pass)
 
@@ -35,7 +42,7 @@ class RegistrationTest {
 
         println(secondStep)
 
-        val thirdStep = client.setVerifiedUserName(accName.toCyberName(), unExistingPhone)
+        val thirdStep = client.setVerifiedUserName(accName, unExistingPhone)
 
         assertTrue(thirdStep is Either.Success)
 
@@ -43,12 +50,15 @@ class RegistrationTest {
 
         val keys = AuthUtils.generatePublicWiFs(accName, generatePass(), AuthType.values())
 
-        val lastStep = client.writeUserToBlockChain(accName.toCyberName(), keys[AuthType.OWNER]!!,
+        val lastStep = client.writeUserToBlockChain(accName, keys[AuthType.OWNER]!!,
                 keys[AuthType.ACTIVE]!!,
                 keys[AuthType.POSTING]!!,
                 keys[AuthType.MEMO]!!)
 
         assertTrue(lastStep is Either.Success)
+
+        assertNotNull(lastStep.getOrThrow().userId)
+        assertNotNull(lastStep.getOrThrow().username)
 
         println(lastStep)
 

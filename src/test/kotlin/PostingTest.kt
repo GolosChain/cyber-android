@@ -51,7 +51,6 @@ class PostingTest {
                 listOf(), testMetadata, createRandomCurationReward())
 
         assertTrue("comment creation fail on test net", secondCommentCreationResult is Either.Success)
-
     }
 
     @Test

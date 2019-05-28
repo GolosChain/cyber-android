@@ -14,5 +14,4 @@ data class Cyber4JConfig @JvmOverloads constructor(val blockChainHttpApiUrl: Str
                                                                                                 //date time.  Unlikely to be changed;
                                                    val logLevel: LogLevel = LogLevel.BODY,// amount of logs. set LogLevel.NONE to disable
                                                    val httpLogger: HttpLoggingInterceptor.Logger? = HttpLoggingInterceptor.Logger.DEFAULT,
-                                                   val socketLogger: HttpLoggingInterceptor.Logger? = null,
-                                                   val performAutoAuthOnActiveUserSet : Boolean = true)
+                                                   val socketLogger: HttpLoggingInterceptor.Logger? = null)

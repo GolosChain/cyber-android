@@ -3,7 +3,10 @@ package io.golos.cyber4j.services
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import io.golos.cyber4j.Cyber4JConfig
-import io.golos.cyber4j.services.model.*
+import io.golos.cyber4j.services.model.ApiResponseError
+import io.golos.cyber4j.services.model.Identifieble
+import io.golos.cyber4j.services.model.ServicesMessagesWrapper
+import io.golos.cyber4j.services.model.ServicesResponseWrapper
 import io.golos.cyber4j.utils.Either
 import io.golos.cyber4j.utils.LogLevel
 import okhttp3.*
@@ -23,14 +26,7 @@ interface ApiClient {
 
     fun unAuth()
 
-    fun setAuthRequestListener(listener: AuthRequestListener?)
 }
-
-interface AuthRequestListener {
-
-    fun onAuthRequest(secret: String)
-}
-
 
 internal class CyberServicesWebSocketClient(
         private val config: Cyber4JConfig,
@@ -39,9 +35,6 @@ internal class CyberServicesWebSocketClient(
     private lateinit var webSocket: WebSocket
     private val latches = Collections.synchronizedMap<Long, CountDownLatch>(hashMapOf())
     private val responseMap = Collections.synchronizedMap<Long, String?>(hashMapOf())
-
-    private var authListener: AuthRequestListener? = null
-
 
     private fun connect() {
 
@@ -133,13 +126,6 @@ internal class CyberServicesWebSocketClient(
             if (id != null) {
                 responseMap[id] = text
                 latches[id]?.countDown()
-            } else if (text.contains("\"method\":\"sign\"")) {
-                val type = Types.newParameterizedType(ServicesRequestWrapper::class.java, SecretRequest::class.java)
-                val secret = moshi.adapter<ServicesRequestWrapper<SecretRequest>>(type).fromJson(text)
-                        ?: return
-
-                authListener?.onAuthRequest(secret.params.secret)
-
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -150,9 +136,6 @@ internal class CyberServicesWebSocketClient(
         super.onClosed(webSocket, code, reason)
     }
 
-    override fun setAuthRequestListener(listener: AuthRequestListener?) {
-        this.authListener = listener
-    }
 
     override fun unAuth() {
         synchronized(this) {

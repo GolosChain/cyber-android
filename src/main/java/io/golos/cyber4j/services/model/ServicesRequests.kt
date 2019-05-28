@@ -18,7 +18,11 @@ internal class UserMetaDataRequest(val userId: String)
 
 internal class GetSecretRequest
 
+class AuthSecret(val secret: String)
+
 internal class ServicesAuthRequest(val user: String, val sign: String, val secret: String)
+
+internal class ResolveUserNameRequest(val username: String, val app: String)
 
 enum class PostsFeedType {
     COMMUNITY, SUBSCRIPTIONS, USER_POSTS;
