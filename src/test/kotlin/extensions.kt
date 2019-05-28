@@ -21,3 +21,8 @@ val KeyStorage.activeAccountPair: Pair<CyberName, String>
 
 val Cyber4J.activeAccountPair
     get() = keyStorage.activeAccountPair
+
+fun Cyber4J.setActiveAccount(pair: Pair<CyberName, String>) {
+    keyStorage.addAccountKeys(pair.first,
+            setOf(io.golos.cyber4j.utils.Pair(AuthType.ACTIVE, pair.second)))
+}

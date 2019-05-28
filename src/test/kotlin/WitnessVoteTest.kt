@@ -7,6 +7,8 @@ class WitnessVoteTest {
     fun testVoteAndUnvote() {
         val client = getClient()
 
+        val newAccount = AccountCreationTest.createNewAccount(client.config)
+        client.setActiveAccount(newAccount)
 
         val createWitnessResult = client.registerAWitness("url")
 
@@ -20,10 +22,11 @@ class WitnessVoteTest {
 
         assertTrue(unvoteResult is Either.Success)
 
+        Thread.sleep(1_000)
+
         val unregisterWitnessResult = client.unRegisterWitness()
 
         assertTrue(unregisterWitnessResult is Either.Success)
 
-        println(voteResult)
     }
 }

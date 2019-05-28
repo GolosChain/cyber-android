@@ -12,6 +12,8 @@ class MyTransactionAbi(
         val max_net_usage_words: Long,
         val max_cpu_usage_ms: Long,
         val delay_sec: Long,
+        val max_ram_kbytes: Long,
+        val max_storage_kbytes: Long,
         val context_free_actions: List<MyActionAbi>,
         val actions: List<MyActionAbi>,
         val transaction_extensions: List<String>,
@@ -33,6 +35,12 @@ class MyTransactionAbi(
 
     val getMaxCpuUsageMs: Long
         @VariableUIntCompress get() = max_cpu_usage_ms
+
+    val getMaxRamKbytes: Long
+        @VariableUIntCompress get() = max_ram_kbytes
+
+    val getMaxStorageKbytes: Long
+        @VariableUIntCompress get() = max_storage_kbytes
 
     val getDelaySec: Long
         @VariableUIntCompress get() = delay_sec

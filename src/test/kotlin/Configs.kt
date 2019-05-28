@@ -16,7 +16,7 @@ private val unstableConfig = Cyber4JConfig(blockChainHttpApiUrl = "http://116.20
 private val devConfig = Cyber4JConfig(blockChainHttpApiUrl = "http://46.4.96.246:8888/",
         servicesUrl = "ws://159.69.33.136:8080")
 
-private val stableConfig = Cyber4JConfig(blockChainHttpApiUrl = "http://116.202.4.39:8888//",
+private val stableConfig = Cyber4JConfig(blockChainHttpApiUrl = "http://116.202.4.39:8888/",
         servicesUrl = "wss://116.203.98.241:8080")
 
 private fun CONFIG_TYPE.toConfig() = when (this) {
@@ -37,23 +37,23 @@ private fun getAccount(sourceFile: File,
     val out: Pair<CyberName, String>
 
     out = if (!sourceFile.exists()) {
-        AccountCreationTest.createNewAccount(devConfig)
+        AccountCreationTest.createNewAccount(configType.toConfig())
     } else {
         val contents = sourceFile.readText().split(delimeter)
 
-        if (contents.isEmpty() || contents.size != 2) AccountCreationTest.createNewAccount(devConfig)
+        if (contents.isEmpty() || contents.size != 2) AccountCreationTest.createNewAccount(configType.toConfig())
 
         val cyberName = CyberName(contents[0])
         val key = contents[1]
         if (!cyberName.checkAccount(configType)) {
-            AccountCreationTest.createNewAccount(devConfig)
+            AccountCreationTest.createNewAccount(configType.toConfig())
         } else cyberName to key
     }
     sourceFile.writeText("${out.first.name}$delimeter${out.second}")
     return out
 }
 
-private fun firstAccount(forConfig: CONFIG_TYPE = CONFIG_TYPE.DEV): Pair<CyberName, String> {
+private fun firstAccount(forConfig: CONFIG_TYPE): Pair<CyberName, String> {
     return getAccount(File(File(".").canonicalPath, "/first_acc_$forConfig.txt"), forConfig)
     //  Pair(CyberName("destroyer2k@golos"), "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")
 }
