@@ -81,7 +81,7 @@ class ReplyEvent(val comment: Comment,
                  unread: Boolean,
                  timestamp: Date) : Event(EventType.REPLY, _id, fresh, unread, timestamp)
 
-class MentionEvent(val comment: Comment,
+class MentionEvent(val comment: Comment?,
                    val post: Post?,
                    val parentComment: Comment?,
                    val community: CyberCommunity,
@@ -137,9 +137,11 @@ class WitnessCancelVoteEvent(val actor: Actor,
 
 class Value(val amount: Double, val currency: String)
 
-class Actor(val id: CyberName, val avatarUrl: String?)
+class Actor(val id: CyberName,
+            val username: String?,
+            val avatarUrl: String?)
 
-class Post(val contentId: DiscussionId, val title: String)
+class Post(val contentId: DiscussionId, val title: String?)
 
 class Comment(val contentId: DiscussionId, val body: String)
 
