@@ -16,7 +16,7 @@ class PostingTest {
 
     @Before
     fun before() {
-        secondAccount = account()
+        secondAccount = account(client.config.toConfigType())
     }
 
     val testMetadata = DiscussionCreateMetadata(listOf(DiscussionCreateMetadata.EmbedmentsUrl("test_url")), listOf("тээст"))

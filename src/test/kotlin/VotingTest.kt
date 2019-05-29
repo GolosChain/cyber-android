@@ -21,7 +21,7 @@ class VotingTest {
                 listOf(Tag("test")), DiscussionCreateMetadata(emptyList(), listOf()), 0)
                 as Either.Success).value.processed.action_traces.first().act.data
 
-        secndTestAccount = account()
+        secndTestAccount = account(client.config.toConfigType())
     }
 
     @Test

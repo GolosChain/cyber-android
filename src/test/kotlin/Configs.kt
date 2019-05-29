@@ -19,10 +19,17 @@ private val devConfig = Cyber4JConfig(blockChainHttpApiUrl = "http://46.4.96.246
 private val stableConfig = Cyber4JConfig(blockChainHttpApiUrl = "http://116.202.4.39:8888/",
         servicesUrl = "wss://116.203.98.241:8080")
 
-private fun CONFIG_TYPE.toConfig() = when (this) {
+fun CONFIG_TYPE.toConfig() = when (this) {
     CONFIG_TYPE.STABLE -> stableConfig
     CONFIG_TYPE.DEV -> devConfig
     CONFIG_TYPE.UNSTABLE -> unstableConfig
+}
+
+fun Cyber4JConfig.toConfigType() = when (this) {
+    unstableConfig -> CONFIG_TYPE.UNSTABLE
+    devConfig -> CONFIG_TYPE.DEV
+    stableConfig -> CONFIG_TYPE.STABLE
+    else -> throw IllegalArgumentException("unknown config type")
 }
 
 private fun CyberName.checkAccount(forConfig: CONFIG_TYPE): Boolean {
@@ -60,7 +67,7 @@ private fun firstAccount(forConfig: CONFIG_TYPE): Pair<CyberName, String> {
 
 private val savedAccs = ConcurrentHashMap<CONFIG_TYPE, Pair<CyberName, String>>()
 
-fun account(forConfig: CONFIG_TYPE = CONFIG_TYPE.DEV): Pair<CyberName, String> {
+fun account(forConfig: CONFIG_TYPE): Pair<CyberName, String> {
     return savedAccs.getOrPut(forConfig) {
         getAccount(File(File(".").canonicalPath,
                 "/second_acc_$forConfig.txt"), forConfig)
@@ -68,7 +75,7 @@ fun account(forConfig: CONFIG_TYPE = CONFIG_TYPE.DEV): Pair<CyberName, String> {
 }
 
 @Synchronized
-fun getClient(ofType: CONFIG_TYPE = CONFIG_TYPE.DEV): Cyber4J {
+fun getClient(ofType: CONFIG_TYPE = CONFIG_TYPE.UNSTABLE): Cyber4J {
     return Cyber4J(config = ofType.toConfig())
             .apply {
                 val account = firstAccount(ofType)

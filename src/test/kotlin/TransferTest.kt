@@ -12,7 +12,7 @@ class TransferTest {
     @Before
     fun before() {
         client = getClient()
-        secondAccount = account()
+        secondAccount = account(client.config.toConfigType())
     }
 
     @Test

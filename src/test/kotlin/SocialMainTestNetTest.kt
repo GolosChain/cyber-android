@@ -15,7 +15,7 @@ class SocialMainTestNetTest {
     @Before
     fun before() {
         client = getClient()
-        secondAcc = account()
+        secondAcc = account(client.config.toConfigType())
     }
 
     @Test
@@ -33,7 +33,7 @@ class SocialMainTestNetTest {
         assertTrue("meta delete fail", deleteResult is Either.Success)
 
 
-        val newUser = account()
+        val newUser = account(client.config.toConfigType())
 
         val setMetaResultSecond = client.setUserMetadata(newUser.first,
                 newUser.second,
@@ -56,7 +56,7 @@ class SocialMainTestNetTest {
 
     @Test
     fun testPinUnpin() {
-        val acc = account()
+        val acc = account(client.config.toConfigType())
         val pinResult = client.pin(acc.first)
         assertTrue("pin fail", pinResult is Either.Success)
 
@@ -74,7 +74,7 @@ class SocialMainTestNetTest {
 
     @Test
     fun testBlocking() {
-        val acc = account()
+        val acc = account(client.config.toConfigType())
         val blockResult = client.block(acc.first)
 
         assertTrue("user $acc block fail", blockResult is Either.Success)
