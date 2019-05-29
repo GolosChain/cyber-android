@@ -3,6 +3,7 @@ import io.golos.cyber4j.KeyStorage
 import io.golos.cyber4j.model.AuthType
 import io.golos.cyber4j.model.CyberName
 import io.golos.cyber4j.model.TransactionSuccessful
+import io.golos.cyber4j.utils.Either
 
 internal fun String.toCyberName() = CyberName(this)
 
@@ -21,6 +22,8 @@ val KeyStorage.activeAccountPair: Pair<CyberName, String>
 
 val Cyber4J.activeAccountPair
     get() = keyStorage.activeAccountPair
+
+fun <S, F> Either<S, F>.getOrThrow(): S = (this as Either.Success).value
 
 fun Cyber4J.setActiveAccount(pair: Pair<CyberName, String>) {
     keyStorage.addAccountKeys(pair.first,

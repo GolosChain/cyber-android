@@ -2,30 +2,43 @@ package io.golos.cyber4j.services.model;
 
 import com.squareup.moshi.Json;
 
-import io.golos.cyber4j.model.CyberName;
-import io.golos.cyber4j.services.model.UserRegistrationState;
+import java.util.Objects;
 
 public class UserRegistrationStateResult {
     @Json(name = "currentState")
     private UserRegistrationState state;
-    private CyberName user;
+    private String user;
 
 
-    public UserRegistrationStateResult(UserRegistrationState state, CyberName user) {
+    public UserRegistrationStateResult(UserRegistrationState state, String user) {
         this.state = state;
         this.user = user;
     }
 
-    public CyberName getUser() {
+    public String getUser() {
         return user;
     }
 
-    public void setUser(CyberName user) {
+    public void setUser(String user) {
         this.user = user;
     }
 
     public UserRegistrationState getState() {
         return state;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserRegistrationStateResult that = (UserRegistrationStateResult) o;
+        return state == that.state &&
+                Objects.equals(user, that.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(state, user);
     }
 
     public void setState(UserRegistrationState state) {

@@ -5,7 +5,8 @@ import io.golos.cyber4j.model.ContentRow
 import io.golos.cyber4j.model.CyberName
 import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
-import junit.framework.Assert.*
+import junit.framework.Assert.assertNotNull
+import junit.framework.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.io.File
@@ -91,19 +92,11 @@ class Utils {
 
     @Test
     fun testResolveName() {
-        val usernameCanonical = "xlvgwhfbffoo"
-        val usernameDomain = "destroyer2k@golos".toCyberName()
-        val resolvedCanonicalName = client.resolveCanonicalCyberName(usernameCanonical.toCyberName())
-        assertEquals(usernameCanonical, resolvedCanonicalName.name)
-        assertTrue(resolvedCanonicalName.isCanonicalName)
-
-        assertTrue(!usernameDomain.isCanonicalName)
-        val resolvedDomainName = client.resolveCanonicalCyberName(usernameDomain)
-
-        assertTrue(resolvedDomainName.isCanonicalName)
-        assertNotSame(usernameDomain.name, resolvedDomainName.name)
-        assertEquals(usernameDomain.name, resolvedDomainName.domainName)
-        println("resolvedCanonicalName = $resolvedCanonicalName")
-        println("resolvedDomainName = $resolvedDomainName")
+        val usernameDomain = "lakin-ernesto-phd"
+        val resolvedCanonicalName = client.resolveCanonicalCyberName(usernameDomain,
+                "cyber").getOrThrow()
+        assertNotNull(resolvedCanonicalName.username)
+        assertNotNull(resolvedCanonicalName.userId)
+        assertTrue(resolvedCanonicalName.userId.name != usernameDomain)
     }
 }

@@ -3,6 +3,7 @@ import io.golos.cyber4j.Cyber4JConfig
 import io.golos.cyber4j.model.AuthType
 import io.golos.cyber4j.model.CyberName
 import io.golos.cyber4j.utils.Either
+import io.golos.cyber4j.utils.StringSigner
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
@@ -74,6 +75,7 @@ fun account(forConfig: CONFIG_TYPE): Pair<CyberName, String> {
     }
 }
 
+
 @Synchronized
 fun getClient(ofType: CONFIG_TYPE = CONFIG_TYPE.UNSTABLE): Cyber4J {
     return Cyber4J(config = ofType.toConfig())
@@ -81,6 +83,16 @@ fun getClient(ofType: CONFIG_TYPE = CONFIG_TYPE.UNSTABLE): Cyber4J {
                 val account = firstAccount(ofType)
                 keyStorage.addAccountKeys(account.first,
                         setOf(io.golos.cyber4j.utils.Pair(AuthType.ACTIVE, account.second)))
+
+                if (authInServices) {
+                    val secret = getAuthSecret().getOrThrow().secret
+
+                    val authResult = authWithSecret(activeAccountPair.first.name,
+                            secret,
+                            StringSigner.signString(secret,
+                                    activeAccountPair.second))
+                    org.junit.Assert.assertTrue(authResult is Either.Success)
+                }
             }
 }
 

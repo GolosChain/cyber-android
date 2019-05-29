@@ -1,70 +1,33 @@
 import io.golos.cyber4j.Cyber4J
-import io.golos.cyber4j.Cyber4JConfig
-import io.golos.cyber4j.model.*
-import io.golos.cyber4j.services.model.AuthListener
-import io.golos.cyber4j.services.model.ContentParsingType
-import io.golos.cyber4j.services.model.DiscussionTimeSort
-import io.golos.cyber4j.utils.Pair
-import junit.framework.Assert.fail
+import io.golos.cyber4j.utils.Either
+import io.golos.cyber4j.utils.StringSigner
+import junit.framework.Assert.assertFalse
+import junit.framework.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 class ServicesAuthTest {
-    private lateinit var client:Cyber4J
+    private lateinit var client: Cyber4J
 
     @Before
     fun before() {
-
+        client = getClient()
     }
 
     @Test
     fun testAuth() {
-        val activeUserName = CyberName("destroyer2k")
-        val storage = io.golos.cyber4j
-                .KeyStorage()
-                .apply { addAccountKeys(activeUserName, setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ"))) }
+        client.unAuth()
 
-        val commun4J = Cyber4J(Cyber4JConfig(servicesUrl = "ws://116.203.98.241:8080"), keyStorage = storage)
-        commun4J.addAuthListener(object : AuthListener {
-            override fun onAuthSuccess(forUser: CyberName) {
-            }
+        assertFalse(client.isUserAuthed().getOrThrow())
 
-            override fun onFail(e: Exception) {
-                fail("auth failed")
-            }
-        })
+        val secret = client.getAuthSecret().getOrThrow().secret
 
+        val authResult = client.authWithSecret(client.activeAccountPair.first.name,
+                secret,
+                StringSigner.signString(secret,
+                        client.activeAccountPair.second))
+        assertTrue(authResult is Either.Success)
 
-        commun4J.getUserPosts("destroyer2k".toCyberName(), ContentParsingType.WEB, 20, DiscussionTimeSort.INVERTED)
-
-
-        val commun4JWithoutKeys = Cyber4J(Cyber4JConfig(servicesUrl = "ws://116.203.98.241:8080"))
-
-        commun4JWithoutKeys.getUserPosts("qraf".toCyberName(), ContentParsingType.WEB, 20, DiscussionTimeSort.INVERTED)
-
-        commun4JWithoutKeys.keyStorage.addAccountKeys("destroyer2k".toCyberName(), setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
-
-        commun4JWithoutKeys.getUserPosts("asfasf".toCyberName(), ContentParsingType.WEB, 20, DiscussionTimeSort.INVERTED)
-
-        Thread.sleep(3000)
-
-    }
-
-    @Test
-    fun testAuth2() {
-        val commun4JWithoutKeys = Cyber4J(Cyber4JConfig(servicesUrl = "ws://116.203.98.241:8080"))
-        commun4JWithoutKeys.addAuthListener(object : AuthListener {
-            override fun onAuthSuccess(forUser: CyberName) {
-            }
-
-            override fun onFail(e: Exception) {
-                println("onFail $e")
-                fail("auth failed")
-            }
-        })
-        commun4JWithoutKeys.keyStorage.addAccountKeys("destroyer2k".toCyberName(), setOf(Pair(AuthType.ACTIVE, "5JagnCwCrB2sWZw6zCvaBw51ifoQuNaKNsDovuGz96wU3tUw7hJ")))
-        commun4JWithoutKeys.getUserPosts("asfasf".toCyberName(), ContentParsingType.WEB, 20, DiscussionTimeSort.INVERTED)
-
-        Thread.sleep(3000)
+        assertTrue(client.isUserAuthed().getOrThrow())
     }
 }

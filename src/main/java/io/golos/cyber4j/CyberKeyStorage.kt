@@ -5,42 +5,18 @@ import io.golos.cyber4j.model.AuthType
 import io.golos.cyber4j.model.CyberName
 import io.golos.cyber4j.utils.Pair
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-
-interface OnKeysAddedListener {
-    fun onActiveKeysAdded(newUser: CyberName, activeKey: String, oldUser: CyberName?)
-}
-
-interface ResolvedUserNamesProvider {
-    fun resolveCanonicalCyberName(cyberName: CyberName): CyberName
-}
 
 class KeyStorage {
 
     private var activeAccount: CyberName? = null
-
-    var resolvedUserNamesProvider: ResolvedUserNamesProvider? = null
-
     private val accounts = Collections.synchronizedMap(HashMap<CyberName, Set<Pair<AuthType, String>>>())
-
-    private val keyListeners = ArrayList<OnKeysAddedListener>()
-
-    private fun CyberName.resolveAccountName() = resolvedUserNamesProvider?.resolveCanonicalCyberName(this)
-            ?: this
 
     @Synchronized
     fun getActiveAccountKeys(): Set<Pair<AuthType, String>> {
         val activeAcc = activeAccount
                 ?: throw java.lang.IllegalStateException("active account not set")
         return accounts[activeAcc]!!
-    }
-
-
-    fun addOnKeyChangedListener(listener: OnKeysAddedListener) {
-        synchronized(keyListeners) {
-            keyListeners.add(listener)
-        }
     }
 
     @Synchronized
@@ -59,23 +35,16 @@ class KeyStorage {
             EosPrivateKey(it.second)
         }
         synchronized(this) {
-            val oldKeys = accounts[accName.resolveAccountName()]
+            val oldKeys = accounts[accName]
             val resultingKeys = keys + oldKeys.orEmpty()
-            accounts[accName.resolveAccountName()] = resultingKeys
+            accounts[accName] = resultingKeys
             setAccountActive(accName)
         }
     }
 
     @Synchronized
     fun setAccountActive(name: CyberName) {
-        accounts[name.resolveAccountName()].takeIf { it == null }?.let { throw IllegalStateException("no keys for $name account name") }
-        val oldUser = activeAccount
-        activeAccount = name.resolveAccountName()
-
-        val activeKey = getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second
-                ?: return
-        keyListeners.forEach {
-            it.onActiveKeysAdded(name.resolveAccountName(), activeKey, oldUser)
-        }
+        accounts[name].takeIf { it == null }?.let { throw IllegalStateException("no keys for $name account name") }
+        activeAccount = name
     }
 }

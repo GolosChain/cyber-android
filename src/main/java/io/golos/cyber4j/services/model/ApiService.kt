@@ -9,10 +9,6 @@ import io.golos.cyber4j.utils.Either
 /** listener interface for auth state in cyber microservices.
  *
  * */
-interface AuthListener {
-    fun onAuthSuccess(forUser: CyberName)
-    fun onFail(e: Exception)
-}
 
 interface ApiService {
 
@@ -43,8 +39,6 @@ interface ApiService {
 
     fun getUserMetadata(userId: String): Either<UserMetadataResult, ApiResponseError>
 
-    fun addOnAuthListener(listener: AuthListener)
-
     fun getIframelyEmbed(forLink: String): Either<IFramelyEmbedResult, ApiResponseError>
 
     fun getOEmdedEmbed(forLink: String): Either<OEmbedResult, ApiResponseError>
@@ -57,7 +51,7 @@ interface ApiService {
 
     fun setVerifiedUserName(user: String, phone: String): Either<ResultOk, ApiResponseError>
 
-    fun writeUserToBlockchain(userName: String, owner: String, active: String, posting: String, memo: String): Either<ResultOk, ApiResponseError>
+    fun writeUserToBlockchain(userName: String, owner: String, active: String, posting: String, memo: String): Either<RegisterResult, ApiResponseError>
 
     fun resendSmsCode(name: String?, phone: String?): Either<ResultOk, ApiResponseError>
 
@@ -85,6 +79,17 @@ interface ApiService {
     fun getSubscriptions(ofUser: CyberName, limit: Int, type: SubscriptionType, sequenceKey: String?): Either<SubscriptionsResponse, ApiResponseError>
 
     fun getSubscribers(ofUser: CyberName, limit: Int, type: SubscriptionType, sequenceKey: String?): Either<SubscribersResponse, ApiResponseError>
+
+    fun getAuthSecret(): Either<AuthSecret, ApiResponseError>
+
+    fun authWithSecret(user: String,
+                       secret: String,
+                       signedSecret: String): Either<AuthResult, ApiResponseError>
+
+    fun unAuth()
+
+    fun resolveProfile(username: String,
+                       appName: String): Either<ResolvedProfile, ApiResponseError>
 
 }
 

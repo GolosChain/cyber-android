@@ -218,7 +218,7 @@ class EventsAdapter {
         )
 
         EventType.MENTION -> MentionEvent(
-                eventsJson.comment!!,
+                eventsJson.comment,
                 eventsJson.post,
                 eventsJson.parentComment,
                 eventsJson.community!!,
