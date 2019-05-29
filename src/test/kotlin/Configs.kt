@@ -68,8 +68,11 @@ private fun firstAccount(forConfig: CONFIG_TYPE): Pair<CyberName, String> {
 
 private val savedAccs = ConcurrentHashMap<CONFIG_TYPE, Pair<CyberName, String>>()
 
-fun account(forConfig: CONFIG_TYPE): Pair<CyberName, String> {
-    return savedAccs.getOrPut(forConfig) {
+@Synchronized
+fun account(forConfig: CONFIG_TYPE,
+            createNew: Boolean = false): Pair<CyberName, String> {
+    return if (createNew) AccountCreationTest.createNewAccount(forConfig.toConfig())
+    else savedAccs.getOrPut(forConfig) {
         getAccount(File(File(".").canonicalPath,
                 "/second_acc_$forConfig.txt"), forConfig)
     }
@@ -77,12 +80,16 @@ fun account(forConfig: CONFIG_TYPE): Pair<CyberName, String> {
 
 
 @Synchronized
-fun getClient(ofType: CONFIG_TYPE = CONFIG_TYPE.UNSTABLE): Cyber4J {
+fun getClient(ofType: CONFIG_TYPE = CONFIG_TYPE.UNSTABLE,
+              setActiveUser: Boolean = true,
+              authInServices: Boolean = false): Cyber4J {
     return Cyber4J(config = ofType.toConfig())
             .apply {
-                val account = firstAccount(ofType)
-                keyStorage.addAccountKeys(account.first,
-                        setOf(io.golos.cyber4j.utils.Pair(AuthType.ACTIVE, account.second)))
+                if (setActiveUser) {
+                    val account = firstAccount(ofType)
+                    keyStorage.addAccountKeys(account.first,
+                            setOf(io.golos.cyber4j.utils.Pair(AuthType.ACTIVE, account.second)))
+                }
 
                 if (authInServices) {
                     val secret = getAuthSecret().getOrThrow().secret

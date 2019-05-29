@@ -1306,7 +1306,7 @@ class Cyber4J @JvmOverloads constructor(
                 activeKey,
                 newAccountName.toCyberName(),
                 CyberContracts.VESTING.toString().toCyberName(),
-                "0.100", "GOLOS"
+                "1.000", "GOLOS"
         )
 
         if (transferResult is Either.Failure) throw IllegalStateException(
