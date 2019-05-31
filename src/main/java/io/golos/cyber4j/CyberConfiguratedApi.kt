@@ -17,8 +17,8 @@ import com.memtrip.eos.http.rpc.model.signing.RequiredKeys
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import io.golos.cyber4j.model.CyberWayChainApi
-import io.golos.cyber4j.services.model.ImageUploadResponse
 import io.golos.cyber4j.model.ResolvedName
+import io.golos.cyber4j.services.model.ImageUploadResponse
 import io.golos.cyber4j.utils.LogLevel
 import io.reactivex.Single
 import okhttp3.*
@@ -27,7 +27,6 @@ import retrofit2.Response
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.Executors
-import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
 
 interface ChainApiProvider {
@@ -39,6 +38,7 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
 
     private val api: CyberWayChainApi
     private val okHttpClient: OkHttpClient
+
 
     init {
         val interceptor = if (config.httpLogger != null) HttpLoggingInterceptor(config.httpLogger)
@@ -55,7 +55,8 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
                 .connectTimeout(config.connectionTimeOutInSeconds.toLong(), TimeUnit.SECONDS)
                 .readTimeout(config.readTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
                 .writeTimeout(config.writeTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
-                .dispatcher(Dispatcher(Executors.newSingleThreadExecutor(ThreadFactory { Thread.currentThread() })))
+                .dispatcher(Dispatcher(Executors.newSingleThreadExecutor { Thread.currentThread() }))
+                .connectionPool(connectionPool)
                 .build()
 
         api = object : CyberWayChainApi {
@@ -142,6 +143,11 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
                 }
             }
 
+            override fun shutDown() {
+                okHttpClient.connectionPool().evictAll()
+                okHttpClient.dispatcher().executorService().shutdown()
+            }
+
             override fun resolveNames(body: List<String>): Single<List<ResolvedName>> {
 
                 return Single.create<List<ResolvedName>> { emitter ->
@@ -205,7 +211,13 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
         }
     }
 
+
     override fun provide(): CyberWayChainApi {
         return api
+    }
+
+    companion object {
+        @JvmStatic
+        val connectionPool = ConnectionPool()
     }
 }

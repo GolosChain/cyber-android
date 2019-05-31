@@ -54,4 +54,6 @@ interface CyberWayChainApi {
     fun resolveNames(body: List<String>): Single<List<ResolvedName>>
 
     fun uploadImage(file: File): Single<String>
+
+    fun shutDown(): Any
 }

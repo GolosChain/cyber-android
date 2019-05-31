@@ -2219,6 +2219,15 @@ class Cyber4J @JvmOverloads constructor(
                 ?: throw IllegalStateException("you must set active key to account $activeAccountName")
         return activeAccountName to activeAccountKey
     }
+
+    /**method closes all connections, pools, executors etc. After that instance is useless
+     * */
+    fun shutdown(){
+        synchronized(this){
+            chainApi.shutDown()
+            apiService.shutDown()
+        }
+    }
 }
 
 private fun CyberName.toTransactionAuthAbi(): MyTransactionAuthorizationAbi = MyTransactionAuthorizationAbi(this.name)

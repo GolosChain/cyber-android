@@ -354,6 +354,9 @@ internal class CyberServicesApiService(
         return apiClient.send(ServicesGateMethods.GET_UNREAD_COUNT.toString(), request, FreshResult::class.java)
     }
 
+    override fun shutDown() {
+        apiClient.unAuth()
+    }
 
     private fun ContentParsingType.asContentType(): String {
         return when (this) {

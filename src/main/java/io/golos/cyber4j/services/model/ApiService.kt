@@ -91,5 +91,6 @@ interface ApiService {
     fun resolveProfile(username: String,
                        appName: String): Either<ResolvedProfile, ApiResponseError>
 
+    fun shutDown()
 }
 
