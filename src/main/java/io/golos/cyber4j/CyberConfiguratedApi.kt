@@ -55,7 +55,7 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
                 .connectTimeout(config.connectionTimeOutInSeconds.toLong(), TimeUnit.SECONDS)
                 .readTimeout(config.readTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
                 .writeTimeout(config.writeTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
-                .dispatcher(Dispatcher(Executors.newSingleThreadExecutor(ThreadFactory { Thread.currentThread() })))
+                .dispatcher(Dispatcher(Executors.newSingleThreadExecutor { Thread.currentThread() }))
                 .build()
 
         api = object : CyberWayChainApi {
@@ -142,6 +142,11 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
                 }
             }
 
+            override fun shutDown() {
+                okHttpClient.connectionPool().evictAll()
+                okHttpClient.dispatcher().executorService().shutdown()
+            }
+
             override fun resolveNames(body: List<String>): Single<List<ResolvedName>> {
 
                 return Single.create<List<ResolvedName>> { emitter ->
@@ -204,6 +209,8 @@ internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cybe
             }
         }
     }
+
+
 
     override fun provide(): CyberWayChainApi {
         return api
