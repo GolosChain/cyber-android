@@ -3,6 +3,7 @@ package io.golos.cyber4j.services
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import io.golos.cyber4j.Cyber4JConfig
+import io.golos.cyber4j.GolosEosConfiguratedApi
 import io.golos.cyber4j.services.model.ApiResponseError
 import io.golos.cyber4j.services.model.Identifieble
 import io.golos.cyber4j.services.model.ServicesMessagesWrapper
@@ -53,6 +54,7 @@ internal class CyberServicesWebSocketClient(
         )
                 .connectTimeout(config.connectionTimeOutInSeconds.toLong(), TimeUnit.SECONDS)
                 .readTimeout(config.readTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
+                .connectionPool(GolosEosConfiguratedApi.connectionPool)
                 .writeTimeout(config.writeTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
                 .build()
 
