@@ -1468,7 +1468,8 @@ class Cyber4J @JvmOverloads constructor(
                             newUserName))
                     .toHex()
             pushTransaction<CreateUserNameResult>(CyberContracts.DOMAIN,
-                    CyberActions.SET_NEW_USER_NAME, MyTransactionAuthorizationAbi(owner), result, creatorKey)
+                    CyberActions.SET_NEW_USER_NAME,
+                    MyTransactionAuthorizationAbi(owner.name, "createuser"), result, creatorKey)
         }
         return callTilTimeoutExceptionVanishes(setUserNameCallable)
     }
