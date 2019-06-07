@@ -11,11 +11,6 @@ import org.junit.Test
 class ServicesFetchTest {
     private val client = getClient()
 
-    @Before
-    fun before() {
-
-    }
-
     @Test
     fun fetchPostsTest() {
         val postsResponse = client.getCommunityPosts(
@@ -127,7 +122,7 @@ class ServicesFetchTest {
 
     @Test
     fun userMetadataFetchTest() {
-        val response = client.getUserMetadata("destroyer2k@golos".toCyberName())
+        val response = client.getUserMetadata("cqlvttsorsfa".toCyberName())
         assertTrue(response is Either.Success)
     }
 

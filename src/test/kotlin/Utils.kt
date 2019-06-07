@@ -20,8 +20,8 @@ class Utils {
 
     @Before
     fun before() {
-        client = getClient()
-        secondAccount = account(client.config.toConfigType())
+        // client = getClient()
+        // secondAccount = account()
     }
 
     @Test
@@ -87,18 +87,6 @@ class Utils {
         val uploadResponse = client.uploadImage(img)
         assertTrue(uploadResponse is Either.Success)
         println((uploadResponse as Either.Success).value)
-
-    }
-
-    @Test
-    fun test1() {
-        (0..100).forEach {
-            val c = Cyber4J()
-            val count = it
-            println(count)
-            c.getCommunityPosts("gls", ContentParsingType.RAW, 1, DiscussionTimeSort.INVERTED)
-            c.shutdown()
-        }
 
     }
 

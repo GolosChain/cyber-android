@@ -18,6 +18,7 @@ import io.golos.cyber4j.model.*
 import io.golos.cyber4j.services.CyberServicesApiService
 import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
+import io.golos.processor.GenerateCoroutinesAdapter
 import net.gcardone.junidecode.Junidecode
 import java.io.File
 import java.net.SocketTimeoutException
@@ -123,6 +124,7 @@ private enum class CyberContracts : CyberContract {
     }
 }
 
+@GenerateCoroutinesAdapter
 class Cyber4J @JvmOverloads constructor(
         val config: io.golos.cyber4j.Cyber4JConfig = io.golos.cyber4j.Cyber4JConfig(),
         chainApiProvider: io.golos.cyber4j.ChainApiProvider? = null,
@@ -2222,8 +2224,8 @@ class Cyber4J @JvmOverloads constructor(
 
     /**method closes all connections, pools, executors etc. After that instance is useless
      * */
-    fun shutdown(){
-        synchronized(this){
+    fun shutdown() {
+        synchronized(this) {
             chainApi.shutDown()
             apiService.shutDown()
         }

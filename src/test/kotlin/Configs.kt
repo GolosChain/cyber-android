@@ -80,7 +80,7 @@ fun account(forConfig: CONFIG_TYPE,
 
 
 @Synchronized
-fun getClient(ofType: CONFIG_TYPE = CONFIG_TYPE.UNSTABLE,
+fun getClient(ofType: CONFIG_TYPE = CONFIG_TYPE.DEV,
               setActiveUser: Boolean = true,
               authInServices: Boolean = false): Cyber4J {
     return Cyber4J(config = ofType.toConfig())

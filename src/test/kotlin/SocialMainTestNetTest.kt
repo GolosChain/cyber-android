@@ -20,7 +20,7 @@ class SocialMainTestNetTest {
 
     @Test
     fun setUserMeta() {
-        val setMetaResult = client.setUserMetadata("типа", "аппа", website = "веб-портал")
+        val setMetaResult = client.setUserMetadata("типа", "аппа", website = "веб-портал", email = "")
         assertTrue("meta change fail", setMetaResult is Either.Success)
         val changedMeta = (setMetaResult as Either.Success).value.processed.action_traces.first().act.data.metadata
 
