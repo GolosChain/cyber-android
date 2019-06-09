@@ -14,6 +14,9 @@ import com.memtrip.eos.core.hex.DefaultHexWriter
 import com.memtrip.eos.http.rpc.model.account.request.AccountName
 import com.memtrip.eos.http.rpc.model.info.Info
 import com.squareup.moshi.Moshi
+import io.golos.annotations.ExcludeFromGeneration
+import io.golos.annotations.GenerateCoroutinesAdapter
+import io.golos.annotations.ShutDownMethod
 import io.golos.cyber4j.model.*
 import io.golos.cyber4j.services.CyberServicesApiService
 import io.golos.cyber4j.services.model.*
@@ -123,21 +126,26 @@ private enum class CyberContracts : CyberContract {
     }
 }
 
+@GenerateCoroutinesAdapter
 class Cyber4J @JvmOverloads constructor(
-        val config: io.golos.cyber4j.Cyber4JConfig = io.golos.cyber4j.Cyber4JConfig(),
+        config: io.golos.cyber4j.Cyber4JConfig = io.golos.cyber4j.Cyber4JConfig(),
         chainApiProvider: io.golos.cyber4j.ChainApiProvider? = null,
-        val keyStorage: KeyStorage = KeyStorage(),
+        keyStorage: KeyStorage = KeyStorage(),
         private val apiService: ApiService = CyberServicesApiService(config)) {
 
     private val staleTransactionErrorCode = 3080006
     private val transactionPusher: io.golos.cyber4j.TransactionPusher
     private val chainApi: CyberWayChainApi
-
     private val moshi: Moshi = Moshi
             .Builder()
             .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
             .add(CyberNameAdapter())
             .build()
+
+    val keyStorage = keyStorage
+        @ExcludeFromGeneration get
+    val config = config
+        @ExcludeFromGeneration get
 
 
     init {
@@ -2223,8 +2231,9 @@ class Cyber4J @JvmOverloads constructor(
 
     /**method closes all connections, pools, executors etc. After that instance is useless
      * */
-    fun shutdown(){
-        synchronized(this){
+    @ShutDownMethod
+    fun shutdown() {
+        synchronized(this) {
             chainApi.shutDown()
             apiService.shutDown()
         }

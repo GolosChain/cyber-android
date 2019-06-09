@@ -1,12 +1,15 @@
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
 import io.golos.cyber4j.Cyber4J
+import io.golos.cyber4j.Cyber4JCoroutinesAdapter
 import io.golos.cyber4j.model.ContentRow
 import io.golos.cyber4j.model.CyberName
 import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
 import junit.framework.Assert.assertNotNull
 import junit.framework.Assert.assertTrue
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import java.io.File
@@ -21,7 +24,7 @@ class Utils {
     @Before
     fun before() {
         client = getClient()
-        secondAccount = account(client.config.toConfigType())
+        // secondAccount = account()
     }
 
     @Test
@@ -91,15 +94,16 @@ class Utils {
     }
 
     @Test
-    fun test1() {
-        (0..100).forEach {
-            val c = Cyber4J()
-            val count = it
-            println(count)
-            c.getCommunityPosts("gls", ContentParsingType.RAW, 1, DiscussionTimeSort.INVERTED)
-            c.shutdown()
+    fun coroutinesTest() {
+        runBlocking {
+            val adapter = Cyber4JCoroutinesAdapter(client)
+            (0..9).forEach {
+                async {
+                    adapter.getCommunityPosts("gls", ContentParsingType.RAW, 1, DiscussionTimeSort.INVERTED, "")
+                    println(it)
+                }
+            }
         }
-
     }
 
     @Test
