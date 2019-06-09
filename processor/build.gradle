@@ -1,0 +1,31 @@
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-kapt'
+
+group groupName
+version version
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project (":annotations")
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "com.google.auto.service:auto-service:1.0-rc2"
+    implementation 'com.squareup:kotlinpoet:1.3.0'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.3.31'
+    kapt "com.google.auto.service:auto-service:1.0-rc2"
+    kapt 'com.squareup:kotlinpoet:1.3.0'
+    kapt "com.google.auto.service:auto-service:1.0-rc2"
+    kapt "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+}
