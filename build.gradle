@@ -1,7 +1,10 @@
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-kapt'
+
 buildscript {
     ext.kotlin_version = '1.3.20'
     ext.coroutinesVersion = '1.2.1'
-    ext.groupName = "io.golos.cyber4"
+    ext.groupName = "io.golos.cyber4j"
     ext.version = '0.6'
 
     repositories {
@@ -14,9 +17,6 @@ buildscript {
 
 group groupName
 version version
-
-apply plugin: 'kotlin'
-apply plugin: 'kotlin-kapt'
 
 repositories {
     mavenCentral()
@@ -39,14 +39,12 @@ compileTestKotlin {
 
 jar.baseName = "${rootProject.name}"
 
-
-
 dependencies {
-    kapt project(":processor")
+    kapt project(':processor')
     compileOnly project(":processor")
 
     implementation project(":annotations")
-    
+
     api 'com.squareup.okhttp3:logging-interceptor:3.12.1'
 
     implementation("com.memtrip.eos-jvm:eos-abi-writer:1.0.0-alpha26") {
