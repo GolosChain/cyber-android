@@ -139,7 +139,7 @@ class Cyber4J @JvmOverloads constructor(
     private val moshi: Moshi = Moshi
             .Builder()
             .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
-            .add(CyberNameAdapter())
+            .add(CyberName::class.java, CyberNameAdapter())
             .build()
 
     val keyStorage = keyStorage
@@ -156,6 +156,7 @@ class Cyber4J @JvmOverloads constructor(
             this.transactionPusher = io.golos.cyber4j.TransactionPusherImpl(chainApiProvider.provide(), config, moshi)
             chainApi = chainApiProvider.provide()
         }
+
     }
 
     /** method for creating post, using active credentials from [keyStorage]
@@ -419,6 +420,8 @@ class Cyber4J @JvmOverloads constructor(
             instagram: String? = null,
             telegram: String? = null,
             vk: String? = null,
+            whatsApp: String? = null,
+            weChat: String? = null,
             website: String? = null,
             first_name: String? = null,
             last_name: String? = null,
@@ -449,7 +452,7 @@ class Cyber4J @JvmOverloads constructor(
 
         return setUserMetadata(
                 activeAccountName, activeAccountKey, type, app, email, phone,
-                facebook, instagram, telegram, vk, website, first_name, last_name, name, birthDate, gender,
+                facebook, instagram, telegram, vk, whatsApp, weChat, website, first_name, last_name, name, birthDate, gender,
                 location, city, about, occupation, iCan, lookingFor, businessCategory, backgroundImage,
                 coverImage, profileImage, userImage, icoAddress, targetDate, targetPlan, targetPointA,
                 targetPointB
@@ -475,6 +478,8 @@ class Cyber4J @JvmOverloads constructor(
             instagram: String? = null,
             telegram: String? = null,
             vk: String? = null,
+            whatsApp: String? = null,
+            weChat: String? = null,
             website: String? = null,
             first_name: String? = null,
             last_name: String? = null,
@@ -504,7 +509,7 @@ class Cyber4J @JvmOverloads constructor(
                     fromAccount,
                     ProfileMetadataAbi(
                             type, app, email, phone, facebook, instagram,
-                            telegram, vk, website, first_name, last_name, name, birthDate, gender, location,
+                            telegram, vk, whatsApp, weChat, website, first_name, last_name, name, birthDate, gender, location,
                             city, about, occupation, iCan, lookingFor, businessCategory, backgroundImage, coverImage,
                             profileImage, userImage, icoAddress, targetDate, targetPlan, targetPointA, targetPointB
                     )
@@ -2222,6 +2227,7 @@ class Cyber4J @JvmOverloads constructor(
         return callTilTimeoutExceptionVanishes(callable)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun resolveKeysFor(contract: CyberContracts, action: CyberActions): kotlin.Pair<CyberName, String> {
         val activeAccountName = keyStorage.getActiveAccount()
         val activeAccountKey = keyStorage.getActiveAccountKeys().find { it.first == AuthType.ACTIVE }?.second

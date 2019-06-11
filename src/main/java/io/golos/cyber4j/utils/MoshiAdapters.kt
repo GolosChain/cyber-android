@@ -12,18 +12,21 @@ import java.math.BigInteger
 class CyberNameAdapter : JsonAdapter<CyberName>() {
 
     override fun fromJson(reader: JsonReader): CyberName? {
-        val value = reader.nextString()
-        return CyberName(value)
+        val nextToken = reader.peek()
+        return if (nextToken == JsonReader.Token.STRING) {
+            val value = reader.nextString()
+            CyberName(value)
+        } else {
+            reader.beginObject()
+            reader.nextName()
+            val out = CyberName(reader.nextString())
+            reader.endObject()
+            out
+        }
     }
 
     override fun toJson(writer: JsonWriter, value: CyberName?) {
         writer.value(value?.name)
-    }
-
-    @FromJson
-    fun fromJson(jsonReader: JsonReader, delegate: JsonAdapter<CyberName>): CyberName? {
-        val value = jsonReader.nextString()
-        return CyberName(value)
     }
 }
 

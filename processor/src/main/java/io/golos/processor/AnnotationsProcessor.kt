@@ -86,7 +86,6 @@ $wrappedObjectName.shutdown()
                                     val paramsOfAFunction = ArrayList<String>(6)
                                     val returnType: TypeName
                                     val tenTabs = "\t\t\t\t\t\t\t\t\t\t"
-                                    messager.printMessage(Diagnostic.Kind.WARNING,"function name $functionName")
                                     it
                                             .addFunction(FunSpec.builder(functionName)//adding function name
                                                     .addModifiers(KModifier.SUSPEND)
@@ -101,14 +100,6 @@ $wrappedObjectName.shutdown()
                                                             val parameterTypeName = variableElement.asType().asTypeName()
                                                             val finalElementType = javaToKotlinTypeName(parameterTypeName)
                                                             val typeNameWithResolvedNullability = finalElementType.resolveNullability(variableElement)
-
-
-                                                            messager.printMessage(Diagnostic.Kind.WARNING, "param name $parameterName}")
-                                                            messager.printMessage(Diagnostic.Kind.WARNING, "annotations ${variableElement.getAnnotation(Nullable::class.java)}")
-                                                            messager.printMessage(Diagnostic.Kind.WARNING, "parameterTypeName $parameterTypeName")
-                                                            messager.printMessage(Diagnostic.Kind.WARNING, "typeNameWithResolvedNullability $typeNameWithResolvedNullability")
-                                                            messager.printMessage(Diagnostic.Kind.WARNING, "finalElementType $finalElementType")
-
                                                             funcBuilder.addParameter(parameterName,
                                                                     typeNameWithResolvedNullability)
 

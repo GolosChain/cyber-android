@@ -13,6 +13,8 @@ internal class ProfileMetadataAbi(
         val instagram: String?,
         val telegram: String?,
         val vk: String?,
+        val whatsapp: String?,
+        val wechat: String?,
         val website: String?,
         val first_name: String?,
         val last_name: String?,
@@ -60,6 +62,12 @@ internal class ProfileMetadataAbi(
 
     val getVk: ByteArray
         @BytesCompress get() = vk.asOptionalStringBytes()
+
+    val getWhatsapp: ByteArray
+        @BytesCompress get() = whatsapp.asOptionalStringBytes()
+
+    val getWechat: ByteArray
+        @BytesCompress get() =wechat.asOptionalStringBytes()
 
     val getWebsite: ByteArray
         @BytesCompress get() = website.asOptionalStringBytes()
@@ -126,7 +134,6 @@ internal class ProfileMetadataAbi(
 
     val getTargetPoinB: ByteArray
         @BytesCompress get() = target_point_b.asOptionalStringBytes()
-
 
 
     override fun toString(): String {
