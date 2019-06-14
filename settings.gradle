@@ -1,4 +1,10 @@
-rootProject.name = 'cyber4j'
-include 'processor'
-include 'annotations'
+include ':cyber4j'
+include ':processor'
+include ':annotations'
+include ':eos-abi-writer'
+include ':eos-abi-writer-preprocessor'
+include ':eos-chain-actions'
+include ':eos-core'
+include ':eos-http-rpc'
+
 

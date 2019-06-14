@@ -1,0 +1,3 @@
+[submodule "eos-jvm"]
+	path = eos-jvm
+	url = https://github.com/yurivlad/eos-jvm.git

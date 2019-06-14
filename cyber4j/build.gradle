@@ -1,0 +1,64 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+}
+
+group groupName
+version versionName
+
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-kapt'
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://dl.bintray.com/memtrip/maven/"
+    }
+}
+
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.6"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.6"
+}
+
+jar.baseName = "${rootProject.name}_$versionName"
+
+dependencies {
+    kapt project(":processor")
+    compileOnly project(":processor")
+    kapt project(":eos-abi-writer-preprocessor")
+    kapt project(":eos-abi-writer")
+    compileOnly project(":eos-abi-writer")
+    kapt project(':eos-abi-writer-preprocessor')
+    compileOnly project(":annotations")
+    
+    implementation project(":eos-chain-actions")
+    implementation project(":eos-core")
+    implementation project(":eos-http-rpc")
+
+    api "com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion"
+
+    implementation 'net.gcardone.junidecode:junidecode:0.4.1'
+    implementation 'com.squareup.moshi:moshi-adapters:1.5.0'
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-moshi:$retrofitVersion"
+    implementation ("org.bitcoinj:bitcoinj-core:$bitcoinJVersion") {
+        exclude group: "com.lambdaworks", module: "scrypt"
+    }
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation "com.squareup:kotlinpoet:$kotlinPoetVersion"
+}

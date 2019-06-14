@@ -1,0 +1,22 @@
+apply plugin: 'java'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "com.google.auto.service:auto-service:$autoServiceVersion"
+    implementation 'org.freemarker:freemarker:2.3.28'
+    implementation 'com.google.googlejavaformat:google-java-format:1.0'
+    implementation project(':eos-abi-writer')
+    testCompile 'junit:junit:4.12'
+}
+
+group groupName
+version versionName
+sourceCompatibility = '1.7'
