@@ -39,7 +39,6 @@ class AccountCreationTest {
 
     }
 
-
     companion object {
         private val eosCreateKey = (Cyber4J::class.java).getResource("/eoscreateacckey.txt").readText(Charset.defaultCharset())
 

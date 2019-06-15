@@ -16,6 +16,7 @@ import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.*
 import javax.tools.Diagnostic
+import javax.tools.JavaFileManager
 import kotlin.reflect.jvm.internal.impl.builtins.jvm.JavaToKotlinClassMap
 import kotlin.reflect.jvm.internal.impl.name.FqName
 
@@ -29,7 +30,6 @@ class AnnotationsProcessor : AbstractProcessor() {
                 .forEach {
                     createClass(it)
                 }
-
         return true
     }
 
@@ -126,12 +126,10 @@ return suspendCoroutine {
                             }
                         }
                         .build())
-
+        val stubName = "/a.java"
+        val filePath = processingEnv.filer.createSourceFile("a").name.replace(stubName, "")
         val file = builder.build()
-
-        val s = File.separator
-
-        file.writeTo(File("build${s}generated${s}source${s}kapt${s}main"))
+        file.writeTo(File(filePath))
     }
 
     override fun getSupportedAnnotationTypes(): MutableSet<String> {

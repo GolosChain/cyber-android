@@ -60,5 +60,5 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
 
     testImplementation 'junit:junit:4.12'
-    testImplementation "com.squareup:kotlinpoet:$kotlinPoetVersion"
+    
 }

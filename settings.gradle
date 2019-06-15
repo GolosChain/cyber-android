@@ -6,5 +6,5 @@ include ':eos-abi-writer-preprocessor'
 include ':eos-chain-actions'
 include ':eos-core'
 include ':eos-http-rpc'
-
+include 'generator'
 
