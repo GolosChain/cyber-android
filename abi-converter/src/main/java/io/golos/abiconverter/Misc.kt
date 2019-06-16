@@ -15,11 +15,11 @@ import java.lang.reflect.Type
 import java.math.BigInteger
 import kotlin.reflect.KClass
 
-class Misc
-
 private val moshi = Moshi.Builder().add(CyberName::class.java, CyberNameAdapter()).build()!!
 
-fun main() {
+val integerRegex = Regex("(u)?int(\\d){1,3}")
+
+fun getAbi(contractName: CyberName): EosAbi {
     val okHttpClient = OkHttpClient
             .Builder()
             .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
@@ -28,19 +28,17 @@ fun main() {
 
     val resp = okHttpClient.newCall(Request.Builder()
             .post(RequestBody.create(MediaType.get("application/json"),
-                    moshi.toJson(mapOf("account_name" to "gls.publish"))))
+                    moshi.toJson(mapOf("account_name" to contractName.name))))
             .url("http://46.4.96.246:8888/v1/chain/get_abi")
             .build())
             .execute()
 
     val respBody = resp.body()!!.string()
-    println(respBody)
+    return moshi.fromJson<EosAbi>(respBody)!!
 
-    val abiObject = moshi.fromJson<EosAbi>(respBody)!!
+    // val file = File(".", "gls.json")
 
-    val file = File(".", "gls.json")
-
-    file.writeText(moshi.toJson(abiObject))
+    //file.writeText(moshi.toJson(abiObject))
 }
 
 
@@ -48,7 +46,7 @@ private inline fun <reified T> Moshi.fromJson(json: String) = adapter<T>(T::clas
 private inline fun <reified T> Moshi.toJson(`object`: T) = adapter<T>(T::class.java).toJson(`object`)
 
 
-private fun createBuildInTypesMap() = hashMapOf(*ClassName("kotlin", "String").createVariations("string"),
+val builtInTypes = hashMapOf(*ClassName("kotlin", "String").createVariations("string"),
         *(CyberName::class.java.asTypeName() as ClassName).createVariations("name"),
         * (arrayOf("int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64")
                 .map { it to intStringToClassName(it) })
@@ -65,9 +63,9 @@ private fun createBuildInTypesMap() = hashMapOf(*ClassName("kotlin", "String").c
             putAll(CyberAsset::class.asTypeName().createVariations("asset"))
             putAll(CyberSymbolCode::class.asTypeName().createVariations("symbol_code"))
             putAll(CyberSymbol::class.asTypeName().createVariations("symbol"))
-        }
+        } as Map<String, TypeName>
 
-private val simpleTypeToAnnotationsMap = mapOf<TypeName, KClass<*>>(
+val simpleTypeToAnnotationsMap = mapOf<TypeName, KClass<*>>(
         Boolean::class.asTypeName() to BoolCompress::class,
         Short::class.asTypeName() to ShortCompress::class,
         Short::class.asClassName().copy(true) to NullableShortCompress::class,
@@ -85,25 +83,20 @@ private val simpleTypeToAnnotationsMap = mapOf<TypeName, KClass<*>>(
         CyberSymbol::class.asTypeName() to SymbolCompress::class,
         ClassName("com.memtrip.eos.core.crypto", "EosPublicKey") to PublicKeyCompress::class)
 
-fun main(args: Array<String>) {
-    val packageName = Misc::class.java.`package`.name + ".generated"
+fun generateClasses(eosAbi: EosAbi,
+                    packageName: String,
+                    srcFolder: File) {
 
-    val eosAbi = moshi.fromJson<EosAbi>(File(".", "gls.json").readText())!!
-
-    val buildInTypes = createBuildInTypesMap()
+    val stringToTypesMap = HashMap(builtInTypes)
 
     val variantsMap = eosAbi
             .abi
             .variants.map {
         val interfaceName = it.name.toClassName("Interface")
 
-        buildInTypes.putAll(ClassName(packageName, interfaceName).createVariations(it.name))
+        stringToTypesMap.putAll(ClassName(packageName, interfaceName).createVariations(it.name))
         interfaceName to it.types.map { it.toClassName() }
-    }
-            .toMap()
-    val s = File.separator
-    val folder = File(".",
-            "abi-converter${s}src${s}main${s}java")
+    }.toMap()
 
     variantsMap.keys.forEach {
         FileSpec.builder(packageName, it)
@@ -111,23 +104,22 @@ fun main(args: Array<String>) {
                         .interfaceBuilder(it)
                         .addAnnotation(Abi::class.asTypeName())
                         .build())
-                .build().writeTo(folder)
+                .build().writeTo(srcFolder)
     }
 
     eosAbi.abi.types.forEach {
         val type = it.type
         val resolvedClassName =
-                if (!buildInTypes.containsKey(it.type) && type.matches(integerRegex)) {
+                if (!stringToTypesMap.containsKey(it.type) && type.matches(integerRegex)) {
                     intStringToClassName(it.type)
-                } else buildInTypes[it.type]
+                } else stringToTypesMap[it.type]
                         ?: throw IllegalStateException("type ${it.type} not found")
-        buildInTypes.putAll(resolvedClassName.createVariations(it.new_type_name))
+        stringToTypesMap.putAll(resolvedClassName.createVariations(it.new_type_name))
     }
 
 
-
     eosAbi.abi.structs.forEach {
-        buildInTypes.putAll(ClassName(packageName,
+        stringToTypesMap.putAll(ClassName(packageName,
                 it.generateClassName()).createVariations(it.name))
     }
 
@@ -147,7 +139,7 @@ fun main(args: Array<String>) {
                                 .also { builder: FunSpec.Builder ->
                                     abiStruct.fields.forEach { stuctField ->
                                         builder.addParameter(stuctField.name,
-                                                buildInTypes[stuctField.type]
+                                                stringToTypesMap[stuctField.type]
                                                         ?: throw java.lang.IllegalStateException("cannot find ClassName for type ${stuctField.type}"))
                                     }
                                 }
@@ -157,14 +149,14 @@ fun main(args: Array<String>) {
                                 builder.addProperty(
                                         PropertySpec
                                                 .builder(structField.name,
-                                                        buildInTypes[structField.type]!!)
+                                                        stringToTypesMap[structField.type]!!)
                                                 .initializer(structField.name)
                                                 .build())
                             }
                         }
                         .also { builder: TypeSpec.Builder ->
                             abiStruct.fields.forEach { structField ->
-                                val typeName = buildInTypes[structField.type]!!
+                                val typeName = stringToTypesMap[structField.type]!!
                                 builder.addProperty(
                                         PropertySpec.builder("get${structField.name.fromSnakeCase().capitalize()}",
                                                 when (typeName) {
@@ -201,7 +193,6 @@ fun main(args: Array<String>) {
                                                                         }
                                                                     }
                                                                 }
-
                                                         )
                                                         .build())
                                                 .build())
@@ -209,7 +200,7 @@ fun main(args: Array<String>) {
                         }
                         .build())
                 .build()
-        classFile.writeTo(folder)
+        classFile.writeTo(srcFolder)
     }
 }
 
@@ -228,10 +219,12 @@ private fun TypeName.createVariations(forName: String): Array<Pair<String, TypeN
                 "$forName[]" to List::class.asTypeName().parameterizedBy(this))
 
 
-private val integerRegex = Regex("(u)?int(\\d){1,3}")
-
 private fun intStringToClassName(integerString: String): ClassName {
-    if (!integerString.matches(integerRegex)) throw IllegalArgumentException("string $integerString not matches with $integerRegex regexp")
+
+    println("intStringToClassName $integerRegex")
+    if (!integerString
+                    .matches(integerRegex))
+        throw IllegalArgumentException("string $integerString not matches with $integerRegex regexp")
     val intSize = Integer.parseInt(integerString.replace("\\D".toRegex(), ""))
     return when {
         intSize <= 8 -> Byte::class.java.asClassName()

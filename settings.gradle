@@ -8,4 +8,5 @@ include ':eos-core'
 include ':eos-http-rpc'
 include ':abi-converter'
 include ':shared-model'
+include ':abi-implementation'
 

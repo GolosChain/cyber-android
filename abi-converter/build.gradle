@@ -15,9 +15,6 @@ apply plugin: 'kotlin-kapt'
 
 repositories {
     mavenCentral()
-    maven {
-        url "https://dl.bintray.com/memtrip/maven/"
-    }
 }
 
 
@@ -34,15 +31,19 @@ compileTestKotlin {
 
 dependencies {
     kapt project(':eos-abi-writer-preprocessor')
+    kapt "com.google.auto.service:auto-service:$autoServiceVersion"
 
     implementation project(":eos-abi-writer")
     implementation project(":shared-model")
+    implementation project(":annotations")
     implementation project(":eos-core")
+    implementation project(":eos-abi-writer")
+
     implementation "com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion"
+    implementation "com.google.auto.service:auto-service:$autoServiceVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofitVersion"
     implementation "com.squareup:kotlinpoet:$kotlinPoetVersion"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }

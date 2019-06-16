@@ -2,7 +2,6 @@
 
 package io.golos.cyber4j
 
-import com.memtrip.eos.abi.writer.bytewriter.DefaultByteWriter
 import com.memtrip.eos.abi.writer.compression.CompressionType
 import com.memtrip.eos.chain.actions.transaction.AbiBinaryGenTransactionWriter
 import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.AccountKeyAbi
@@ -14,6 +13,7 @@ import com.memtrip.eos.core.hex.DefaultHexWriter
 import com.memtrip.eos.http.rpc.model.account.request.AccountName
 import com.memtrip.eos.http.rpc.model.info.Info
 import com.squareup.moshi.Moshi
+import io.golos.abi.implementation.AbiBinaryGenGolosPublish
 import io.golos.annotations.ExcludeFromGeneration
 import io.golos.annotations.GenerateCoroutinesAdapter
 import io.golos.annotations.ShutDownMethod
@@ -1429,7 +1429,6 @@ class Cyber4J @JvmOverloads constructor(
                     ?.log("issue transaction = ${moshi.adapter<MyActionAbi>(MyActionAbi::class.java).toJson(issueAbi)}")
 
             actionAbis.add(issueAbi)
-
 
             hex = createBinaryConverter().squishMyTransferArgsAbi(
                     MyTransferArgsAbi(CyberContracts.GLS.toString(), forUser.name, amount, memo)
