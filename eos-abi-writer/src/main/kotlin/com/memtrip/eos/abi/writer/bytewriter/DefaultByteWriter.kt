@@ -19,10 +19,7 @@ import com.memtrip.eos.abi.writer.ByteWriter
 import com.memtrip.eos.core.crypto.EosPublicKey
 import com.memtrip.eos.core.hex.DefaultHexWriter
 import com.memtrip.eos.core.hex.HexWriter
-import io.golos.sharedmodel.CyberAsset
-import io.golos.sharedmodel.CyberName
-import io.golos.sharedmodel.CyberSymbol
-import io.golos.sharedmodel.CyberSymbolCode
+import io.golos.sharedmodel.*
 
 class DefaultByteWriter(
     capacity: Int
@@ -71,11 +68,11 @@ class DefaultByteWriter(
     }
 
     override fun putSymbolCode(value: CyberSymbolCode) {
-        putBytes(value.symbolCode)
+        putString(value.value)
     }
 
     override fun putSymbol(value: CyberSymbol) {
-        putString(value.value)
+        putBytes(value.symbolCode)
     }
 
     override fun putChainId(value: String) {
@@ -88,8 +85,16 @@ class DefaultByteWriter(
         putBytes(dataAsBytes)
     }
 
+    override fun putCheckSum(value: CheckSum256) {
+        putBytes(value.value)
+    }
+
     override fun putTimestampMs(value: Long) {
         putInt((value / 1000).toInt())
+    }
+
+    override fun putTimestampMs(value: CyberTimeStamp) {
+        putTimestampMs(value.value)
     }
 
     override fun putBoolean(value: Boolean) {
@@ -178,6 +183,10 @@ class DefaultByteWriter(
                 putAccountName(accountName)
             }
         }
+    }
+
+    override fun putCyberNamesCollection(accountNameList: List<CyberName>) {
+        putAccountNameCollection(accountNameList.map { it.name })
     }
 
     override fun toBytes(): ByteArray = buffer.toByteArray()

@@ -24,8 +24,10 @@ import com.memtrip.eos.abi.writer.BoolCompress;
 import com.memtrip.eos.abi.writer.ByteCompress;
 import com.memtrip.eos.abi.writer.BytesCompress;
 import com.memtrip.eos.abi.writer.ChainIdCompress;
+import com.memtrip.eos.abi.writer.CheckSumCompress;
 import com.memtrip.eos.abi.writer.ChildCompress;
 import com.memtrip.eos.abi.writer.CollectionCompress;
+import com.memtrip.eos.abi.writer.CyberNameCollectionCompress;
 import com.memtrip.eos.abi.writer.CyberNameCompress;
 import com.memtrip.eos.abi.writer.DataCompress;
 import com.memtrip.eos.abi.writer.FloatCompress;
@@ -176,6 +178,10 @@ final class ParseAnnotations {
             return CompressType.SYMBOL;
         } else if (hasAnnotation(element, NullableShortCompress.class)) {
             return CompressType.NULLABLE_SHORT;
+        } else if (hasAnnotation(element, CheckSumCompress.class)) {
+            return CompressType.CHECK_SUM_256;
+        } else if (hasAnnotation(element, CyberNameCollectionCompress.class)) {
+            return CompressType.CYBER_NAME_COLLECTION;
         } else if (hasAnnotation(element, CyberNameCompress.class)) {
             return CompressType.NAME;
         } else {
@@ -195,6 +201,7 @@ final class ParseAnnotations {
                 || hasAnnotation(element, HexCollectionCompress.class)
                 || hasAnnotation(element, DataCompress.class)
                 || hasAnnotation(element, TimestampCompress.class)
+                || hasAnnotation(element, CheckSumCompress.class)
                 || hasAnnotation(element, ByteCompress.class)
                 || hasAnnotation(element, ShortCompress.class)
                 || hasAnnotation(element, IntCompress.class)
@@ -209,6 +216,7 @@ final class ParseAnnotations {
                 || hasAnnotation(element, AccountNameCollectionCompress.class)
                 || hasAnnotation(element, ChildCompress.class)
                 || hasAnnotation(element, BoolCompress.class)
+                || hasAnnotation(element, CyberNameCollectionCompress.class)
                 || hasAnnotation(element, NullableShortCompress.class)
                 || hasAnnotation(element, NullableStringCompress.class)
                 || hasAnnotation(element, SymbolCompress.class)

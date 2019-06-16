@@ -1,6 +1,6 @@
 package io.golos.sharedmodel
 
-data class CyberSymbolCode(val precision: Byte,
+data class CyberSymbol(val precision: Byte,
                            val name: String) {
     val symbolCode: ByteArray = ByteArray(8)
 

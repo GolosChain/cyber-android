@@ -1,3 +1,3 @@
 package io.golos.sharedmodel
 
-data class CyberSymbol(val value: String)
+data class CyberSymbolCode(val value: String)

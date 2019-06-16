@@ -14,6 +14,7 @@ class ConverterProcessor : AbstractProcessor() {
     private lateinit var messager: Messager
     private val kaptKotlinGeneratedOption = "kapt.kotlin.generated"
     private lateinit var txt: File
+    private var filePath: File? = null
 
     override fun init(processingEnv: ProcessingEnvironment?) {
         super.init(processingEnv)
@@ -41,14 +42,20 @@ class ConverterProcessor : AbstractProcessor() {
     }
 
     private fun createSources(typeElement: TypeElement) {
-        val annotation = typeElement.getAnnotation(GenerateAbi::class.java)!!
-        val abi = getAbi(CyberName(annotation.contractName))
-        val postfix = annotation.generatedPackageNamePostfix
-        val stubName = "/b.java"
-        val filePath = File(processingEnv.filer.createSourceFile("b").name.replace(stubName, ""), "")
-        val packageName = "${processingEnv.elementUtils.getPackageOf(typeElement)}.$postfix"
-        messager.printMessage(Diagnostic.Kind.WARNING, """creating abi for ${annotation.contractName}
+        val generatorAnnotations = typeElement.getAnnotation(GenerateAbi::class.java)!!
+        val contracts = generatorAnnotations.contracts
+        contracts.forEach { annotation ->
+            val abi = getAbi(CyberName(annotation.contractName))
+            val postfix = annotation.generatedPackageNamePostfix
+            if (filePath == null) {
+                val stubName = "/b.java"
+                filePath = File(processingEnv.filer.createSourceFile("b").name.replace(stubName, ""), "")
+            }
+
+            val packageName = "${processingEnv.elementUtils.getPackageOf(typeElement)}.$postfix"
+            messager.printMessage(Diagnostic.Kind.WARNING, """creating abi for ${annotation.contractName}
             | contract with filepath $filePath and packageName = $packageName """.trimMargin())
-        generateClasses(abi, packageName, filePath)
+            generateClasses(abi, packageName, filePath!!)
+        }
     }
 }

@@ -16,10 +16,7 @@
 package com.memtrip.eos.abi.writer
 
 import com.memtrip.eos.core.crypto.EosPublicKey
-import io.golos.sharedmodel.CyberAsset
-import io.golos.sharedmodel.CyberName
-import io.golos.sharedmodel.CyberSymbol
-import io.golos.sharedmodel.CyberSymbolCode
+import io.golos.sharedmodel.*
 
 interface ByteWriter {
     fun putName(value: String)
@@ -32,7 +29,11 @@ interface ByteWriter {
     fun putAsset(value: CyberAsset)
     fun putChainId(value: String)
     fun putData(value: String)
+    fun putCheckSum(value: CheckSum256)
+
     fun putTimestampMs(value: Long)
+    fun putTimestampMs(value: CyberTimeStamp)
+
     fun putBoolean(value: Boolean)
 
     fun putShort(value: Short)
@@ -51,7 +52,9 @@ interface ByteWriter {
     fun putStringCollection(stringList: List<String>)
     fun putLongCollection(longsList: List<Long>)
     fun putHexCollection(stringList: List<String>)
+
     fun putAccountNameCollection(accountNameList: List<String>)
+    fun putCyberNamesCollection(accountNameList: List<CyberName>)
 
     fun putSymbolCode(value: CyberSymbolCode)
     fun putSymbol(value: CyberSymbol)

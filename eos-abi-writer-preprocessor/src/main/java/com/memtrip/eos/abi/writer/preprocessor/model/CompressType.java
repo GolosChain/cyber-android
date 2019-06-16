@@ -30,6 +30,8 @@ public enum  CompressType {
     BYTE,
     SHORT,
     NULLABLE_SHORT,
+    CHECK_SUM_256,
+    CYBER_NAME_COLLECTION,
     INT,
     VARIABLE_UINT,
     LONG,

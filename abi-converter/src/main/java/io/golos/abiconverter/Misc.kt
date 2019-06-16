@@ -63,6 +63,8 @@ val builtInTypes = hashMapOf(*ClassName("kotlin", "String").createVariations("st
             putAll(CyberAsset::class.asTypeName().createVariations("asset"))
             putAll(CyberSymbolCode::class.asTypeName().createVariations("symbol_code"))
             putAll(CyberSymbol::class.asTypeName().createVariations("symbol"))
+            putAll(CyberTimeStamp::class.asTypeName().createVariations("time_point_sec"))
+            putAll(CheckSum256::class.asTypeName().createVariations("checksum256"))
         } as Map<String, TypeName>
 
 val simpleTypeToAnnotationsMap = mapOf<TypeName, KClass<*>>(
@@ -81,11 +83,15 @@ val simpleTypeToAnnotationsMap = mapOf<TypeName, KClass<*>>(
         CyberAsset::class.asTypeName() to AssetCompress::class,
         CyberSymbolCode::class.asTypeName() to SymbolCodeCompress::class,
         CyberSymbol::class.asTypeName() to SymbolCompress::class,
+        CyberTimeStamp::class.asTypeName() to TimestampCompress::class,
+        CheckSum256::class.asTypeName() to CheckSumCompress::class,
         ClassName("com.memtrip.eos.core.crypto", "EosPublicKey") to PublicKeyCompress::class)
 
 fun generateClasses(eosAbi: EosAbi,
                     packageName: String,
                     srcFolder: File) {
+
+    val classPrefix = eosAbi.account_name.name.split(".").getOrElse(1) { "Rand${Math.random()}" }.capitalize()
 
     val stringToTypesMap = HashMap(builtInTypes)
 
@@ -95,7 +101,7 @@ fun generateClasses(eosAbi: EosAbi,
         val interfaceName = it.name.toClassName("Interface")
 
         stringToTypesMap.putAll(ClassName(packageName, interfaceName).createVariations(it.name))
-        interfaceName to it.types.map { it.toClassName() }
+        interfaceName to it.types.map { it.toClassName(classPrefix) }
     }.toMap()
 
     variantsMap.keys.forEach {
@@ -120,11 +126,11 @@ fun generateClasses(eosAbi: EosAbi,
 
     eosAbi.abi.structs.forEach {
         stringToTypesMap.putAll(ClassName(packageName,
-                it.generateClassName()).createVariations(it.name))
+                it.generateClassName(classPrefix)).createVariations(it.name))
     }
 
     eosAbi.abi.structs.forEach { abiStruct ->
-        val className = abiStruct.generateClassName()
+        val className = abiStruct.generateClassName(classPrefix)
 
         val classFile = FileSpec.builder(packageName, className)
                 .addType(TypeSpec.classBuilder(className)
@@ -142,6 +148,10 @@ fun generateClasses(eosAbi: EosAbi,
                                                 stringToTypesMap[stuctField.type]
                                                         ?: throw java.lang.IllegalStateException("cannot find ClassName for type ${stuctField.type}"))
                                     }
+                                    builder.addParameter(ParameterSpec.builder("stub",
+                                            String::class.asTypeName(), KModifier.PRIVATE)
+                                            .defaultValue("\"stub\"")
+                                            .build())
                                 }
                                 .build())
                         .also { builder: TypeSpec.Builder ->
@@ -153,6 +163,10 @@ fun generateClasses(eosAbi: EosAbi,
                                                 .initializer(structField.name)
                                                 .build())
                             }
+                            builder.addProperty(PropertySpec.builder("stub",
+                                    String::class.asTypeName())
+                                    .initializer("stub")
+                                    .build())
                         }
                         .also { builder: TypeSpec.Builder ->
                             abiStruct.fields.forEach { structField ->
@@ -185,6 +199,7 @@ fun generateClasses(eosAbi: EosAbi,
                                                                                 when (collectionType) {
                                                                                     String::class.asTypeName() -> StringCollectionCompress::class
                                                                                     Long::class.asTypeName() -> LongCollectionCompress::class
+                                                                                    CyberName::class.asTypeName() -> CyberNameCollectionCompress::class
                                                                                     else -> CollectionCompress::class
                                                                                 }
                                                                             }
@@ -204,9 +219,9 @@ fun generateClasses(eosAbi: EosAbi,
     }
 }
 
-private fun AbiStruct.generateClassName() = this.name.toClassName()
+private fun AbiStruct.generateClassName(prefix: String) = this.name.toClassName(prefix)
 
-private fun String.toClassName(postfix: String = "Struct") = "${this.fromSnakeCase().capitalize()}$postfix"
+private fun String.toClassName(prefix: String, postfix: String = "Struct") = "${this.fromSnakeCase().capitalize()}$prefix$postfix"
 
 private fun String.fromSnakeCase() = this
         .split("_")

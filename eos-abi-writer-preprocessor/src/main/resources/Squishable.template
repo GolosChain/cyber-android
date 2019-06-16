@@ -32,6 +32,12 @@ public class ${abi.getClassName()}Squishable implements Squishable<${abi.getClas
             <#if field.isPublicKey()>
                 byteWriter.putPublicKey(new EosPublicKey(${abi.getClassName()?lower_case}.${field.getName()}()));
             </#if>
+             <#if field.isCyberNameCollection()>
+                 byteWriter.putCyberNamesCollection(${abi.getClassName()?lower_case}.${field.getName()}());
+             </#if>
+             <#if field.isCheckSum()>
+                byteWriter.putCheckSum(new EosPublicKey(${abi.getClassName()?lower_case}.${field.getName()}()));
+            </#if>
             <#if field.isAsset()>
                 byteWriter.putAsset(${abi.getClassName()?lower_case}.${field.getName()}());
             </#if>

@@ -76,6 +76,12 @@ public class FieldModel {
     public boolean isShort() {
         return compressType == CompressType.SHORT;
     }
+    public boolean isCheckSum() {
+        return compressType == CompressType.CHECK_SUM_256;
+    }
+    public boolean isCyberNameCollection() {
+        return compressType == CompressType.CYBER_NAME_COLLECTION;
+    }
 
     public boolean isNullableShort() {
         return compressType == CompressType.NULLABLE_SHORT;

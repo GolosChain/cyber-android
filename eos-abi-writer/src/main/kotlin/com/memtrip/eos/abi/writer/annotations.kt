@@ -52,6 +52,9 @@ annotation class DataCompress
 annotation class TimestampCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
+annotation class CheckSumCompress
+
+@Target(AnnotationTarget.PROPERTY_GETTER)
 annotation class VariableUIntCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
@@ -107,3 +110,6 @@ annotation class HexCollectionCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
 annotation class AccountNameCollectionCompress
+
+@Target(AnnotationTarget.PROPERTY_GETTER)
+annotation class CyberNameCollectionCompress
