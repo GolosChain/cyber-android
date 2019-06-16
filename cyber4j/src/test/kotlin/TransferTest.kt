@@ -1,5 +1,5 @@
 import io.golos.cyber4j.Cyber4J
-import io.golos.cyber4j.model.CyberName
+import CyberName
 import io.golos.cyber4j.utils.Either
 import junit.framework.Assert.assertTrue
 import org.junit.Before

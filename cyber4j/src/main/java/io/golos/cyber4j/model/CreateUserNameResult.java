@@ -2,6 +2,8 @@ package io.golos.cyber4j.model;
 
 import java.util.Objects;
 
+import io.golos.sharedmodel.CyberName;
+
 public class CreateUserNameResult {
     private CyberName creator;
     private CyberName owner;

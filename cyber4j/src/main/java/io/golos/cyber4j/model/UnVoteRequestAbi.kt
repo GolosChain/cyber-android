@@ -3,6 +3,7 @@ package io.golos.cyber4j.model
 import com.memtrip.eos.abi.writer.Abi
 import com.memtrip.eos.abi.writer.ChildCompress
 import com.memtrip.eos.abi.writer.NameCompress
+import io.golos.sharedmodel.CyberName
 
 @Abi
 internal class UnVoteRequestAbi(private val voter: CyberName,

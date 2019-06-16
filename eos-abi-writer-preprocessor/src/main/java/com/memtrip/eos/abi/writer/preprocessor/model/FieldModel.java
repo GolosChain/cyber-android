@@ -1,12 +1,12 @@
 /**
  * Copyright 2013-present memtrip LTD.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -77,6 +77,10 @@ public class FieldModel {
         return compressType == CompressType.SHORT;
     }
 
+    public boolean isNullableShort() {
+        return compressType == CompressType.NULLABLE_SHORT;
+    }
+
     public boolean isInt() {
         return compressType == CompressType.INT;
     }
@@ -88,7 +92,7 @@ public class FieldModel {
     public boolean isLong() {
         return compressType == CompressType.LONG;
     }
-    
+
     public boolean isFloat() {
         return compressType == CompressType.FLOAT;
     }
@@ -105,12 +109,28 @@ public class FieldModel {
         return compressType == CompressType.STRING;
     }
 
+    public boolean isNullableString() {
+        return compressType == CompressType.NULLABLE_STRING;
+    }
+
+    public boolean isSymbolCode() {
+        return compressType == CompressType.SYMBOL_CODE;
+    }
+
+    public boolean isSymbol() {
+        return compressType == CompressType.SYMBOL;
+    }
+
     public boolean isCollection() {
         return compressType == CompressType.COLLECTION;
     }
 
     public boolean isAccountNameCollection() {
         return compressType == CompressType.ACCOUNT_NAME_COLLECTION;
+    }
+
+    public boolean isBool() {
+        return compressType == CompressType.BOOL;
     }
 
     public boolean isChild() {

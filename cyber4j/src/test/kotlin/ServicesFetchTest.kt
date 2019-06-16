@@ -1,11 +1,10 @@
-import io.golos.cyber4j.model.CyberName
+import CyberName
 import io.golos.cyber4j.model.DiscussionCreateMetadata
 import io.golos.cyber4j.model.Tag
 import io.golos.cyber4j.services.model.ContentParsingType
 import io.golos.cyber4j.services.model.DiscussionTimeSort
 import io.golos.cyber4j.utils.Either
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Test
 
 class ServicesFetchTest {

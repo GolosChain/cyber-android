@@ -4,6 +4,7 @@ import com.memtrip.eos.abi.writer.Abi
 import com.memtrip.eos.abi.writer.ByteCompress
 import com.memtrip.eos.abi.writer.BytesCompress
 import com.memtrip.eos.abi.writer.NameCompress
+import io.golos.sharedmodel.CyberName
 
 @Abi
 internal class VestingStartRequestAbi(private val owner: CyberName,

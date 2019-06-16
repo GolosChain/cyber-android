@@ -6,6 +6,8 @@ import io.golos.cyber4j.Cyber4JConfig
 import io.golos.cyber4j.model.*
 import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
+import io.golos.sharedmodel.CyberName
+import io.golos.sharedmodel.CyberNameAdapter
 import java.math.BigInteger
 import java.util.*
 

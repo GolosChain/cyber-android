@@ -3,6 +3,8 @@ package io.golos.cyber4j.model;
 import java.util.List;
 import java.util.Objects;
 
+import io.golos.sharedmodel.CyberName;
+
 public class CreateDiscussionResult {
     private ResultDiscussionId message_id;
     private ResultDiscussionId parent_id;

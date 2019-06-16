@@ -4,6 +4,7 @@ import com.memtrip.eos.abi.writer.Abi
 import com.memtrip.eos.abi.writer.AssetCompress
 import com.memtrip.eos.abi.writer.NameCompress
 import com.memtrip.eos.abi.writer.StringCompress
+import io.golos.sharedmodel.CyberName
 
 @Abi
 class IssueRequestAbi(private val to: CyberName,

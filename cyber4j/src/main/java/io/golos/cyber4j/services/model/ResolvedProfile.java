@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-import io.golos.cyber4j.model.CyberName;
+import io.golos.sharedmodel.CyberName;
 
 public class ResolvedProfile {
     private CyberName userId;

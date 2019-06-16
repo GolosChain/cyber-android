@@ -2,7 +2,7 @@ package io.golos.cyber4j.services.model;
 
 import java.util.Objects;
 
-import io.golos.cyber4j.model.CyberName;
+import io.golos.sharedmodel.CyberName;
 
 public class RegisterResult {
     private CyberName userId;

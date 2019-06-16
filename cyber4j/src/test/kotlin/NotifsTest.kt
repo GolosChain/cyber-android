@@ -1,4 +1,4 @@
-import io.golos.cyber4j.model.CyberName
+import CyberName
 import io.golos.cyber4j.services.model.EventType
 import io.golos.cyber4j.services.model.MobileShowSettings
 import io.golos.cyber4j.services.model.NotificationSettings

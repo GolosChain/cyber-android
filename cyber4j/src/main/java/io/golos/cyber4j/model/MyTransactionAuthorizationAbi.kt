@@ -3,6 +3,7 @@ package io.golos.cyber4j.model
 import com.memtrip.eos.abi.writer.Abi
 import com.memtrip.eos.abi.writer.NameCompress
 import com.memtrip.eos.http.rpc.model.transaction.TransactionAuthorization
+import io.golos.sharedmodel.CyberName
 
 @Abi
 data class MyTransactionAuthorizationAbi(

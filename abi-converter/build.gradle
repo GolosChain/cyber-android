@@ -33,10 +33,12 @@ compileTestKotlin {
 }
 
 dependencies {
-    compileOnly project(":eos-abi-writer")
     kapt project(':eos-abi-writer-preprocessor')
-    
-    implementation project(":cyber4j")
+
+    implementation project(":eos-abi-writer")
+    implementation project(":shared-model")
+    implementation project(":eos-core")
+    implementation "com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofitVersion"
     implementation "com.squareup:kotlinpoet:$kotlinPoetVersion"

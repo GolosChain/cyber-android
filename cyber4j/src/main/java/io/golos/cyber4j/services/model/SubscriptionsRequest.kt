@@ -1,6 +1,7 @@
 package io.golos.cyber4j.services.model
 
-import io.golos.cyber4j.model.CyberName
+import io.golos.sharedmodel.CyberName
+
 
 enum class SubscriptionType {
     USER, COMMUNITY;

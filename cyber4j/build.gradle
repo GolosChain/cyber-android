@@ -46,6 +46,7 @@ dependencies {
     implementation project(":eos-chain-actions")
     implementation project(":eos-core")
     implementation project(":eos-http-rpc")
+    implementation project(":shared-model")
 
     api "com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion"
 

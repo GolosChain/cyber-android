@@ -15,11 +15,14 @@
  */
 package com.memtrip.eos.abi.writer.bytewriter
 
+import com.memtrip.eos.abi.writer.ByteWriter
 import com.memtrip.eos.core.crypto.EosPublicKey
 import com.memtrip.eos.core.hex.DefaultHexWriter
 import com.memtrip.eos.core.hex.HexWriter
-
-import com.memtrip.eos.abi.writer.ByteWriter
+import io.golos.sharedmodel.CyberAsset
+import io.golos.sharedmodel.CyberName
+import io.golos.sharedmodel.CyberSymbol
+import io.golos.sharedmodel.CyberSymbolCode
 
 class DefaultByteWriter(
     capacity: Int
@@ -37,6 +40,10 @@ class DefaultByteWriter(
 
     override fun putName(value: String) {
         nameWriter.put(value, this)
+    }
+
+    override fun putName(value: CyberName) {
+        nameWriter.put(value.name, this)
     }
 
     override fun putAccountName(value: String) {
@@ -59,6 +66,18 @@ class DefaultByteWriter(
         assetWriter.put(value, this)
     }
 
+    override fun putAsset(value: CyberAsset) {
+        assetWriter.put(value.amount, this)
+    }
+
+    override fun putSymbolCode(value: CyberSymbolCode) {
+        putBytes(value.symbolCode)
+    }
+
+    override fun putSymbol(value: CyberSymbol) {
+        putString(value.value)
+    }
+
     override fun putChainId(value: String) {
         chainIdWriter.put(value, this)
     }
@@ -73,8 +92,18 @@ class DefaultByteWriter(
         putInt((value / 1000).toInt())
     }
 
+    override fun putBoolean(value: Boolean) {
+        buffer.append(if (value) (1).toByte() else (0).toByte())
+    }
+
     override fun putShort(value: Short) {
         buffer.append(value)
+    }
+
+    override fun putNullableShort(value: Short?) {
+        putNullable(value) { short ->
+            putShort(short)
+        }
     }
 
     override fun putInt(value: Int) {
@@ -113,6 +142,20 @@ class DefaultByteWriter(
         buffer.append(value.toByteArray())
     }
 
+    override fun putNullableString(value: String?) {
+        putNullable(value) { string -> putString(string) }
+    }
+
+    override fun putLongCollection(longsList: List<Long>) {
+        putVariableUInt(longsList.size.toLong())
+
+        if (longsList.isNotEmpty()) {
+            for (string in longsList) {
+                putLong(string)
+            }
+        }
+    }
+
     override fun putStringCollection(stringList: List<String>) {
         putVariableUInt(stringList.size.toLong())
 
@@ -140,4 +183,10 @@ class DefaultByteWriter(
     override fun toBytes(): ByteArray = buffer.toByteArray()
 
     override fun length(): Int = buffer.length()
+
+    private fun <T> putNullable(value: T?,
+                                notNullAction: ByteWriter.(value: T) -> Unit) {
+        putBoolean(value != null)
+        if (value != null) this.notNullAction(value)
+    }
 }

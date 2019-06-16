@@ -43,7 +43,8 @@ dependencies {
     api 'io.reactivex:rxkotlin:1.0.0'
 
     implementation project (":eos-http-rpc")
-    implementation project(":eos-abi-writer")
+    compileOnly project(":eos-abi-writer")
+    compileOnly project(":shared-model")
     implementation project(":eos-core")
 
     kapt project (":eos-abi-writer-preprocessor")

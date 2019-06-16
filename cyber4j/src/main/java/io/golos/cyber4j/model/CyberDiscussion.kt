@@ -1,6 +1,7 @@
 package io.golos.cyber4j.model
 
 import io.golos.cyber4j.services.model.CyberCommunity
+import io.golos.sharedmodel.CyberName
 import java.math.BigInteger
 import java.util.*
 
@@ -32,7 +33,6 @@ data class DiscussionContent(val title: String?,
                              val body: ContentBody,
                              val tags: List<String>,
                              val embeds: List<Embed>)
-
 
 
 data class ContentBody(

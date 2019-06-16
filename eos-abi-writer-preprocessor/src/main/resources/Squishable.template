@@ -68,8 +68,23 @@ public class ${abi.getClassName()}Squishable implements Squishable<${abi.getClas
             <#if field.isBytes()>
                 byteWriter.putBytes(${abi.getClassName()?lower_case}.${field.getName()}());
             </#if>
+            <#if field.isSymbol()>
+                byteWriter.putSymbol(${abi.getClassName()?lower_case}.${field.getName()}());
+            </#if>
+            <#if field.isSymbolCode()>
+                byteWriter.putSymbolCode(${abi.getClassName()?lower_case}.${field.getName()}());
+            </#if>
             <#if field.isString()>
                 byteWriter.putString(${abi.getClassName()?lower_case}.${field.getName()}());
+            </#if>
+            <#if field.isNullableShort()>
+                byteWriter.putNullableShort(${abi.getClassName()?lower_case}.${field.getName()}());
+            </#if>
+            <#if field.isNullableString()>
+               byteWriter.putNullableString(${abi.getClassName()?lower_case}.${field.getName()}());
+            </#if>
+            <#if field.isBool()>
+             byteWriter.putBoolean(${abi.getClassName()?lower_case}.${field.getName()}());
             </#if>
             <#if field.isStringCollection()>
                 byteWriter.putStringCollection(${abi.getClassName()?lower_case}.${field.getName()}());
@@ -80,6 +95,7 @@ public class ${abi.getClassName()}Squishable implements Squishable<${abi.getClas
             <#if field.isChild()>
                 abiBinaryGen.squish${extractObject(field.getClassType())}(${abi.getClassName()?lower_case}.${field.getName()}());
             </#if>
+
             <#if field.isCollection()>
                 abiBinaryGen.squishCollection${extractListObject(field.getClassType())}(
                     ${abi.getClassName()?lower_case}.${field.getName()}(),

@@ -1,5 +1,8 @@
 package io.golos.cyber4j.model;
 
+
+import io.golos.sharedmodel.CyberName;
+
 public class WitnessVoteResult {
     private CyberName voter;
     private CyberName witness;

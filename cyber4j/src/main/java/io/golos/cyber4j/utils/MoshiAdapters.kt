@@ -2,33 +2,11 @@ package io.golos.cyber4j.utils
 
 import com.squareup.moshi.*
 import io.golos.cyber4j.model.ContentRow
-import io.golos.cyber4j.model.CyberName
 import io.golos.cyber4j.model.ImageRow
 import io.golos.cyber4j.model.TextRow
 import io.golos.cyber4j.services.model.*
 import java.math.BigInteger
 
-
-class CyberNameAdapter : JsonAdapter<CyberName>() {
-
-    override fun fromJson(reader: JsonReader): CyberName? {
-        val nextToken = reader.peek()
-        return if (nextToken == JsonReader.Token.STRING) {
-            val value = reader.nextString()
-            CyberName(value)
-        } else {
-            reader.beginObject()
-            reader.nextName()
-            val out = CyberName(reader.nextString())
-            reader.endObject()
-            out
-        }
-    }
-
-    override fun toJson(writer: JsonWriter, value: CyberName?) {
-        writer.value(value?.name)
-    }
-}
 
 class BigIntegerAdapter : JsonAdapter<BigInteger>() {
 

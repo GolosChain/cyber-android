@@ -1,7 +1,7 @@
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.Cyber4JConfig
 import io.golos.cyber4j.model.AuthType
-import io.golos.cyber4j.model.CyberName
+import CyberName
 import io.golos.cyber4j.utils.AuthUtils
 import io.golos.cyber4j.utils.Either
 import org.junit.Assert.assertTrue

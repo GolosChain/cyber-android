@@ -26,16 +26,22 @@ public enum  CompressType {
     HEX_COLLECTION,
     DATA,
     TIMESTAMP,
+    BOOL,
     BYTE,
     SHORT,
+    NULLABLE_SHORT,
     INT,
     VARIABLE_UINT,
     LONG,
     FLOAT,
     BYTES,
     STRING,
+    NULLABLE_STRING,
+    LONG_COLLECTION,
     STRING_COLLECTION,
     COLLECTION,
     ACCOUNT_NAME_COLLECTION,
-    CHILD
+    CHILD,
+    SYMBOL,
+    SYMBOL_CODE
 }

@@ -2,6 +2,7 @@ package io.golos.cyber4j.model
 
 import com.memtrip.eos.abi.writer.Abi
 import com.memtrip.eos.abi.writer.NameCompress
+import io.golos.sharedmodel.CyberName
 
 @Abi
 internal class PinRequestAbi(private val pinner: CyberName, private val pinning: CyberName) {

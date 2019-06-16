@@ -1,6 +1,7 @@
 package io.golos.cyber4j.model
 
 import com.memtrip.eos.abi.writer.*
+import io.golos.sharedmodel.CyberName
 
 @Abi
 internal class VoteRequestAbi(private val voter: CyberName,

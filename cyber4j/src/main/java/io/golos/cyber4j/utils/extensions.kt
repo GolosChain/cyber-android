@@ -1,6 +1,6 @@
 package io.golos.cyber4j.utils
 
-import io.golos.cyber4j.model.CyberName
+import io.golos.sharedmodel.CyberName
 
 
 internal fun checkArgument(assertion: Boolean, errorMessage: String) {

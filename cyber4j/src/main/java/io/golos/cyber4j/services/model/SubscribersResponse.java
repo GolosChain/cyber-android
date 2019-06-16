@@ -4,7 +4,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import io.golos.cyber4j.model.CyberName;
+import io.golos.sharedmodel.CyberName;
+
 
 public class SubscribersResponse {
     private List<CyberName> items;

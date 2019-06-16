@@ -1,4 +1,4 @@
-package io.golos.cyber4j.model
+package io.golos.sharedmodel
 
 data class EosAbi(val account_name: CyberName,
                   val abi: AbiContent)

@@ -2,9 +2,9 @@ package io.golos.cyber4j.services.model
 
 
 import io.golos.cyber4j.model.CyberDiscussion
-import io.golos.cyber4j.model.CyberName
 import io.golos.cyber4j.model.DiscussionsResult
 import io.golos.cyber4j.utils.Either
+import io.golos.sharedmodel.CyberName
 
 /** listener interface for auth state in cyber microservices.
  *

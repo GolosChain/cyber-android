@@ -25,6 +25,9 @@ annotation class Abi
 annotation class NameCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
+annotation class CyberNameCompress
+
+@Target(AnnotationTarget.PROPERTY_GETTER)
 annotation class AccountNameCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
@@ -52,10 +55,16 @@ annotation class TimestampCompress
 annotation class VariableUIntCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
+annotation class BoolCompress
+
+@Target(AnnotationTarget.PROPERTY_GETTER)
 annotation class ByteCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
 annotation class ShortCompress
+
+@Target(AnnotationTarget.PROPERTY_GETTER)
+annotation class NullableShortCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
 annotation class IntCompress
@@ -70,7 +79,16 @@ annotation class FloatCompress
 annotation class BytesCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
+annotation class SymbolCodeCompress
+
+@Target(AnnotationTarget.PROPERTY_GETTER)
+annotation class SymbolCompress
+
+@Target(AnnotationTarget.PROPERTY_GETTER)
 annotation class StringCompress
+
+@Target(AnnotationTarget.PROPERTY_GETTER)
+annotation class NullableStringCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
 annotation class StringCollectionCompress
@@ -80,6 +98,9 @@ annotation class ChildCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
 annotation class CollectionCompress
+
+@Target(AnnotationTarget.PROPERTY_GETTER)
+annotation class LongCollectionCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
 annotation class HexCollectionCompress

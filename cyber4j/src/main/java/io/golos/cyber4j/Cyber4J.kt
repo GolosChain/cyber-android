@@ -21,6 +21,8 @@ import io.golos.cyber4j.model.*
 import io.golos.cyber4j.services.CyberServicesApiService
 import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
+import io.golos.sharedmodel.CyberName
+import io.golos.sharedmodel.CyberNameAdapter
 import net.gcardone.junidecode.Junidecode
 import java.io.File
 import java.net.SocketTimeoutException
