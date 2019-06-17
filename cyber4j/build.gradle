@@ -37,16 +37,15 @@ jar.baseName = "${rootProject.name}"
 
 dependencies {
     kapt project(":processor")
-    compileOnly project(":eos-abi-writer")
     kapt project(':eos-abi-writer-preprocessor')
-    compileOnly project(":annotations")
 
+    implementation project(":annotations")
     implementation project(":eos-core")
     implementation project(":abi-implementation")
     implementation project(":shared-model")
     implementation project(":eos-http-rpc")
     implementation project(":eos-chain-actions")
-
+    implementation project(":eos-abi-writer")
 
     api "com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion"
     implementation 'net.gcardone.junidecode:junidecode:0.4.1'

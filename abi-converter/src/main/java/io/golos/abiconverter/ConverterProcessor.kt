@@ -25,7 +25,6 @@ class ConverterProcessor : AbstractProcessor() {
     override fun process(annotations: MutableSet<out TypeElement>,
                          roundEnv: RoundEnvironment): Boolean {
         messager = processingEnv.messager
-        messager.printMessage(Diagnostic.Kind.WARNING, "txt = $txt")
         roundEnv.getElementsAnnotatedWith(GenerateAbi::class.java)
                 .forEach {
                     createSources(it as TypeElement)

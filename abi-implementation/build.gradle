@@ -21,12 +21,12 @@ compileTestKotlin {
 }
 
 dependencies {
+    implementation project(":annotations")
+    kapt project(":abi-converter")
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation project(":shared-model")
     implementation project(":eos-abi-writer")
     implementation project(":eos-core")
-    compileOnly project(":annotations")
-    kapt project(":abi-converter")
     kapt project(":eos-abi-writer-preprocessor")
 }
 
