@@ -10,8 +10,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
 import com.squareup.moshi.Types
 import io.golos.cyber4j.model.*
-import io.golos.cyber4j.utils.Either
-import io.golos.cyber4j.utils.LogLevel
+import io.golos.sharedmodel.*
 import java.util.*
 
 // helper class, used to split action creation and transaction push
@@ -23,7 +22,7 @@ interface TransactionPusher {
 }
 
 internal class TransactionPusherImpl(private val chainApi: CyberWayChainApi,
-                                     private val cyber4JConfig: io.golos.cyber4j.Cyber4JConfig,
+                                     private val cyber4JConfig: Cyber4JConfig,
                                      private val moshi: Moshi) : TransactionPusher {
 
 
@@ -75,11 +74,11 @@ internal class TransactionPusherImpl(private val chainApi: CyberWayChainApi,
 
                 Either.Success(value)
             } catch (e: Exception) {
-                Either.Failure(moshi.adapter<io.golos.cyber4j.model.GolosEosError>(io.golos.cyber4j.model.GolosEosError::class.java).fromJson(response)!!)
+                Either.Failure(moshi.adapter<GolosEosError>(GolosEosError::class.java).fromJson(response)!!)
             }
 
         } else {
-            Either.Failure(moshi.adapter<io.golos.cyber4j.model.GolosEosError>(io.golos.cyber4j.model.GolosEosError::class.java).fromJson(result.errorBody()?.string().orEmpty())!!)
+            Either.Failure(moshi.adapter<GolosEosError>(GolosEosError::class.java).fromJson(result.errorBody()?.string().orEmpty())!!)
         }
     }
 

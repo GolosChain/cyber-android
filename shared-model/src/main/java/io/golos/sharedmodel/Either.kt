@@ -1,4 +1,4 @@
-package io.golos.cyber4j.utils
+package io.golos.sharedmodel
 
 /** wrapper class encapsulating success of failure of certain action.
  * Being closed class hierarchy, it can be only [io.golos.cyber4j.utils.Either.Success] or [io.golos.cyber4j.utils.Either.Failure]

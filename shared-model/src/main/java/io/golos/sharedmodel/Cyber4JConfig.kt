@@ -1,6 +1,5 @@
-package io.golos.cyber4j
+package io.golos.sharedmodel
 
-import io.golos.cyber4j.utils.LogLevel
 import okhttp3.logging.HttpLoggingInterceptor
 
 data class Cyber4JConfig @JvmOverloads constructor(val blockChainHttpApiUrl: String = "http://46.4.96.246:8888/",// url of eos chain rest api
@@ -14,4 +13,8 @@ data class Cyber4JConfig @JvmOverloads constructor(val blockChainHttpApiUrl: Str
                                                                                                 //date time.  Unlikely to be changed;
                                                    val logLevel: LogLevel = LogLevel.BODY,// amount of logs. set LogLevel.NONE to disable
                                                    val httpLogger: HttpLoggingInterceptor.Logger? = HttpLoggingInterceptor.Logger.DEFAULT,
-                                                   val socketLogger: HttpLoggingInterceptor.Logger? = null)
+                                                   val socketLogger: HttpLoggingInterceptor.Logger? = null){
+    companion object {
+        val default = Cyber4JConfig()
+    }
+}

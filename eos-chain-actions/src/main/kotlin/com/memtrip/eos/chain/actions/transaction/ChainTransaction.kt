@@ -32,42 +32,42 @@ import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.Moshi
 import io.reactivex.Single
 import retrofit2.Response
+import java.util.*
 import java.util.Arrays.asList
-import java.util.Date
 
 abstract class ChainTransaction(
-    private val chainApi: ChainApi
+        private val chainApi: ChainApi
 ) {
 
     private val moshi: Moshi = Moshi.Builder().build()
 
     fun push(
-        expirationDate: Date,
-        actions: List<ActionAbi>,
-        authorizingPrivateKey: EosPrivateKey
+            expirationDate: Date,
+            actions: List<ActionAbi>,
+            authorizingPrivateKey: EosPrivateKey
     ): Single<ChainResponse<TransactionCommitted>> {
         return chainApi.getInfo().flatMap { info ->
             if (info.isSuccessful) {
                 val transaction = transaction(
-                    expirationDate,
-                    BlockIdDetails(info.body()!!.head_block_id),
-                    actions)
+                        expirationDate,
+                        BlockIdDetails(info.body()!!.head_block_id),
+                        actions)
 
                 val signature = PrivateKeySigning().sign(
-                    AbiBinaryGenTransactionWriter(DefaultByteWriter(1048), DefaultHexWriter(), CompressionType.NONE).squishSignedTransactionAbi(
-                        SignedTransactionAbi(
-                            info.body()!!.chain_id,
-                            transaction,
-                            emptyList()
-                        )
-                    ).toBytes(), authorizingPrivateKey)
+                        AbiBinaryGenTransactionWriter(DefaultByteWriter(1048), DefaultHexWriter(), CompressionType.NONE).squishSignedTransactionAbi(
+                                SignedTransactionAbi(
+                                        info.body()!!.chain_id,
+                                        transaction,
+                                        emptyList()
+                                )
+                        ).toBytes(), authorizingPrivateKey)
 
                 chainApi.pushTransaction(
-                    PushTransaction(
-                        asList(signature),
-                        "none",
-                        "",
-                        AbiBinaryGenTransactionWriter(CompressionType.NONE).squishTransactionAbi(transaction).toHex()))
+                        PushTransaction(
+                                asList(signature),
+                                "none",
+                                "",
+                                AbiBinaryGenTransactionWriter(CompressionType.NONE).squishTransactionAbi(transaction).toHex()))
             } else {
                 Single.just(Response.error(info.code(), info.errorBody()!!))
             }
@@ -79,30 +79,32 @@ abstract class ChainTransaction(
             }
 
             ChainResponse(
-                it.isSuccessful,
-                it.code(),
-                it.body(),
-                error)
+                    it.isSuccessful,
+                    it.code(),
+                    it.body(),
+                    error)
         }
     }
 
     private fun transaction(
-        expirationDate: Date,
-        blockIdDetails: BlockIdDetails,
-        actions: List<ActionAbi>
+            expirationDate: Date,
+            blockIdDetails: BlockIdDetails,
+            actions: List<ActionAbi>
     ): TransactionAbi {
 
         return TransactionAbi(
-            expirationDate,
-            blockIdDetails.blockNum,
-            blockIdDetails.blockPrefix,
-            0,
-            0,
-            0,
-            emptyList(),
-            actions,
-            emptyList(),
-            emptyList(),
-            emptyList())
+                expirationDate,
+                blockIdDetails.blockNum,
+                blockIdDetails.blockPrefix,
+                0,
+                0,
+                0,
+                0,
+                0,
+                emptyList(),
+                actions,
+                emptyList(),
+                emptyList(),
+                emptyList())
     }
 }

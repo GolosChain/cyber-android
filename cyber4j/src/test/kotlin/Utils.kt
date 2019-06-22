@@ -7,6 +7,7 @@ import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
 import io.golos.sharedmodel.CyberName
 import io.golos.sharedmodel.CyberNameAdapter
+import io.golos.sharedmodel.Either
 import junit.framework.Assert.assertNotNull
 import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.async

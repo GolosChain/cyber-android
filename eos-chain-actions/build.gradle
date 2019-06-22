@@ -38,13 +38,15 @@ dependencies {
     implementation ("org.bitcoinj:bitcoinj-core:$bitcoinJVersion") {
         exclude group: "com.lambdaworks", module: "scrypt"
     }
+    implementation 'com.squareup.moshi:moshi-adapters:1.5.0'
+    implementation "com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion"
 
     /* rxkotlin */
     api 'io.reactivex:rxkotlin:1.0.0'
 
     implementation project (":eos-http-rpc")
-    compileOnly project(":eos-abi-writer")
-    compileOnly project(":shared-model")
+    implementation project(":eos-abi-writer")
+    implementation project(":shared-model")
     implementation project(":eos-core")
 
     kapt project (":eos-abi-writer-preprocessor")

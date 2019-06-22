@@ -1,4 +1,4 @@
-package io.golos.cyber4j.model;
+package io.golos.sharedmodel;
 
 import java.util.Arrays;
 

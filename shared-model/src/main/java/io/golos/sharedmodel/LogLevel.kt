@@ -1,3 +1,3 @@
-package io.golos.cyber4j.utils
+package io.golos.sharedmodel
 
 enum class LogLevel { NONE, BASIC, BODY }

@@ -16,17 +16,17 @@
 package com.memtrip.eos.chain.actions.transaction.abi
 
 import com.memtrip.eos.abi.writer.Abi
-import com.memtrip.eos.abi.writer.AccountNameCompress
+import com.memtrip.eos.abi.writer.NameCompress
 
 @Abi
 data class TransactionAuthorizationAbi(
-    val actor: String,
-    val permission: String
+        val actor: String,
+        val permission: String
 ) {
 
     val getActor: String
-        @AccountNameCompress get() = actor
+        @NameCompress get() = actor
 
     val getPermission: String
-        @AccountNameCompress get() = permission
+        @NameCompress get() = permission
 }

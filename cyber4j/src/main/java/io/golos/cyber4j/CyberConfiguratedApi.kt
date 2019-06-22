@@ -19,7 +19,8 @@ import com.squareup.moshi.Types
 import io.golos.cyber4j.model.CyberWayChainApi
 import io.golos.cyber4j.model.ResolvedName
 import io.golos.cyber4j.services.model.ImageUploadResponse
-import io.golos.cyber4j.utils.LogLevel
+import io.golos.sharedmodel.LogLevel
+import io.golos.sharedmodel.Cyber4JConfig
 import io.reactivex.Single
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
@@ -33,7 +34,7 @@ interface ChainApiProvider {
     fun provide(): CyberWayChainApi
 }
 
-internal class GolosEosConfiguratedApi(private val config: io.golos.cyber4j.Cyber4JConfig = io.golos.cyber4j.Cyber4JConfig(),
+internal class GolosEosConfiguratedApi(private val config: Cyber4JConfig = Cyber4JConfig(),
                                        private val moshi: Moshi) : io.golos.cyber4j.ChainApiProvider {
 
     private val api: CyberWayChainApi

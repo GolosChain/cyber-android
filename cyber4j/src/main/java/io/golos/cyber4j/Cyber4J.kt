@@ -20,8 +20,7 @@ import io.golos.cyber4j.model.*
 import io.golos.cyber4j.services.CyberServicesApiService
 import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
-import io.golos.sharedmodel.CyberName
-import io.golos.sharedmodel.CyberNameAdapter
+import io.golos.sharedmodel.*
 import net.gcardone.junidecode.Junidecode
 import java.io.File
 import java.net.SocketTimeoutException
@@ -129,7 +128,7 @@ private enum class CyberContracts : CyberContract {
 
 @GenerateCoroutinesAdapter
 class Cyber4J @JvmOverloads constructor(
-        config: io.golos.cyber4j.Cyber4JConfig = io.golos.cyber4j.Cyber4JConfig(),
+        config: Cyber4JConfig = Cyber4JConfig(),
         chainApiProvider: io.golos.cyber4j.ChainApiProvider? = null,
         keyStorage: KeyStorage = KeyStorage(),
         private val apiService: ApiService = CyberServicesApiService(config)) {
@@ -1973,7 +1972,7 @@ class Cyber4J @JvmOverloads constructor(
                 )
             } else {
                 return Either.Failure(
-                        moshi.adapter<io.golos.cyber4j.model.GolosEosError>(io.golos.cyber4j.model.GolosEosError::class.java).fromJson(
+                        moshi.adapter<GolosEosError>(GolosEosError::class.java).fromJson(
                                 accResponse.errorBody()!!.string()
                         )!!
                 )

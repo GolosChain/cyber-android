@@ -2,14 +2,14 @@ package io.golos.cyber4j.services
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import io.golos.cyber4j.Cyber4JConfig
+import io.golos.sharedmodel.Cyber4JConfig
 import io.golos.cyber4j.GolosEosConfiguratedApi
 import io.golos.cyber4j.services.model.ApiResponseError
 import io.golos.cyber4j.services.model.Identifieble
 import io.golos.cyber4j.services.model.ServicesMessagesWrapper
 import io.golos.cyber4j.services.model.ServicesResponseWrapper
-import io.golos.cyber4j.utils.Either
-import io.golos.cyber4j.utils.LogLevel
+import io.golos.sharedmodel.Either
+import io.golos.sharedmodel.LogLevel
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import java.net.SocketTimeoutException

@@ -26,17 +26,19 @@ import java.util.Date
 
 @Abi
 class TransactionAbi(
-    val expiration: Date,
-    val ref_block_num: Int,
-    val ref_block_prefix: Long,
-    val max_net_usage_words: Long,
-    val max_cpu_usage_ms: Long,
-    val delay_sec: Long,
-    val context_free_actions: List<ActionAbi>,
-    val actions: List<ActionAbi>,
-    val transaction_extensions: List<String>,
-    val signatures: List<String>,
-    val context_free_data: List<String>
+        val expiration: Date,
+        val ref_block_num: Int,
+        val ref_block_prefix: Long,
+        val max_net_usage_words: Long,
+        val max_cpu_usage_ms: Long,
+        val delay_sec: Long,
+        val max_ram_kbytes: Long,
+        val max_storage_kbytes: Long,
+        val context_free_actions: List<ActionAbi>,
+        val actions: List<ActionAbi>,
+        val transaction_extensions: List<String>,
+        val signatures: List<String>,
+        val context_free_data: List<String>
 ) {
 
     val getExpiration: Long
@@ -53,6 +55,12 @@ class TransactionAbi(
 
     val getMaxCpuUsageMs: Long
         @VariableUIntCompress get() = max_cpu_usage_ms
+
+    val getMaxRamKbytes: Long
+        @VariableUIntCompress get() = max_ram_kbytes
+
+    val getMaxStorageKbytes: Long
+        @VariableUIntCompress get() = max_storage_kbytes
 
     val getDelaySec: Long
         @VariableUIntCompress get() = delay_sec
