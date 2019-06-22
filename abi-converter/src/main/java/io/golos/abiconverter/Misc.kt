@@ -13,7 +13,34 @@ import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
 import java.lang.reflect.Type
 import java.math.BigInteger
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.reflect.KClass
+
+
+class Main {
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            val srcDir = args.first()
+
+            val contracts = args.toList().subList(1, args.size)
+            println("src dir = $srcDir, contracts = $contracts")
+
+            val abis = contracts.map { getAbi(CyberName(it)) }
+
+            val generatedFileSpec = abis.map { abi: EosAbi ->
+                generateClasses(abi,
+                        /**Main::class.java.`package`.name*/
+                        "io.golos.abi.implementation" + ".${abi.account_name.name.split(".")[1]}")
+            }.flatten()
+            generatedFileSpec.forEach {
+                it.writeTo(File(srcDir))
+            }
+        }
+    }
+}
+
 
 private val moshi = Moshi.Builder().add(CyberName::class.java, CyberNameAdapter()).build()!!
 
@@ -35,10 +62,6 @@ fun getAbi(contractName: CyberName): EosAbi {
 
     val respBody = resp.body()!!.string()
     return moshi.fromJson<EosAbi>(respBody)!!
-
-    // val file = File(".", "gls.json")
-
-    //file.writeText(moshi.toJson(abiObject))
 }
 
 
@@ -88,8 +111,7 @@ val simpleTypeToAnnotationsMap = mapOf<TypeName, KClass<*>>(
         ClassName("com.memtrip.eos.core.crypto", "EosPublicKey") to PublicKeyCompress::class)
 
 fun generateClasses(eosAbi: EosAbi,
-                    packageName: String,
-                    srcFolder: File) {
+                    packageName: String): List<FileSpec> {
 
     val classPrefix = eosAbi.account_name.name.split(".").getOrElse(1) { "Rand${Math.random()}" }.capitalize()
 
@@ -104,13 +126,13 @@ fun generateClasses(eosAbi: EosAbi,
         interfaceName to it.types.map { it.toClassName(classPrefix) }
     }.toMap()
 
-    variantsMap.keys.forEach {
+    val out = variantsMap.keys.map {
         FileSpec.builder(packageName, it)
                 .addType(TypeSpec
                         .interfaceBuilder(it)
                         .addAnnotation(Abi::class.asTypeName())
                         .build())
-                .build().writeTo(srcFolder)
+                .build()
     }
 
     eosAbi.abi.types.forEach {
@@ -129,7 +151,7 @@ fun generateClasses(eosAbi: EosAbi,
                 it.generateClassName(classPrefix)).createVariations(it.name))
     }
 
-    eosAbi.abi.structs.forEach { abiStruct ->
+    return out + eosAbi.abi.structs.map { abiStruct ->
         val className = abiStruct.generateClassName(classPrefix)
 
         val classFile = FileSpec.builder(packageName, className)
@@ -215,7 +237,7 @@ fun generateClasses(eosAbi: EosAbi,
                         }
                         .build())
                 .build()
-        classFile.writeTo(srcFolder)
+        classFile
     }
 }
 
@@ -235,8 +257,6 @@ private fun TypeName.createVariations(forName: String): Array<Pair<String, TypeN
 
 
 private fun intStringToClassName(integerString: String): ClassName {
-
-    println("intStringToClassName $integerRegex")
     if (!integerString
                     .matches(integerRegex))
         throw IllegalArgumentException("string $integerString not matches with $integerRegex regexp")

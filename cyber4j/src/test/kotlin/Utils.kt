@@ -3,10 +3,10 @@ import com.squareup.moshi.Rfc3339DateJsonAdapter
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.Cyber4JCoroutinesAdapter
 import io.golos.cyber4j.model.ContentRow
-import CyberName
-import com.memtrip.eos.chain.actions.transaction.CyberNameAdapter
 import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
+import io.golos.sharedmodel.CyberName
+import io.golos.sharedmodel.CyberNameAdapter
 import junit.framework.Assert.assertNotNull
 import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.async

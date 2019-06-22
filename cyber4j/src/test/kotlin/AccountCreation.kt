@@ -1,9 +1,9 @@
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.Cyber4JConfig
 import io.golos.cyber4j.model.AuthType
-import CyberName
 import io.golos.cyber4j.utils.AuthUtils
 import io.golos.cyber4j.utils.Either
+import io.golos.sharedmodel.CyberName
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.nio.charset.Charset

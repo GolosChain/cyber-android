@@ -13,6 +13,11 @@ buildscript {
     }
 
 }
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+
+}
 compileKotlin {
     kotlinOptions.jvmTarget = "1.6"
 }
@@ -21,13 +26,13 @@ compileTestKotlin {
 }
 
 dependencies {
+    kapt project(":eos-abi-writer-preprocessor")
+    
+    implementation project(":abi-converter")
     implementation project(":annotations")
-    kapt project(":abi-converter")
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation project(":shared-model")
     implementation project(":eos-abi-writer")
     implementation project(":eos-core")
-    kapt project(":eos-abi-writer-preprocessor")
 }
 
 

@@ -1,9 +1,9 @@
-import CyberName
 import io.golos.cyber4j.model.DiscussionCreateMetadata
 import io.golos.cyber4j.model.Tag
 import io.golos.cyber4j.services.model.ContentParsingType
 import io.golos.cyber4j.services.model.DiscussionTimeSort
 import io.golos.cyber4j.utils.Either
+import io.golos.sharedmodel.CyberName
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -121,13 +121,14 @@ class ServicesFetchTest {
 
     @Test
     fun userMetadataFetchTest() {
-        val response = client.getUserMetadata("cqlvttsorsfa".toCyberName())
+        val response = client.getUserMetadata("uswjtsevydjx".toCyberName())
         assertTrue(response is Either.Success)
     }
 
     @Test
     fun userProfileTest() {
-        val response = client.getUserAccount("destroyer2k@golos".toCyberName())
+        val response = client.getUserAccount(
+                "uswjtsevydjx".toCyberName())
         assertTrue(response is Either.Success)
     }
 

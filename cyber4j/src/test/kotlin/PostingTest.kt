@@ -1,8 +1,8 @@
 import io.golos.cyber4j.model.Beneficiary
-import CyberName
 import io.golos.cyber4j.model.DiscussionCreateMetadata
 import io.golos.cyber4j.model.Tag
 import io.golos.cyber4j.utils.Either
+import io.golos.sharedmodel.CyberName
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

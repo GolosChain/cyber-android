@@ -12,6 +12,7 @@ version versionName
 
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'application'
 
 repositories {
     mavenCentral()
@@ -29,6 +30,21 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.6"
 }
 
+application {
+    mainClassName = "io.golos.abiconverter.Main"
+}
+run {
+    args = ["${project.sourceSets.main.kotlin.srcDirs.first()}".replace("abi-converter", "abi-implementation"),
+            "gls.publish",
+            "gls.social",
+            "gls.vesting",
+            "cyber.token",
+            "cyber.domain",
+            "gls.ctrl"]
+}
+
+assemble.dependsOn run
+
 dependencies {
     kapt project(':eos-abi-writer-preprocessor')
     kapt "com.google.auto.service:auto-service:$autoServiceVersion"
@@ -38,7 +54,6 @@ dependencies {
     implementation project(":annotations")
     implementation project(":eos-core")
     implementation project(":eos-abi-writer")
-
     implementation "com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion"
     implementation "com.google.auto.service:auto-service:$autoServiceVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"

@@ -54,7 +54,10 @@ class ConverterProcessor : AbstractProcessor() {
             val packageName = "${processingEnv.elementUtils.getPackageOf(typeElement)}.$postfix"
             messager.printMessage(Diagnostic.Kind.WARNING, """creating abi for ${annotation.contractName}
             | contract with filepath $filePath and packageName = $packageName """.trimMargin())
-            generateClasses(abi, packageName, filePath!!)
+            val out = generateClasses(abi, packageName)
+            out.forEach {
+                it.writeTo(filePath!!)
+            }
         }
     }
 }
