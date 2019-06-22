@@ -31,7 +31,6 @@ class Main {
 
             val generatedFileSpec = abis.map { abi: EosAbi ->
                 generateClasses(abi,
-                        /**Main::class.java.`package`.name*/
                         "io.golos.abi.implementation" + ".${abi.account_name.name.split(".")[1]}")
             }.flatten()
             generatedFileSpec.forEach {
