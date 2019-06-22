@@ -37,7 +37,7 @@ fun generateActions(eosAbi: EosAbi,
                                 .addParameter("transactionAuth", List::class.asClassName().parameterizedBy(TransactionAuthorizationAbi::class.asClassName()))
                                 .addParameter(
                                         ParameterSpec.builder("contractName", String::class)
-                                                .defaultValue(CodeBlock.of("\"${eosAbi.toContractName().name}\""))
+                                                .defaultValue(CodeBlock.of("\"${eosAbi.account_name.name}\""))
                                                 .build())
                                 .addParameter(
                                         ParameterSpec.builder("actionName", String::class)
@@ -56,7 +56,7 @@ fun generateActions(eosAbi: EosAbi,
                                 .addParameter("key", EosPrivateKey::class)
                                 .addParameter(
                                         ParameterSpec.builder("contractName", String::class)
-                                                .defaultValue(CodeBlock.of("\"${eosAbi.toContractName().name}\""))
+                                                .defaultValue(CodeBlock.of("\"${eosAbi.account_name.name}\""))
                                                 .build())
                                 .addParameter(
                                         ParameterSpec.builder("actionName", String::class)

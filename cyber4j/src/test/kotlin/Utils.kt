@@ -1,5 +1,10 @@
+import com.memtrip.eos.chain.actions.transaction.abi.TransactionAuthorizationAbi
+import com.memtrip.eos.core.crypto.EosPrivateKey
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
+import io.golos.abi.implementation.publish.CreatemssgPublishAction
+import io.golos.abi.implementation.publish.CreatemssgPublishStruct
+import io.golos.abi.implementation.publish.MssgidPublishStruct
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.Cyber4JCoroutinesAdapter
 import io.golos.cyber4j.model.ContentRow
@@ -116,5 +121,21 @@ class Utils {
         assertNotNull(resolvedCanonicalName.username)
         assertNotNull(resolvedCanonicalName.userId)
         assertTrue(resolvedCanonicalName.userId.name != usernameDomain)
+    }
+
+    @Test
+    fun testRawApi() {
+      val result =   CreatemssgPublishAction(CreatemssgPublishStruct(
+                MssgidPublishStruct((CyberName(client.keyStorage.activeAccountPair.first.name)),
+                        "sdgewtwesgsd232225"),
+                MssgidPublishStruct(CyberName(""), ""),
+                emptyList(), 0, true, "title", " nывпывп 25 ывп ывп",
+                "ru", emptyList(), "", null)
+        ).push(
+                listOf(TransactionAuthorizationAbi("rhjivvslwjbi", "active")),
+                EosPrivateKey("5JqAVXvYBeGX88vymMJYD4d8w24vvsEbnoodQpFaQLnh8utGRT8")
+        )
+        print(result)
+        assertTrue(result is Either.Success)
     }
 }

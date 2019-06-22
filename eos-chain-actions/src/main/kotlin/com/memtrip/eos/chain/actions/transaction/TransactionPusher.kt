@@ -13,12 +13,10 @@ import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
 import io.golos.sharedmodel.*
-import okhttp3.MediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
+import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.*
+import java.util.concurrent.Executors
 
 object TransactionPusher {
 
@@ -28,7 +26,12 @@ object TransactionPusher {
             .add(CyberName::class.java, CyberNameAdapter())
             .build()
 
-    private var okHttpClient = OkHttpClient.Builder().build()
+    private var okHttpClient = OkHttpClient
+            .Builder()
+            .dispatcher(Dispatcher(Executors.newSingleThreadExecutor { Thread.currentThread() }))
+            .build()
+
+    private var lastConfig: Cyber4JConfig? = null
 
 
     @JvmOverloads
@@ -37,13 +40,16 @@ object TransactionPusher {
                             traceType: Class<T>,
                             withConfig: Cyber4JConfig = Cyber4JConfig.default): Either<TransactionCommitted, GolosEosError> {
 
-        okHttpClient = okHttpClient.newBuilder().also {
-            it.interceptors().also {
-                it.clear()
-                if (withConfig.httpLogger != null)
-                    it.add(HttpLoggingInterceptor(withConfig.httpLogger!!))
-            }
-        }.build()
+        if (lastConfig != withConfig) {
+            okHttpClient = okHttpClient.newBuilder().also {
+                it.interceptors().also {
+                    it.clear()
+                    if (withConfig.httpLogger != null)
+                        it.add(HttpLoggingInterceptor(withConfig.httpLogger!!))
+                }
+            }.build()
+            lastConfig = withConfig
+        }
 
         val resp = okHttpClient.newCall(Request.Builder()
                 .post(RequestBody.create(MediaType.parse("application/json"), ""))
@@ -82,19 +88,21 @@ object TransactionPusher {
                                 listOf(signature), "none", "",
                                 AbiBinaryGenTransactionWriter(CompressionType.NONE).squishTransactionAbi(transaction).toHex()
                         ))))
-                .url("${withConfig.blockChainHttpApiUrl}v1/chain/get_info")
+                .url("${withConfig.blockChainHttpApiUrl}v1/chain/push_transaction")
                 .build())
                 .execute()
 
 
         return if (result.isSuccessful) {
-
             val response = result.body()!!.string()
 
             return try {
-                val value = moshi.adapter<TransactionCommitted>(TransactionCommitted::class.java).fromJsonValue(response)!!
+                val value = moshi
+                        .adapter<TransactionCommitted>(TransactionCommitted::class.java)
+                        .fromJson(response)!!
                 Either.Success(value)
             } catch (e: Exception) {
+                e.printStackTrace()
                 Either.Failure(moshi.adapter<GolosEosError>(GolosEosError::class.java).fromJson(response)!!)
             }
         } else {
