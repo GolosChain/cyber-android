@@ -11,7 +11,6 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
-
 }
 
 dependencies {
@@ -26,12 +25,13 @@ compileTestKotlin {
 }
 
 dependencies {
+    compileOnly project(":abi-converter")
+
     kapt project(":eos-abi-writer-preprocessor")
-    
-    implementation project(":abi-converter")
     implementation project(":annotations")
     implementation project(":shared-model")
     implementation project(":eos-abi-writer")
+    implementation project(":eos-chain-actions")
     implementation project(":eos-core")
 }
 

@@ -1,21 +1,23 @@
 package io.golos.abiconverter
 
 import com.memtrip.eos.abi.writer.*
+import com.memtrip.eos.abi.writer.compression.CompressionType
+import com.memtrip.eos.chain.actions.transaction.abi.TransactionAuthorizationAbi
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.moshi.Moshi
-import io.golos.sharedmodel.*
+import io.golos.sharedmodel.AbiStruct
+import io.golos.sharedmodel.CyberName
+import io.golos.sharedmodel.CyberNameAdapter
+import io.golos.sharedmodel.EosAbi
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
-import java.lang.reflect.Type
 import java.math.BigInteger
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.reflect.KClass
 
 
 class Main {
@@ -29,10 +31,19 @@ class Main {
 
             val abis = contracts.map { getAbi(CyberName(it)) }
 
-            val generatedFileSpec = abis.map { abi: EosAbi ->
-                generateClasses(abi,
-                        "io.golos.abi.implementation" + ".${abi.account_name.name.split(".")[1]}")
-            }.flatten()
+            val destPackage = "io.golos.abi.implementation"
+
+            val generatedFileSpec = abis
+                    .map { abi: EosAbi ->
+
+                        val abiPackage = destPackage + "." + abi.toContractName().name
+
+                        (generateClasses(abi.toContractName(),
+                                abi,
+                                abiPackage,
+                                "Cyber")
+                                + generateActions(abi, abiPackage))
+                    }.flatten()
             generatedFileSpec.forEach {
                 it.writeTo(File(srcDir))
             }
@@ -42,8 +53,6 @@ class Main {
 
 
 private val moshi = Moshi.Builder().add(CyberName::class.java, CyberNameAdapter()).build()!!
-
-val integerRegex = Regex("(u)?int(\\d){1,3}")
 
 fun getAbi(contractName: CyberName): EosAbi {
     val okHttpClient = OkHttpClient
@@ -64,55 +73,12 @@ fun getAbi(contractName: CyberName): EosAbi {
 }
 
 
-private inline fun <reified T> Moshi.fromJson(json: String) = adapter<T>(T::class.java).fromJson(json)
-private inline fun <reified T> Moshi.toJson(`object`: T) = adapter<T>(T::class.java).toJson(`object`)
+fun generateClasses(contractName: CyberName,
+                    eosAbi: EosAbi,
+                    packageName: String,
+                    writerInterfaceName: String): List<FileSpec> {
 
-
-val builtInTypes = hashMapOf(*ClassName("kotlin", "String").createVariations("string"),
-        *(CyberName::class.java.asTypeName() as ClassName).createVariations("name"),
-        * (arrayOf("int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64")
-                .map { it to intStringToClassName(it) })
-                .toList()
-                .let { listOfPairs ->
-                    val copy = ArrayList<Pair<String, TypeName>>(listOfPairs.size)
-                    listOfPairs.forEach { pair ->
-                        copy.addAll(pair.second.createVariations(pair.first))
-                    }
-                    copy.toTypedArray()
-                })
-        .apply {
-            putAll(Boolean::class.asTypeName().createVariations("bool"))
-            putAll(CyberAsset::class.asTypeName().createVariations("asset"))
-            putAll(CyberSymbolCode::class.asTypeName().createVariations("symbol_code"))
-            putAll(CyberSymbol::class.asTypeName().createVariations("symbol"))
-            putAll(CyberTimeStamp::class.asTypeName().createVariations("time_point_sec"))
-            putAll(CheckSum256::class.asTypeName().createVariations("checksum256"))
-        } as Map<String, TypeName>
-
-val simpleTypeToAnnotationsMap = mapOf<TypeName, KClass<*>>(
-        Boolean::class.asTypeName() to BoolCompress::class,
-        Short::class.asTypeName() to ShortCompress::class,
-        Short::class.asClassName().copy(true) to NullableShortCompress::class,
-        Int::class.asTypeName() to IntCompress::class,
-        Long::class.asTypeName() to LongCompress::class,
-        Byte::class.asTypeName() to ByteCompress::class,
-        ByteArray::class.asTypeName() to BytesCompress::class,
-        BigInteger::class.asTypeName() to BytesCompress::class,
-        String::class.asTypeName() to StringCompress::class,
-        String::class.asClassName().copy(true) to NullableStringCompress::class,
-        BigInteger::class.asTypeName() to BytesCompress::class,
-        CyberName::class.asTypeName() to CyberNameCompress::class,
-        CyberAsset::class.asTypeName() to AssetCompress::class,
-        CyberSymbolCode::class.asTypeName() to SymbolCodeCompress::class,
-        CyberSymbol::class.asTypeName() to SymbolCompress::class,
-        CyberTimeStamp::class.asTypeName() to TimestampCompress::class,
-        CheckSum256::class.asTypeName() to CheckSumCompress::class,
-        ClassName("com.memtrip.eos.core.crypto", "EosPublicKey") to PublicKeyCompress::class)
-
-fun generateClasses(eosAbi: EosAbi,
-                    packageName: String): List<FileSpec> {
-
-    val classPrefix = eosAbi.account_name.name.split(".").getOrElse(1) { "Rand${Math.random()}" }.capitalize()
+    val classPrefix = contractName.name.capitalize()
 
     val stringToTypesMap = HashMap(builtInTypes)
 
@@ -147,13 +113,18 @@ fun generateClasses(eosAbi: EosAbi,
 
     eosAbi.abi.structs.forEach {
         stringToTypesMap.putAll(ClassName(packageName,
-                it.generateClassName(classPrefix)).createVariations(it.name))
+                it.generateStructName(classPrefix)).createVariations(it.name))
     }
 
     return out + eosAbi.abi.structs.map { abiStruct ->
-        val className = abiStruct.generateClassName(classPrefix)
+        val className = abiStruct.generateStructName(classPrefix)
 
         val classFile = FileSpec.builder(packageName, className)
+                .addComment("Class is generated, changes would be overridden on compile")
+                .addImport(CompressionType::class, "")
+                .addImport("com.memtrip.eos.chain.actions.transaction.abi",
+                        "ActionAbi", "TransactionAuthorizationAbi")
+                .addImport(packageName.dropLastWhile { it != '.' }, "AbiBinaryGen$writerInterfaceName")
                 .addType(TypeSpec.classBuilder(className)
                         .also { typeBuilder ->
                             typeBuilder.addSuperinterfaces(variantsMap.filter { it.value.contains(className) }.map {
@@ -169,10 +140,11 @@ fun generateClasses(eosAbi: EosAbi,
                                                 stringToTypesMap[stuctField.type]
                                                         ?: throw java.lang.IllegalStateException("cannot find ClassName for type ${stuctField.type}"))
                                     }
-                                    builder.addParameter(ParameterSpec.builder("stub",
-                                            String::class.asTypeName(), KModifier.PRIVATE)
-                                            .defaultValue("\"stub\"")
-                                            .build())
+                                    if (abiStruct.fields.isEmpty())
+                                        builder.addParameter(ParameterSpec.builder("stub",
+                                                String::class.asTypeName(), KModifier.PRIVATE)
+                                                .defaultValue("\"stub\"")
+                                                .build())
                                 }
                                 .build())
                         .also { builder: TypeSpec.Builder ->
@@ -184,10 +156,11 @@ fun generateClasses(eosAbi: EosAbi,
                                                 .initializer(structField.name)
                                                 .build())
                             }
-                            builder.addProperty(PropertySpec.builder("stub",
-                                    String::class.asTypeName())
-                                    .initializer("stub")
-                                    .build())
+                            if (abiStruct.fields.isEmpty())
+                                builder.addProperty(PropertySpec.builder("stub",
+                                        String::class.asTypeName())
+                                        .initializer("stub")
+                                        .build())
                         }
                         .also { builder: TypeSpec.Builder ->
                             abiStruct.fields.forEach { structField ->
@@ -234,40 +207,31 @@ fun generateClasses(eosAbi: EosAbi,
                                                 .build())
                             }
                         }
+                        .also { builder ->
+                            builder.addFunction(FunSpec
+                                    .builder("toHex")
+                                    .addCode("""return AbiBinaryGen$writerInterfaceName(CompressionType.NONE)
+                                        |               .squish$className(this)
+                                        |               .toHex()
+                                    """.trimMargin())
+                                    .build())
+
+                            builder.addFunction(FunSpec
+                                    .builder("toActionAbi")
+                                    .addParameter("contractName", String::class)
+                                    .addParameter("actionName", String::class)
+                                    .addParameter("transactionAuth", List::class.asClassName().parameterizedBy(TransactionAuthorizationAbi::class.asClassName()))
+                                    .addCode("""
+                                        |return ActionAbi(contractName, actionName,
+                                        |       transactionAuth, toHex())""".trimMargin())
+                                    .build())
+                        }
                         .build())
                 .build()
         classFile
     }
 }
 
-private fun AbiStruct.generateClassName(prefix: String) = this.name.toClassName(prefix)
+fun AbiStruct.generateStructName(prefix: String) = this.name.toClassName(prefix)
 
-private fun String.toClassName(prefix: String, postfix: String = "Struct") = "${this.fromSnakeCase().capitalize()}$prefix$postfix"
-
-private fun String.fromSnakeCase() = this
-        .split("_")
-        .joinToString("")
-        { it.capitalize() }
-
-private fun TypeName.createVariations(forName: String): Array<Pair<String, TypeName>> =
-        arrayOf(forName to this,
-                forName.plus("?") to this.copy(true),
-                "$forName[]" to List::class.asTypeName().parameterizedBy(this))
-
-
-private fun intStringToClassName(integerString: String): ClassName {
-    if (!integerString
-                    .matches(integerRegex))
-        throw IllegalArgumentException("string $integerString not matches with $integerRegex regexp")
-    val intSize = Integer.parseInt(integerString.replace("\\D".toRegex(), ""))
-    return when {
-        intSize <= 8 -> Byte::class.java.asClassName()
-        intSize <= 16 -> Short::class.java.asClassName()
-        intSize <= 32 -> Int::class.java.asClassName()
-        intSize <= 64 -> Long::class.java.asClassName()
-        else -> BigInteger::class.java.asClassName()
-    }
-}
-
-private fun Type.asClassName() = asTypeName() as ClassName
 

@@ -6,6 +6,7 @@ data class EosAbi(val account_name: CyberName,
 data class AbiContent(val version: String,
                       val types: List<AbiType>,
                       val structs: List<AbiStruct>,
+                      val actions: List<AbiAction>,
                       val variants: List<AbiVariant>)
 
 data class AbiVariant(val name: String, val types: List<String>)
