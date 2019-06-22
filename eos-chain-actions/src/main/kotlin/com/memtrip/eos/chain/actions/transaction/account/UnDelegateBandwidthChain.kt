@@ -41,7 +41,7 @@ class UnDelegateBandwidthChain(chainApi: ChainApi) : ChainTransaction(chainApi) 
     fun unDelegateBandwidth(
         args: Args,
         transactionContext: TransactionContext
-    ): Single<ChainResponse<TransactionCommitted>> {
+    ): Single<ChainResponse<TransactionCommitted<Any>>> {
 
         return push(
             transactionContext.expirationDate,

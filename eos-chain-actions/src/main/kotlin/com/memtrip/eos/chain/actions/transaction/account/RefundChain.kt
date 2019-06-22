@@ -19,7 +19,7 @@ class RefundChain(chainApi: ChainApi) : ChainTransaction(chainApi) {
 
     fun refund(
         transactionContext: TransactionContext
-    ): Single<ChainResponse<TransactionCommitted>> {
+    ): Single<ChainResponse<TransactionCommitted<Any>>> {
 
         return push(
             transactionContext.expirationDate,

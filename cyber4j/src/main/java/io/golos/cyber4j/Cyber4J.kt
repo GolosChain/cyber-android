@@ -147,7 +147,6 @@ class Cyber4J @JvmOverloads constructor(
     val config = config
         @ExcludeFromGeneration get
 
-
     init {
         if (chainApiProvider == null) {
             chainApi = io.golos.cyber4j.GolosEosConfiguratedApi(config, moshi).provide()
@@ -169,7 +168,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param curatorRewardPercentage curation reward percentage, 0..10_000
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      *
      */
@@ -213,7 +212,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param curatorRewardPercentage percentage of curation reward, 0..10_000
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      *
      */
@@ -253,7 +252,7 @@ class Cyber4J @JvmOverloads constructor(
     }
 
     // sometimes blockain refuses to transact proper transaction due to some inner problems.
-    // It return TimeoutException - and i try to push transaction again
+    //if it returns TimeoutException - then i try to push transaction again
     private fun <T> callTilTimeoutExceptionVanishes(
             callable: Callable<Either<TransactionSuccessful<T>,
                     GolosEosError>>
@@ -369,7 +368,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param curatorRewardPercentage percentage of curation reward, 0..10_000
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      *
      */
@@ -407,7 +406,7 @@ class Cyber4J @JvmOverloads constructor(
      * method for setting metadata of active user from [keyStorage]
      * null in any field means skipping property (i.e field will not changed), while blank string means property erasure
      * field names are self-describing
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      */
 
@@ -463,7 +462,7 @@ class Cyber4J @JvmOverloads constructor(
      * method for setting metadata of [fromAccount] user, using [userActiveKey] eos active key
      * null in any field means erasure of corresponding property, not update
      * field names are self-describing
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      */
 
@@ -529,7 +528,7 @@ class Cyber4J @JvmOverloads constructor(
 
     /***
      * method for deleting metadata of [ofUser] user, using [userActiveKey] eos active key
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      */
     fun deleteUserMetadata(
@@ -550,7 +549,7 @@ class Cyber4J @JvmOverloads constructor(
 
     /***
      * method for deleting metadata of active user from [keyStorage]
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      */
     fun deleteUserMetadata(): Either<TransactionSuccessful<ProfileMetadataDeleteResult>, GolosEosError> {
@@ -574,7 +573,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param beneficiaries beneficiaries of a post. Can be empty
      * @param vestPayment true to allow vestPayment of author to for a post
      * @param tokenProp idk
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
 
     fun createComment(
@@ -655,7 +654,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param newBody new body a of post. Must be not blank
      * @param newTags new tags a of post
      * @param newJsonMetadata updated  metadata of a post
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
 
     fun updatePost(
@@ -685,7 +684,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param commentPermlink permlink of comment
      * @param newBody new body a of post. Must be not blank
      * @param categories new categories of comment.
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
     fun updateComment(
             userActiveKey: String,
@@ -708,7 +707,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param newBody new body a of post. Must be not blank
      * @param newTags new tags a of post
      * @param newJsonMetadata updated metadata of a post
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      */
 
@@ -739,7 +738,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param commentPermlink permlink of comment.
      * @param newBody new body a of post. Must be not blank
      * @param newCategories new list of categories of a comment
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      */
     fun updateComment(
@@ -767,7 +766,7 @@ class Cyber4J @JvmOverloads constructor(
     /** method deletion post of comment
      * @param userActiveKey active key of [postOrCommentAuthor]
      * @param postOrCommentPermlink permlink of entity to delete
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
     fun deletePostOrComment(
             userActiveKey: String,
@@ -796,7 +795,7 @@ class Cyber4J @JvmOverloads constructor(
 
     /** method deletion post of comment, using credentials of active account from [keyStorage]
      * @param postOrCommentPermlink permlink of entity to delete
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      */
     fun deletePostOrComment(
@@ -817,7 +816,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param permlinkOfPostToReblog permlink of entity to reblog
      * @param title idk
      * @param body idk
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      */
 
@@ -849,7 +848,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param title idk
      * @param body idk
      * @param permlinkOfPostToReblog permlink of entity to reblog
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
     fun reblog(
             userActiveKey: String,
@@ -889,7 +888,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param userActiveKey active key of perso, who want to vote for a [witness]
      * @param voter name of a person, who wants to vote
      * @param witness name of witness to vote to
-     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
 
     fun voteForAWitness(
@@ -921,7 +920,7 @@ class Cyber4J @JvmOverloads constructor(
     /** vote for a witness
      * This method assumes that you have added account with keys to [keyStorage]
      * @param witness name of witness to vote to
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      */
 
@@ -939,7 +938,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param userActiveKey active key of perso, who want to vote for a [witness]
      * @param voter name of a person, who wants to vote
      * @param witness name of witness to vote to
-     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
 
     fun unVoteForAWitness(
@@ -972,7 +971,7 @@ class Cyber4J @JvmOverloads constructor(
     /** cancel vote for a witness
      * This method assumes that you have added account with keys to [keyStorage]
      * @param witness name of witness to vote to
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      */
 
@@ -989,7 +988,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param userActiveKey active key of a [witness]
      * @param websiteUrl url of [witness] proposals
      * @param witness name of witness who's [userActiveKey] you provide
-     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
 
     fun registerAWitness(
@@ -1024,7 +1023,7 @@ class Cyber4J @JvmOverloads constructor(
     /** register a witness. This method assumes that you have active account in [keyStorage]. method
      * will try to create witness of active account
      * @param websiteUrl url of proposals of active account as witness
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      *@throws IllegalStateException if active account not set*/
 
 
@@ -1039,7 +1038,7 @@ class Cyber4J @JvmOverloads constructor(
     /** unregister a witness
      * @param userActiveKey active key of [witness], who wants to unregister
      * @param witness name of witness to unregister
-     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
 
     fun unRegisterWitness(
@@ -1068,7 +1067,7 @@ class Cyber4J @JvmOverloads constructor(
 
     /** unregister a witness
      * This method assumes that you have added account with keys to [keyStorage]
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * @throws IllegalStateException if active account not set
      */
 
@@ -1083,7 +1082,7 @@ class Cyber4J @JvmOverloads constructor(
     /** starts balloting of a witness
      * @param userActiveKey active key of [witness], who wants to start
      * @param witness name of witness to start
-     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
     fun startWitness(
             witness: CyberName,
@@ -1110,7 +1109,7 @@ class Cyber4J @JvmOverloads constructor(
 
     /** starts balloting of a witness. Method uses active account from [keyStorage] as witness name.
      * Method assumes, that active account  is set
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
     fun startWitness(): Either<TransactionSuccessful<WitnessNameResult>, GolosEosError> {
         val activeUser = resolveKeysFor(CyberContracts.CTRL, CyberActions.START_WITNESS)
@@ -1123,7 +1122,7 @@ class Cyber4J @JvmOverloads constructor(
      * If there is not votes for a witness you can delete it.
      * @param userActiveKey active key of [witness], who wants to stop
      * @param witness name of witness to stop
-     *  * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
     fun stopWitness(
             witness: CyberName,
@@ -1151,7 +1150,7 @@ class Cyber4J @JvmOverloads constructor(
     /** stops balloting of a witness. You cannot vote for a stopped witness, but unvoting is availible.
      * If there is not votes for a witness you can delete it.
      * This method assumes that you have added account with keys to [keyStorage]
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
     fun stopWitness(): Either<TransactionSuccessful<WitnessNameResult>, GolosEosError> {
         val activeUser = resolveKeysFor(CyberContracts.CTRL, CyberActions.STOP_WITNESS)
@@ -1165,7 +1164,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param postOrCommentPermlink permlink of post or comment
      * @param voteStrength voting strength. Might be [-10_000..10_000]. Set 0 to unvote
      *  @throws IllegalStateException if active account not set
-     *   @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *   @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun vote(
             postOrCommentAuthor: CyberName,
@@ -1193,7 +1192,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param userActiveKey active key of [fromAccount]
      * @param postOrCommentAuthor author of post or comment
      * @param voteStrength voting strength. Might be [-10_000..10_000]. Set 0 to unvote
-     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun vote(
             fromAccount: CyberName,
@@ -1244,7 +1243,7 @@ class Cyber4J @JvmOverloads constructor(
      * [AuthUtils.generatePublicWiFs] for acquiring public keys
      * @param cyberCreatePermissionKey key of "gls" for "newaccount" action with "active" permission
      * @throws IllegalStateException if method failed to open vesting or token balance, issue tokens or transfer it to "gls.vesting
-     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun createAccount(
             newAccountName: String,
@@ -1334,7 +1333,7 @@ class Cyber4J @JvmOverloads constructor(
      * new account creation
      * @param forUser account name
      * @param cyberKey key of "cyber" with "createuser" permission
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
 
     fun openVestingBalance(
@@ -1346,7 +1345,7 @@ class Cyber4J @JvmOverloads constructor(
      * new account creation
      * @param forUser account name
      * @param cyberCreatePermissionKey key of "cyber" with "createuser" permission
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
 
     fun openTokenBalance(
@@ -1398,7 +1397,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param forUser account name
      * @param issuerKey key of "gls" with "issue" permission
      * @param amount amount of tokens to issue.  Must have 3 points precision, like 12.000 or 0.001
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun issueTokens(
             forUser: CyberName,
@@ -1452,7 +1451,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param owner owner of domain
      * @param newUserName new nickName for user
      * @param creatorKey active key of [owner]
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun newUserName(owner: CyberName,
                     newUserName: String,
@@ -1466,7 +1465,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param owner owner of domain
      * @param newUserName new nickName for user
      * @param creatorKey active key of [owner]
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun newUserName(owner: CyberName,
                     forUser: CyberName,
@@ -1498,7 +1497,7 @@ class Cyber4J @JvmOverloads constructor(
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
 
     fun getCommunityPosts(
@@ -1522,7 +1521,7 @@ class Cyber4J @JvmOverloads constructor(
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
 
     fun getUserSubscriptions(
@@ -1549,7 +1548,7 @@ class Cyber4J @JvmOverloads constructor(
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
 
     fun getUserPosts(
@@ -1580,7 +1579,7 @@ class Cyber4J @JvmOverloads constructor(
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
 
 
@@ -1600,7 +1599,7 @@ class Cyber4J @JvmOverloads constructor(
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
 
     fun getComment(
@@ -1622,7 +1621,7 @@ class Cyber4J @JvmOverloads constructor(
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
 
     fun getCommentsOfPost(
@@ -1651,7 +1650,7 @@ class Cyber4J @JvmOverloads constructor(
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
     fun getUserReplies(
             user: CyberName,
@@ -1677,7 +1676,7 @@ class Cyber4J @JvmOverloads constructor(
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * also this exception may occur during authorization in case of active user change in [keyStorage], if there is some query in process.
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
 
     fun getCommentsOfUser(
@@ -1708,7 +1707,7 @@ class Cyber4J @JvmOverloads constructor(
     /** method for fetching  metedata of some user
      * @param user name of user, which metadata is  fetched
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
     fun getUserMetadata(user: CyberName): Either<UserMetadataResult, ApiResponseError> =
             apiService.getUserMetadata(user.name)
@@ -1717,14 +1716,14 @@ class Cyber4J @JvmOverloads constructor(
     /** method will block thread until [blockNum] would consumed by prism services
      * @param blockNum num of block to wait
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
     fun waitForABlock(blockNum: Long): Either<ResultOk, ApiResponseError> = apiService.waitBlock(blockNum)
 
     /** method will block thread until [transactionId] would be consumed by prism services. Old transaction are not stored in services.
      * @param transactionId id of transaction to wait
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
     fun waitForTransaction(transactionId: String): Either<ResultOk, ApiResponseError> = apiService.waitForTransaction(transactionId)
 
@@ -1732,7 +1731,7 @@ class Cyber4J @JvmOverloads constructor(
     /**get processed embed link for some raw "https://site.com/content" using iframely service
      * @param forLink raw link of site content
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun getEmbedIframely(forLink: String): Either<IFramelyEmbedResult, ApiResponseError> =
             apiService.getIframelyEmbed(forLink)
@@ -1740,7 +1739,7 @@ class Cyber4J @JvmOverloads constructor(
     /**get processed embed link for some raw "https://site.com/content" using oembed service
      * @param forLink raw link of site content
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun getEmbedOembed(forLink: String): Either<OEmbedResult, ApiResponseError> = apiService.getOEmdedEmbed(forLink)
 
@@ -1750,7 +1749,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param deviceId id of device or installation.
      * @param fcmToken token of app installation in FCM.
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun subscribeOnMobilePushNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError> = apiService.subscribeOnMobilePushNotifications(deviceId, fcmToken)
 
@@ -1759,7 +1758,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param deviceId id of device or installation.
      * @param fcmToken token of app installation in FCM.
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun unSubscribeOnNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError> = apiService.unSubscribeOnNotifications(deviceId, fcmToken)
 
@@ -1771,7 +1770,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param newWebNotifySettings settings of online web notifications.
      * @param newMobilePushSettings settings of mobile push notifications. Uses FCM.
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun setUserSettings(deviceId: String, newBasicSettings: Any?,
                         newWebNotifySettings: WebShowSettings?,
@@ -1781,7 +1780,7 @@ class Cyber4J @JvmOverloads constructor(
      * method requires authorization
      * @param deviceId id of device or installation.
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun getUserSettings(deviceId: String): Either<UserSettings, ApiResponseError> = apiService.getNotificationSettings(deviceId)
 
@@ -1794,7 +1793,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param freshOnly set true, if you want get only fresh notifcaitons
      * @param types list of types of notifcaitons you want to get
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun getEvents(userProfile: String, afterId: String?, limit: Int?, markAsViewed: Boolean?,
                   freshOnly: Boolean?, types: List<EventType>): Either<EventsData, ApiResponseError> = apiService.getEvents(userProfile, afterId, limit, markAsViewed, freshOnly, types)
@@ -1803,21 +1802,21 @@ class Cyber4J @JvmOverloads constructor(
      * method requires authorization
      * @param ids list of id's to set as read
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun markEventsAsNotFresh(ids: List<String>): Either<ResultOk, ApiResponseError> = apiService.markEventsAsRead(ids)
 
     /**mark certain all events history of authorized user as not fresh
      * method requires authorization
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun markAllEventsAsNotFresh(): Either<ResultOk, ApiResponseError> = apiService.markAllEventsAsRead()
 
     /**method for retreving count of fresh events of authorized user.
      * method requires authorization
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun getFreshNotificationCount(profileId: String): Either<FreshResult, ApiResponseError> = apiService.getUnreadCount(profileId)
 
@@ -1826,7 +1825,7 @@ class Cyber4J @JvmOverloads constructor(
      *  @param user name of user, which registration state get fetched.
      *  @param phone  of user, which registration state get fetched.
      *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun getRegistrationState(
             user: String?,
@@ -1840,7 +1839,7 @@ class Cyber4J @JvmOverloads constructor(
      *  @param phone  of user for sending sms verification code
      *  @param testingPass pass to omit cpatcha and phone checks
      *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
 
     fun firstUserRegistrationStep(captcha: String?, phone: String, testingPass: String?) =
@@ -1850,7 +1849,7 @@ class Cyber4J @JvmOverloads constructor(
      *  @param code sms code sent to [phone]
      *  @param phone  of user
      *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun verifyPhoneForUserRegistration(phone: String, code: Int) =
             apiService.verifyPhoneForUserRegistration(phone, code)
@@ -1859,7 +1858,7 @@ class Cyber4J @JvmOverloads constructor(
      *  @param user name to associate with [phone]
      *  @param phone verified phone
      *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun setVerifiedUserName(user: String, phone: String) = apiService.setVerifiedUserName(user, phone)
 
@@ -1870,7 +1869,7 @@ class Cyber4J @JvmOverloads constructor(
      *  @param posting public posting key of user
      *  @param memo public memo key of user
      *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun writeUserToBlockChain(
             userName: String,
@@ -1884,14 +1883,14 @@ class Cyber4J @JvmOverloads constructor(
     /** method used to resend sms code to user during phone verification
      *  @param forUser name of user
      *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun resendSmsCode(forUser: String, @Suppress("UNUSED_PARAMETER") unused: Int = 0) = apiService.resendSmsCode(forUser, null)
 
     /** method used to resend sms code to user during phone verification
      *  @param phone phone of user to verify
      *  @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun resendSmsCode(phone: String) = apiService.resendSmsCode(null, phone)
 
@@ -1900,7 +1899,7 @@ class Cyber4J @JvmOverloads constructor(
      * 1. getting secret string using method [getAuthSecret]
      * 2. signing it with [StringSigner]
      * 3. sending result using [authWithSecret] method
-     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun getAuthSecret(): Either<AuthSecret, ApiResponseError> = apiService.getAuthSecret()
 
@@ -1911,7 +1910,7 @@ class Cyber4J @JvmOverloads constructor(
      *  @param user userid, userName, domain name, or whateve current version of services willing to accept
      *  @param secret secret string, obtained from [getAuthSecret] method
      *  @param signedSecret [secret] signed with [StringSigner]
-     *  @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     *  @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
 
     fun authWithSecret(user: String,
@@ -1936,7 +1935,7 @@ class Cyber4J @JvmOverloads constructor(
     /** method for fetching  account of some user
      * @param user name of user, which account is  fetched
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
     fun getUserAccount(user: CyberName): Either<UserProfile, GolosEosError> {
         return try {
@@ -1990,7 +1989,7 @@ class Cyber4J @JvmOverloads constructor(
 
     /** method for uploading images.
      * @param file file with image
-     * @return [io.golos.cyber4j.utils.Either.Success] if transaction succeeded, otherwise [io.golos.cyber4j.utils.Either.Failure]
+     * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
     fun uploadImage(file: File): Either<String, GolosEosError> {
         return try {

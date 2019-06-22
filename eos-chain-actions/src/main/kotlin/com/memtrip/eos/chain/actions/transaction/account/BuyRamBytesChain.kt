@@ -40,7 +40,7 @@ class BuyRamBytesChain(chainApi: ChainApi) : ChainTransaction(chainApi) {
     fun buyRamBytes(
         args: Args,
         transactionContext: TransactionContext
-    ): Single<ChainResponse<TransactionCommitted>> {
+    ): Single<ChainResponse<TransactionCommitted<Any>>> {
 
         return push(
             transactionContext.expirationDate,

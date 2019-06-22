@@ -38,7 +38,7 @@ class SellRamChain(chainApi: ChainApi) : ChainTransaction(chainApi) {
     fun sellRam(
         args: Args,
         transactionContext: TransactionContext
-    ): Single<ChainResponse<TransactionCommitted>> {
+    ): Single<ChainResponse<TransactionCommitted<Any>>> {
 
         return push(
             transactionContext.expirationDate,

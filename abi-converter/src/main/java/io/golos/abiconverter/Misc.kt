@@ -5,6 +5,7 @@ import com.memtrip.eos.abi.writer.compression.CompressionType
 import com.memtrip.eos.chain.actions.transaction.abi.TransactionAuthorizationAbi
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import io.golos.sharedmodel.AbiStruct
 import io.golos.sharedmodel.CyberName
@@ -133,6 +134,7 @@ fun generateClasses(contractName: CyberName,
                         }
                         .addModifiers(KModifier.DATA)
                         .addAnnotation(Abi::class.asTypeName())
+                        .addAnnotation(AnnotationSpec.builder(JsonClass::class).addMember("generateAdapter = true").build())
                         .primaryConstructor(FunSpec.constructorBuilder()
                                 .also { builder: FunSpec.Builder ->
                                     abiStruct.fields.forEach { stuctField ->
@@ -142,7 +144,7 @@ fun generateClasses(contractName: CyberName,
                                     }
                                     if (abiStruct.fields.isEmpty())
                                         builder.addParameter(ParameterSpec.builder("stub",
-                                                String::class.asTypeName(), KModifier.PRIVATE)
+                                                String::class.asTypeName())
                                                 .defaultValue("\"stub\"")
                                                 .build())
                                 }

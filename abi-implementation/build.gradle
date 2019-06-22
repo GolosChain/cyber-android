@@ -33,6 +33,8 @@ dependencies {
     implementation project(":eos-abi-writer")
     implementation project(":eos-chain-actions")
     implementation project(":eos-core")
+
+    implementation "com.squareup.moshi:moshi-kotlin-codegen:$moshiCodegenVersion"
 }
 
 

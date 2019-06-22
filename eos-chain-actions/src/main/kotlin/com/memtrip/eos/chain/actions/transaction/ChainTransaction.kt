@@ -45,7 +45,7 @@ abstract class ChainTransaction(
             expirationDate: Date,
             actions: List<ActionAbi>,
             authorizingPrivateKey: EosPrivateKey
-    ): Single<ChainResponse<TransactionCommitted>> {
+    ): Single<ChainResponse<TransactionCommitted<Any>>> {
         return chainApi.getInfo().flatMap { info ->
             if (info.isSuccessful) {
                 val transaction = transaction(

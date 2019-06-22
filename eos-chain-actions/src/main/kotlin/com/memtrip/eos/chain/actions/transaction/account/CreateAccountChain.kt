@@ -56,7 +56,7 @@ class CreateAccountChain(chainApi: ChainApi) : ChainTransaction(chainApi) {
         args: Args,
         transactionContext: TransactionContext,
         extraActionAbi: List<ActionAbi> = emptyList()
-    ): Single<ChainResponse<TransactionCommitted>> {
+    ): Single<ChainResponse<TransactionCommitted<Any>>> {
 
         return push(
             transactionContext.expirationDate,

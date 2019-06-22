@@ -89,5 +89,5 @@ interface ChainApi {
     fun getCurrencyStats(@Body body: GetCurrencyStats): Single<Response<ResponseBody>>
 
     @POST("v1/chain/push_transaction")
-    fun pushTransaction(@Body body: PushTransaction): Single<Response<TransactionCommitted>>
+    fun pushTransaction(@Body body: PushTransaction): Single<Response<TransactionCommitted<Any>>>
 }

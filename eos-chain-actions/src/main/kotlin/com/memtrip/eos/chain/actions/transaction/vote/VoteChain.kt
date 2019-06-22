@@ -41,7 +41,7 @@ class VoteChain(chainApi: ChainApi) : ChainTransaction(chainApi) {
     fun vote(
         args: Args,
         transactionContext: TransactionContext
-    ): Single<ChainResponse<TransactionCommitted>> {
+    ): Single<ChainResponse<TransactionCommitted<Any>>> {
 
         return push(
             transactionContext.expirationDate,

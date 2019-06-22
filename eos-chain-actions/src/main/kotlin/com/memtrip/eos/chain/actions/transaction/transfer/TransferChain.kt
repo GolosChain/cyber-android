@@ -43,7 +43,7 @@ class TransferChain(chainApi: ChainApi) : ChainTransaction(chainApi) {
         contract: String,
         args: Args,
         transactionContext: TransactionContext
-    ): Single<ChainResponse<TransactionCommitted>> {
+    ): Single<ChainResponse<TransactionCommitted<Any>>> {
 
         return push(
             transactionContext.expirationDate,

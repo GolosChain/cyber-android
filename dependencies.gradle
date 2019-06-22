@@ -8,4 +8,5 @@ ext {
     autoServiceVersion ="1.0-rc2"
     bitcoinJVersion = "0.14.7"
     retrofitVersion = "2.6.0"
+    moshiCodegenVersion = "1.6.0"
 }

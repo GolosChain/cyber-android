@@ -39,7 +39,7 @@ class BuyRamChain(chainApi: ChainApi) : ChainTransaction(chainApi) {
     fun buyRam(
         args: Args,
         transactionContext: TransactionContext
-    ): Single<ChainResponse<TransactionCommitted>> {
+    ): Single<ChainResponse<TransactionCommitted<Any>>> {
 
         return push(
             transactionContext.expirationDate,

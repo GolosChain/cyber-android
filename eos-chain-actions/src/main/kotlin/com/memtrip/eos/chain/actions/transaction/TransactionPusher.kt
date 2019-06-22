@@ -12,6 +12,7 @@ import com.memtrip.eos.http.rpc.model.signing.PushTransaction
 import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
+import com.squareup.moshi.Types
 import io.golos.sharedmodel.*
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
@@ -38,7 +39,7 @@ object TransactionPusher {
     fun <T> pushTransaction(action: List<ActionAbi>,
                             key: EosPrivateKey,
                             traceType: Class<T>,
-                            withConfig: Cyber4JConfig = Cyber4JConfig.default): Either<TransactionCommitted, GolosEosError> {
+                            withConfig: Cyber4JConfig = Cyber4JConfig.default): Either<TransactionCommitted<T>, GolosEosError> {
 
         if (lastConfig != withConfig) {
             okHttpClient = okHttpClient.newBuilder().also {
@@ -97,10 +98,17 @@ object TransactionPusher {
             val response = result.body()!!.string()
 
             return try {
+
+                val type = Types.newParameterizedType(TransactionCommitted::class.java, traceType)
                 val value = moshi
-                        .adapter<TransactionCommitted>(TransactionCommitted::class.java)
+                        .adapter<TransactionCommitted<T>>(type)
                         .fromJson(response)!!
-                Either.Success(value)
+
+                Either.Success(value.copy(
+                        resolvedResponse = value.processed.action_traces.map {
+                            moshi.adapter<T>(traceType).fromJsonValue(it.act.data)
+                        }.firstOrNull()
+                ))
             } catch (e: Exception) {
                 e.printStackTrace()
                 Either.Failure(moshi.adapter<GolosEosError>(GolosEosError::class.java).fromJson(response)!!)
