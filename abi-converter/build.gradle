@@ -47,12 +47,12 @@ run {
 assemble.dependsOn run
 
 dependencies {
-    implementation project(":eos-abi-writer")
-    implementation project(":shared-model")
-    implementation project(":annotations")
-    implementation project(":eos-core")
-    implementation project(":eos-abi-writer")
-    implementation project(":eos-chain-actions")
+    implementation project(path:":eos-abi-writer", configuration: 'default')
+    implementation project(path:":shared-model", configuration: 'default')
+    implementation project(path:":annotations", configuration: 'default')
+    implementation project(path:":eos-core", configuration: 'default')
+    implementation project(path:":eos-abi-writer", configuration: 'default')
+    implementation project(path:":eos-chain-actions", configuration: 'default')
     implementation "com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion"
     implementation "com.google.auto.service:auto-service:$autoServiceVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"

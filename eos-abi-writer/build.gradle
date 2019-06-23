@@ -19,8 +19,9 @@ repositories {
 }
 
 dependencies {
-    implementation project (":eos-core")
-    implementation project (":shared-model")
+
+    implementation project (path: ":eos-core", configuration: 'default')
+    implementation project (path: ":shared-model", configuration: 'default')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation ("org.bitcoinj:bitcoinj-core:$bitcoinJVersion") {
         exclude group: "com.lambdaworks", module: "scrypt"

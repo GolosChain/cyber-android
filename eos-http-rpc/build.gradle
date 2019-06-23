@@ -37,7 +37,7 @@ dependencies {
     /* rxkotlin */
     api 'io.reactivex:rxkotlin:1.0.0'
 
-    implementation project(":eos-core")
+    implementation project(path:":eos-core", configuration: 'default')
 
     /* junit */
     testCompile 'junit:junit:4.12'
@@ -51,8 +51,8 @@ dependencies {
     testCompile 'org.json:json:20140107'
 
     /* abi */
-    testImplementation project(":eos-abi-writer")
-    kaptTest project(":eos-abi-writer-preprocessor")
+    testImplementation project(path:":eos-abi-writer", configuration: 'default')
+    kaptTest project(path: ":eos-abi-writer-preprocessor", configuration: 'default')
 }
 
 compileKotlin {

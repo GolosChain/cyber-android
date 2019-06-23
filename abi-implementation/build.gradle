@@ -27,7 +27,7 @@ compileTestKotlin {
 dependencies {
     compileOnly project(":abi-converter")
 
-    kapt project(":eos-abi-writer-preprocessor")
+    kapt project(path:":eos-abi-writer-preprocessor", configuration: 'default')
     implementation project(":annotations")
     implementation project(":shared-model")
     implementation project(":eos-abi-writer")

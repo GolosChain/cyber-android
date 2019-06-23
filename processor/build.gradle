@@ -19,8 +19,8 @@ repositories {
 }
 
 dependencies {
-    implementation project (":annotations")
-    implementation project (":shared-model")
+    implementation project (path:":annotations", configuration: 'default')
+    implementation project (path:":shared-model", configuration: 'default')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation "com.google.auto.service:auto-service:$autoServiceVersion"
     implementation "com.squareup:kotlinpoet:$kotlinPoetVersion"

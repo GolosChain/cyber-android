@@ -8,23 +8,32 @@ buildscript {
 }
 
 
-group groupName
-version versionName
+group = groupName
+version = versionName
 
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-kapt'
 
 
-version = versionName
-group = groupName
-
-sourceCompatibility = 1.8
+sourceCompatibility = 1.7
 
 repositories {
     jcenter()
 }
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.6"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.6"
+}
+
 
 dependencies {
+    kapt project(":eos-abi-writer-preprocessor")
+    annotationProcessor project(":eos-abi-writer-preprocessor")
+    compileOnly project(":eos-abi-writer-preprocessor")
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 
     /* retrofit */
@@ -36,7 +45,7 @@ dependencies {
     implementation "com.squareup.moshi:moshi:$moshiVersion"
     implementation "com.squareup.moshi:moshi-kotlin:$moshiKotlinVersion"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshiCodegenVersion"
-    implementation ("org.bitcoinj:bitcoinj-core:$bitcoinJVersion") {
+    implementation("org.bitcoinj:bitcoinj-core:$bitcoinJVersion") {
         exclude group: "com.lambdaworks", module: "scrypt"
     }
     implementation "com.squareup.moshi:moshi-adapters:$moshiAdapterVersion"
@@ -45,28 +54,20 @@ dependencies {
     /* rxkotlin */
     api 'io.reactivex:rxkotlin:1.0.0'
 
-    implementation project (":eos-http-rpc")
-    implementation project(":eos-abi-writer")
-    implementation project(":shared-model")
-    implementation project(":eos-core")
-
-    kapt project (":eos-abi-writer-preprocessor")
+    implementation project(path: ":eos-http-rpc", configuration: 'default')
+    implementation project(path: ":eos-abi-writer", configuration: 'default')
+    implementation project(path: ":shared-model", configuration: 'default')
+    implementation project(path: ":eos-core", configuration: 'default')
 
     /* junit */
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.junit.platform:junit-platform-runner:1.0.1'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.junit.platform:junit-platform-runner:1.0.1'
 
     /* spek */
-    testCompile 'org.jetbrains.spek:spek-api:1.1.5'
-    testCompile 'org.jetbrains.spek:spek-junit-platform-engine:1.1.5'
+    testImplementation 'org.jetbrains.spek:spek-api:1.1.5'
+    testImplementation 'org.jetbrains.spek:spek-junit-platform-engine:1.1.5'
 
-    testCompile 'com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion'
-    testCompile 'org.json:json:20140107'
+    testImplementation 'com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion'
+    testImplementation 'org.json:json:20140107'
 }
 
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.6"
-}
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.6"
-}

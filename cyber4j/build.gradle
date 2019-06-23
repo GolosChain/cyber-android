@@ -36,16 +36,16 @@ compileTestKotlin {
 jar.baseName = "${rootProject.name}"
 
 dependencies {
-    kapt project(":processor")
-    kapt project(':eos-abi-writer-preprocessor')
+    kapt project(path:":processor", configuration: 'default')
+    kapt project(path:':eos-abi-writer-preprocessor', configuration: 'default')
 
-    implementation project(":annotations")
-    implementation project(":eos-core")
-    implementation project(":abi-implementation")
-    implementation project(":shared-model")
-    implementation project(":eos-http-rpc")
-    implementation project(":eos-chain-actions")
-    implementation project(":eos-abi-writer")
+    implementation project(path:":annotations", configuration: 'default')
+    implementation project(path:":eos-core", configuration: 'default')
+    implementation project(path:":abi-implementation", configuration: 'default')
+    implementation project(path:":shared-model", configuration: 'default')
+    implementation project(path:":eos-http-rpc", configuration: 'default')
+    implementation project(path:":eos-chain-actions", configuration: 'default')
+    implementation project(path:":eos-abi-writer", configuration: 'default')
 
     api "com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion"
     implementation 'net.gcardone.junidecode:junidecode:0.4.1'
