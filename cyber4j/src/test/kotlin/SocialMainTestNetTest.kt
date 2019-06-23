@@ -22,7 +22,7 @@ class SocialMainTestNetTest {
     fun setUserMeta() {
         val setMetaResult = client.setUserMetadata("типа", "аппа", website = "веб-портал", email = "")
         assertTrue("meta change fail", setMetaResult is Either.Success)
-        val changedMeta = (setMetaResult as Either.Success).value.processed.action_traces.first().act.data.metadata
+        val changedMeta = (setMetaResult as Either.Success).value.resolvedResponse!!.meta
 
         assertEquals("type set fail", "типа", changedMeta.type)
         assertEquals("app set fail", "аппа", changedMeta.app)
@@ -40,7 +40,7 @@ class SocialMainTestNetTest {
                 "типа1", "аппа1", website = "веб-портал1")
         assertTrue("meta change fail", setMetaResultSecond is Either.Success)
 
-        val changedMetaSecond = (setMetaResultSecond as Either.Success).value.extractResult().metadata
+        val changedMetaSecond = (setMetaResultSecond as Either.Success).value.resolvedResponse!!.getMeta
 
 
         assertEquals("type set fail", "типа1", changedMetaSecond.type)

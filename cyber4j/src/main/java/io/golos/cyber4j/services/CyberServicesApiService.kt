@@ -1,7 +1,7 @@
 package io.golos.cyber4j.services
 
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.Rfc3339DateJsonAdapter
+import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import io.golos.sharedmodel.Cyber4JConfig
 import io.golos.cyber4j.model.*
 import io.golos.cyber4j.services.model.*

@@ -22,9 +22,9 @@ import com.memtrip.eos.abi.writer.HexCollectionCompress
 
 @Abi
 data class SignedTransactionAbi(
-    val chainId: String,
-    val transaction: TransactionAbi,
-    val context_free_data: List<String>
+        val chainId: String,
+        val transaction: TransactionAbi,
+        val context_free_data: List<String>
 ) {
     val getChainId: String
         @ChainIdCompress get() = chainId

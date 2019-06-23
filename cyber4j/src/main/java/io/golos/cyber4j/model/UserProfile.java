@@ -102,7 +102,7 @@ public class UserProfile {
                 '}';
     }
 
-  public   static class AccountPermission {
+    public   static class AccountPermission {
         private String perm_name;
         private String parent;
         private AccountRequiredAuth required_auth;

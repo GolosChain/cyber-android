@@ -11,8 +11,9 @@ import com.memtrip.eos.http.rpc.model.info.Info
 import com.memtrip.eos.http.rpc.model.signing.PushTransaction
 import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.Rfc3339DateJsonAdapter
+import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.squareup.moshi.Types
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.golos.sharedmodel.*
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
@@ -23,8 +24,10 @@ object TransactionPusher {
 
     private val moshi: Moshi = Moshi
             .Builder()
-            .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
             .add(CyberName::class.java, CyberNameAdapter())
+            .add(Date::class.java, Rfc3339DateJsonAdapter())
+            .add(CyberAsset::class.java, CyberAssetAdapter())
+            .add(KotlinJsonAdapterFactory())
             .build()
 
     private var okHttpClient = OkHttpClient
@@ -74,8 +77,8 @@ object TransactionPusher {
 
         val signedTransaction = SignedTransactionAbi(info.chain_id, transaction, emptyList())
 
-        if (withConfig.logLevel == LogLevel.BODY) withConfig.httpLogger?.log("signed transaction = ${Moshi.Builder().add(Date::class.java,
-                Rfc3339DateJsonAdapter()).build().adapter<SignedTransactionAbi>(SignedTransactionAbi::class.java).toJson(signedTransaction)}")
+        if (withConfig.logLevel == LogLevel.BODY) withConfig.httpLogger?.log("signed transaction = ${moshi
+                .adapter<SignedTransactionAbi>(SignedTransactionAbi::class.java).toJson(signedTransaction)}")
 
         val signature = PrivateKeySigning()
                 .sign(AbiBinaryGenTransactionWriter(CompressionType.NONE)

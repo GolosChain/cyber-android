@@ -1,13 +1,10 @@
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.KeyStorage
 import io.golos.cyber4j.model.AuthType
-import io.golos.cyber4j.model.TransactionSuccessful
 import io.golos.sharedmodel.CyberName
 import io.golos.sharedmodel.Either
 
 internal fun String.toCyberName() = CyberName(this)
-
-internal fun <T> TransactionSuccessful<T>.extractResult() = this.processed.action_traces.first().act.data
 
 fun generateRandomCommunName(): String {
     val builder = StringBuilder()

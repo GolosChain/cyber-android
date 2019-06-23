@@ -1,9 +1,9 @@
+import io.golos.abi.implementation.publish.CreatemssgPublishStruct
 import io.golos.cyber4j.Cyber4J
-import io.golos.cyber4j.model.CreateDiscussionResult
 import io.golos.cyber4j.model.DiscussionCreateMetadata
 import io.golos.cyber4j.model.Tag
-import io.golos.sharedmodel.Either
 import io.golos.sharedmodel.CyberName
+import io.golos.sharedmodel.Either
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -11,7 +11,7 @@ import org.junit.Test
 class VotingTest {
 
     private lateinit var client: Cyber4J
-    private lateinit var postCreateResult: CreateDiscussionResult
+    private lateinit var postCreateResult: CreatemssgPublishStruct
     private lateinit var secndTestAccount: kotlin.Pair<CyberName, String>
 
     @Before
@@ -19,7 +19,7 @@ class VotingTest {
         client = getClient()
         postCreateResult = (client.createPost("sdgsdg", "gdssdg",
                 listOf(Tag("test")), DiscussionCreateMetadata(emptyList(), listOf()), 0)
-                as Either.Success).value.processed.action_traces.first().act.data
+                as Either.Success).value.resolvedResponse!!
 
         secndTestAccount = account(client.config.toConfigType())
     }
@@ -48,15 +48,15 @@ class VotingTest {
                 postCreateResult.message_id.permlink, -10_000)
         assertTrue("downvote fail", downVoteResultSecond is Either.Success)
 
-        val unvoteResult = client.vote(postCreateResult.message_id.author,
-                postCreateResult.message_id.permlink, 0)
+        val unvoteResult = client.unVote(postCreateResult.message_id.author,
+                postCreateResult.message_id.permlink)
 
         assertTrue("unvote fail", unvoteResult is Either.Success)
 
-        val unvoteResultSecond = client.vote(secndTestAccount.first,
+        val unvoteResultSecond = client.unVote(secndTestAccount.first,
                 secndTestAccount.second,
                 postCreateResult.message_id.author,
-                postCreateResult.message_id.permlink, 0)
+                postCreateResult.message_id.permlink)
 
         assertTrue("unvote fail", unvoteResultSecond is Either.Success)
     }

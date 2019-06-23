@@ -49,9 +49,12 @@ dependencies {
 
     api "com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion"
     implementation 'net.gcardone.junidecode:junidecode:0.4.1'
-    implementation 'com.squareup.moshi:moshi-adapters:1.5.0'
+    implementation "com.squareup.moshi:moshi-adapters:$moshiAdapterVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofitVersion"
+    implementation "com.squareup.moshi:moshi:$moshiVersion"
+    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshiCodegenVersion"
+    implementation "com.squareup.moshi:moshi-kotlin:$moshiKotlinVersion"
     implementation("org.bitcoinj:bitcoinj-core:$bitcoinJVersion") {
         exclude group: "com.lambdaworks", module: "scrypt"
     }

@@ -161,8 +161,8 @@ class ServicesFetchTest {
                 emptyList<Tag>(),
                 DiscussionCreateMetadata(emptyList(), emptyList()),
                 null)
-        val blockNum = (result as Either.Success).value.processed.block_num
-        val waitResult = client.waitForABlock(blockNum)
+        val blockNum = (result as Either.Success).value.processed.block_num!!
+        val waitResult = client.waitForABlock(blockNum.toLong())
         assertTrue(waitResult is Either.Success)
     }
 

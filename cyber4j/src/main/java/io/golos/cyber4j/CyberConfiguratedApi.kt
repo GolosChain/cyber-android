@@ -42,7 +42,7 @@ internal class GolosEosConfiguratedApi(private val config: Cyber4JConfig = Cyber
 
 
     init {
-        val interceptor = if (config.httpLogger != null) HttpLoggingInterceptor(config.httpLogger)
+        val interceptor = if (config.httpLogger != null) HttpLoggingInterceptor(config.httpLogger!!)
         else HttpLoggingInterceptor()
         interceptor.level =
                 when (config.logLevel) {

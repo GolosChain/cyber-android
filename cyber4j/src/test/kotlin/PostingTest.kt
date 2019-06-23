@@ -1,5 +1,6 @@
 import io.golos.cyber4j.model.Beneficiary
 import io.golos.cyber4j.model.DiscussionCreateMetadata
+import io.golos.cyber4j.model.EmbedmentsUrl
 import io.golos.cyber4j.model.Tag
 import io.golos.sharedmodel.Either
 import io.golos.sharedmodel.CyberName
@@ -20,7 +21,7 @@ class PostingTest {
         client.setActiveAccount(account(client.config.toConfigType(), true))
     }
 
-    val testMetadata = DiscussionCreateMetadata(listOf(DiscussionCreateMetadata.EmbedmentsUrl("test_url")), listOf("тээст"))
+    val testMetadata = DiscussionCreateMetadata(listOf(EmbedmentsUrl("test_url")), listOf("тээст"))
 
     @Test
     fun postingTest() {
@@ -31,7 +32,7 @@ class PostingTest {
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
-        val postResult = (postResponse as Either.Success).value.extractResult()
+        val postResult = (postResponse as Either.Success).value.resolvedResponse!!
 
         val commentCreationResult = client.createComment("тестовый коммент",
                 postResult.message_id.author, postResult.message_id.permlink,
@@ -44,7 +45,7 @@ class PostingTest {
                 "тестовое тело поста", listOf(Tag("test")), testMetadata, createRandomCurationReward())
         assertTrue("post creation fail on test net", secondPostResponse is Either.Success)
 
-        val secondPostResult = (secondPostResponse as Either.Success).value.extractResult()
+        val secondPostResult = (secondPostResponse as Either.Success).value.resolvedResponse!!
 
         val secondCommentCreationResult = client.createComment(secondAccount.first, secondAccount.second,
                 "тестовый коммент",
@@ -62,13 +63,13 @@ class PostingTest {
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
-        val postResult = (postResponse as Either.Success).value.extractResult()
+        val postResult = (postResponse as Either.Success).value.resolvedResponse!!
 
         val updateResponse = client.updatePost(postResult.message_id.permlink,
                 "new title", "new body", listOf(Tag("test")), testMetadata)
 
         assertTrue("post update fail on test net", updateResponse is Either.Success)
-        val updateResult = (updateResponse as Either.Success).value.extractResult()
+        val updateResult = (updateResponse as Either.Success).value.resolvedResponse!!
         assertEquals("title was not updated", "new title", updateResult.headermssg)
         assertEquals("body was not updated", "new body", updateResult.bodymssg)
 
@@ -80,7 +81,7 @@ class PostingTest {
                 "new title1", "new body1", listOf(Tag("test")), testMetadata)
 
         assertTrue("post update fail on test net", updateResponseSecond is Either.Success)
-        val updateResultSecond = (updateResponseSecond as Either.Success).value.extractResult()
+        val updateResultSecond = (updateResponseSecond as Either.Success).value.resolvedResponse!!
         assertEquals("title was not updated", "new title1", updateResultSecond.headermssg)
         assertEquals("body was not updated", "new body1", updateResultSecond.bodymssg)
 
@@ -96,7 +97,7 @@ class PostingTest {
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
-        val postResult = (postResponse as Either.Success).value.extractResult()
+        val postResult = (postResponse as Either.Success).value.resolvedResponse!!
 
         val commentCreationResponse = client.createComment("тестовый коммент",
                 postResult.message_id.author, postResult.message_id.permlink,
@@ -104,14 +105,14 @@ class PostingTest {
 
         assertTrue("comment creation fail on test net", commentCreationResponse is Either.Success)
 
-        val commentCreationResult = (commentCreationResponse as Either.Success).value.extractResult()
+        val commentCreationResult = (commentCreationResponse as Either.Success).value.resolvedResponse!!
 
 
         val updateResponse = client.updateComment(commentCreationResult.message_id.permlink,
                 "new body", listOf(Tag("test")), testMetadata)
 
         assertTrue("comment update fail on test net", updateResponse is Either.Success)
-        val updateResult = (updateResponse as Either.Success).value.extractResult()
+        val updateResult = (updateResponse as Either.Success).value.resolvedResponse!!
 
         assertEquals("body was not updated", "new body", updateResult.bodymssg)
 
@@ -124,7 +125,7 @@ class PostingTest {
                 testMetadata)
 
         assertTrue("comment update fail on test net", updateResponseSecond is Either.Success)
-        val updateResultSecond = (updateResponseSecond as Either.Success).value.extractResult()
+        val updateResultSecond = (updateResponseSecond as Either.Success).value.resolvedResponse!!
         assertEquals("body was not updated", "new body1", updateResultSecond.bodymssg)
 
     }
@@ -137,7 +138,7 @@ class PostingTest {
 
         assertTrue("post creation fail on test net", postResponse is Either.Success)
 
-        val postResult = (postResponse as Either.Success).value.extractResult()
+        val postResult = (postResponse as Either.Success).value.resolvedResponse!!
 
         val deleteReponse = client.deletePostOrComment(postResult.message_id.permlink)
         assertTrue("comment deleteReponse fail on test net", deleteReponse is Either.Success)
@@ -148,7 +149,7 @@ class PostingTest {
 
         assertTrue("post creation fail on test net", postResponseSecond is Either.Success)
 
-        val postResultSecond = (postResponseSecond as Either.Success).value.extractResult()
+        val postResultSecond = (postResponseSecond as Either.Success).value.resolvedResponse!!
 
         val deleteReponseSecond = client.deletePostOrComment(secondAccount.second,
                 secondAccount.first,
@@ -161,7 +162,7 @@ class PostingTest {
         val postResponse = client.createPost("тестовый заголовок-${UUID.randomUUID()}",
                 "тестовое тело поста", listOf(Tag("test")), testMetadata, createRandomCurationReward())
 
-        val postMessageId = (postResponse as Either.Success).value.extractResult().message_id
+        val postMessageId = (postResponse as Either.Success).value.resolvedResponse!!.message_id
 
         val reblogResult = client.reblog(secondAccount.second,
                 secondAccount.first,

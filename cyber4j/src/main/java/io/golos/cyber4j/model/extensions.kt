@@ -25,16 +25,3 @@ internal fun String?.asOptionalStringBytes(): ByteArray {
         return out
     }
 }
-
-internal fun Boolean.toByte() = if (this) 1 else 0
-
-internal fun Short?.asOptionalShortBytes(): ByteArray {
-    return if (this == null) ByteArray(1) { 0 }
-    else {
-        val buffer = ByteArray(3)
-        buffer[0] = 1
-        buffer[1] = (0xFF and this.toInt()).toByte()
-        buffer[2] = (0xFF and (this.toInt() shr 8)).toByte()
-        return buffer
-    }
-}

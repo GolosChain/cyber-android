@@ -58,7 +58,7 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofitVersion"
     implementation "com.squareup:kotlinpoet:$kotlinPoetVersion"
-    implementation "com.squareup.moshi:moshi-kotlin-codegen:$moshiCodegenVersion"
+    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshiCodegenVersion"
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
