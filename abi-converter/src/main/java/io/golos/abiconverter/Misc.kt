@@ -25,12 +25,15 @@ class Main {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val srcDir = args.first()
+            val srcDir = args[0]
 
-            val contracts = args.toList().subList(1, args.size)
-            println("src dir = $srcDir, contracts = $contracts")
+            val buildDir = File(args[1])
 
-            val abis = contracts.map { getAbi(CyberName(it)) }
+            val contracts = args.toList().subList(2, args.size)
+
+            println("src dir = $srcDir, buildDir = $buildDir, contracts = $contracts")
+
+            val abis = contracts.map { getAbi(CyberName(it), buildDir) }
 
             val destPackage = "io.golos.abi.implementation"
 
@@ -55,7 +58,16 @@ class Main {
 
 private val moshi = Moshi.Builder().add(CyberName::class.java, CyberNameAdapter()).build()!!
 
-fun getAbi(contractName: CyberName): EosAbi {
+fun getAbi(contractName: CyberName, buildDir: File): EosAbi {
+    val cashedFile = File(buildDir, "${contractName.name}.json")
+
+    if (cashedFile.exists()) {
+        val content = cashedFile.readText()
+        if (!content.isBlank()) {
+            val out = moshi.fromJson<EosAbi>(content)
+            if (out != null) return out
+        }
+    }
     val okHttpClient = OkHttpClient
             .Builder()
             .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
@@ -70,7 +82,11 @@ fun getAbi(contractName: CyberName): EosAbi {
             .execute()
 
     val respBody = resp.body()!!.string()
-    return moshi.fromJson<EosAbi>(respBody)!!
+
+    val out = moshi.fromJson<EosAbi>(respBody)!!
+    cashedFile.writeText(respBody)
+
+    return out
 }
 
 

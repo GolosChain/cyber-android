@@ -35,6 +35,7 @@ application {
 }
 run {
     args = ["${project.sourceSets.main.kotlin.srcDirs.first()}".replace("abi-converter", "abi-implementation"),
+            buildDir,
             "gls.publish",
             "gls.social",
             "gls.vesting",
