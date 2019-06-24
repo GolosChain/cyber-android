@@ -40,12 +40,12 @@ dependencies {
     kapt project(path:':eos-abi-writer-preprocessor', configuration: 'default')
 
     implementation project(path:":annotations", configuration: 'default')
-    implementation project(path:":eos-core", configuration: 'default')
-    implementation project(path:":abi-implementation", configuration: 'default')
-    implementation project(path:":shared-model", configuration: 'default')
-    implementation project(path:":eos-http-rpc", configuration: 'default')
-    implementation project(path:":eos-chain-actions", configuration: 'default')
-    implementation project(path:":eos-abi-writer", configuration: 'default')
+    api project(path:":eos-core", configuration: 'default')
+    api project(path:":abi-implementation", configuration: 'default')
+    api project(path:":shared-model", configuration: 'default')
+    api project(path:":eos-http-rpc", configuration: 'default')
+    api project(path:":eos-chain-actions", configuration: 'default')
+    api project(path:":eos-abi-writer", configuration: 'default')
 
     api "com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion"
     implementation 'net.gcardone.junidecode:junidecode:0.4.1'
