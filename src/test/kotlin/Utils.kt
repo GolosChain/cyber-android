@@ -24,7 +24,7 @@ class Utils {
     @Before
     fun before() {
         client = getClient()
-        // secondAccount = account()
+        secondAccount = account(client.config.toConfigType(), false)
     }
 
     @Test
@@ -104,6 +104,29 @@ class Utils {
                 }
             }
         }
+    }
+
+    @Test
+    fun withdrawtest() {
+        val result = client.withdraw(client.keyStorage.getActiveAccount(),
+                secondAccount.first, "0.001000 GOLOS", client.keyStorage.activeAccountPair.second)
+        assertTrue(result is Either.Success)
+
+        val stopResult =
+                client.stopWithdraw(client.keyStorage.getActiveAccount(), client.keyStorage.activeAccountPair.second)
+        assertTrue(stopResult is Either.Success)
+    }
+
+    @Test
+    fun delegate() {
+        val result = client.delegate(
+                client.keyStorage.getActiveAccount(),
+                secondAccount.first, "1.000000 GOLOS", 100.toShort(),
+                1.toByte(),
+                client.keyStorage.activeAccountPair.second
+        )
+        assertTrue(result is Either.Success)
+
     }
 
     @Test

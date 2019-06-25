@@ -52,7 +52,7 @@ dependencies {
     }
     kapt 'com.memtrip.eos-jvm:eos-abi-writer-preprocessor:1.0.0-alpha26'
     implementation 'com.memtrip.eos-jvm:eos-abi-writer-preprocessor:1.0.0-alpha26'
-    implementation 'com.memtrip.eos-jvm:eos-abi-writer-preprocessor:1.0.0-alpha26'
+  
     implementation("com.memtrip.eos-jvm:eos-chain-actions:1.0.0-alpha29") {
         exclude group: "com.lambdaworks", module: "scrypt"
     }
