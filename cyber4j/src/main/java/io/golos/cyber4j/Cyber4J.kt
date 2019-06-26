@@ -153,6 +153,7 @@ class Cyber4J @JvmOverloads constructor(
         private val apiService: ApiService = CyberServicesApiService(config)) {
 
     private val staleTransactionErrorCode = 3080006
+    private val resourceExceedErrorCode = 3080004
     private val transactionPusher: io.golos.cyber4j.TransactionPusher
     private val chainApi: CyberWayChainApi
     private val moshi: Moshi = Moshi
@@ -266,7 +267,8 @@ class Cyber4J @JvmOverloads constructor(
 
     private fun isStaleError(callResult: Either<out Any?, GolosEosError>): Boolean {
         return callResult is Either.Failure
-                && (callResult.value.error?.code == staleTransactionErrorCode)
+                && (callResult.value.error?.code == staleTransactionErrorCode
+                || callResult.value.error?.code == resourceExceedErrorCode)
     }
 
     private fun formatPostPermlink(permlinkToFormat: String): String {

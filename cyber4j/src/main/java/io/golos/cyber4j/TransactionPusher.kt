@@ -82,7 +82,6 @@ internal class TransactionPusherImpl(private val chainApi: CyberWayChainApi,
                                     .fromJsonValue(it.act.data)
                         }.firstOrNull()))
             } catch (e: Exception) {
-                e.printStackTrace()
                 val err = moshi.adapter<GolosEosError>(GolosEosError::class.java).fromJson(response)
                 if (err == null) {
                     e.printStackTrace()
