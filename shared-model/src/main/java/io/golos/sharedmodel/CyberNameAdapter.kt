@@ -33,6 +33,11 @@ class CyberAssetAdapter : JsonAdapter<CyberAsset>() {
             val value = reader.nextString()
             CyberAsset(value)
         } else {
+            val token = reader.peek()
+            if (token == JsonReader.Token.NULL) {
+                return reader.nextNull<CyberAsset>()
+            }
+
             reader.beginObject()
             reader.nextName()
             val out = CyberAsset(reader.nextString())
@@ -43,5 +48,26 @@ class CyberAssetAdapter : JsonAdapter<CyberAsset>() {
 
     override fun toJson(writer: JsonWriter, value: CyberAsset?) {
         writer.value(value?.amount)
+    }
+}
+
+class CyberSymbolAdapter : JsonAdapter<CyberSymbol>() {
+
+    override fun fromJson(reader: JsonReader): CyberSymbol? {
+        val nextToken = reader.peek()
+        return if (nextToken == JsonReader.Token.STRING) {
+            val value = reader.nextString()
+            CyberSymbol(0, "", value)
+        } else {
+            reader.beginObject()
+            reader.nextName()
+            val out = CyberSymbol(0, "", reader.nextString())
+            reader.endObject()
+            out
+        }
+    }
+
+    override fun toJson(writer: JsonWriter, value: CyberSymbol?) {
+        writer.value(value?.symbol)
     }
 }

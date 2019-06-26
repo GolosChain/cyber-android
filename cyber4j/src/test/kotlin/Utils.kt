@@ -11,12 +11,8 @@ import io.golos.cyber4j.Cyber4JCoroutinesAdapter
 import io.golos.cyber4j.model.ContentRow
 import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
-import io.golos.sharedmodel.CyberName
-import io.golos.sharedmodel.CyberNameAdapter
-import io.golos.sharedmodel.Either
-import io.golos.sharedmodel.GolosEosError
-import junit.framework.Assert.assertNotNull
-import junit.framework.Assert.assertTrue
+import io.golos.sharedmodel.*
+import junit.framework.Assert.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -33,7 +29,7 @@ class Utils {
     @Before
     fun before() {
         client = getClient()
-        secondAccount = account(client.config.toConfigType(), false)
+        secondAccount = account(client.config.toConfigType(), true)
     }
 
     @Test
@@ -151,15 +147,15 @@ class Utils {
     @Test
     fun testRawApi() {
 
-       val result:  Either<out TransactionCommitted<out CreatemssgPublishStruct>, GolosEosError>  = CreatemssgPublishAction (CreatemssgPublishStruct(
-                MssgidPublishStruct((CyberName(client.keyStorage.activeAccountPair.first.name)),
-                        "sdgewtwesgsd232225"),
+        val result: Either<out TransactionCommitted<out CreatemssgPublishStruct>, GolosEosError> = CreatemssgPublishAction(CreatemssgPublishStruct(
+                MssgidPublishStruct(secondAccount.first,
+                        "sdgewtwesgsd2322222511"),
                 MssgidPublishStruct(CyberName(""), ""),
                 emptyList(), 0, true, "title", " nывпывп 25 ывп ывп",
-                "ru", emptyList(), "", null)
-                ).push(
-                listOf(TransactionAuthorizationAbi("rhjivvslwjbi", "active")),
-                EosPrivateKey("5JqAVXvYBeGX88vymMJYD4d8w24vvsEbnoodQpFaQLnh8utGRT8")
+                "ru", emptyList(), "", null, null)
+        ).push(
+                listOf(TransactionAuthorizationAbi(secondAccount.first.name, "active")),
+                EosPrivateKey(secondAccount.second)
         )
 
         print(result)

@@ -27,6 +27,7 @@ object TransactionPusher {
             .add(CyberName::class.java, CyberNameAdapter())
             .add(Date::class.java, Rfc3339DateJsonAdapter())
             .add(CyberAsset::class.java, CyberAssetAdapter())
+            .add(CyberSymbol::class.java, CyberSymbolAdapter())
             .add(KotlinJsonAdapterFactory())
             .build()
 

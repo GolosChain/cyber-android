@@ -2,7 +2,9 @@ import io.golos.sharedmodel.Either
 import junit.framework.Assert.assertTrue
 import org.junit.Test
 
-class WitnessVoteTest {
+class VestingTest {
+    private val client = getClient()
+
     @Test
     fun testVoteAndUnvote() {
         val client = getClient()
@@ -27,6 +29,24 @@ class WitnessVoteTest {
         val unregisterWitnessResult = client.unRegisterWitness()
 
         assertTrue(unregisterWitnessResult is Either.Success)
+
+    }
+
+    @Test
+    fun testDelegate() {
+
+        val second = account(CONFIG_TYPE.DEV)
+
+        val result = client.withdraw(
+                client.activeAccountPair.first, second.first, "0.100000 GOLOS", client.activeAccountPair.second
+        )
+
+        assertTrue(result is Either.Success)
+
+        val secondResult = client.stopWithdraw(client.activeAccountPair.first,
+                client.activeAccountPair.second)
+
+        assertTrue(secondResult is Either.Success)
 
     }
 }

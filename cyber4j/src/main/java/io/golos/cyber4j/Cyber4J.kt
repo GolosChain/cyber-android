@@ -23,6 +23,7 @@ import io.golos.abi.implementation.publish.*
 import io.golos.abi.implementation.social.*
 import io.golos.abi.implementation.token.TransferTokenAction
 import io.golos.abi.implementation.token.TransferTokenStruct
+import io.golos.abi.implementation.vesting.*
 import io.golos.annotations.ExcludeFromGeneration
 import io.golos.annotations.GenerateCoroutinesAdapter
 import io.golos.annotations.ShutDownMethod
@@ -158,6 +159,7 @@ class Cyber4J @JvmOverloads constructor(
             .Builder()
             .add(CyberName::class.java, CyberNameAdapter())
             .add(CyberAsset::class.java, CyberAssetAdapter())
+            .add(CyberSymbol::class.java, CyberSymbolAdapter())
             .add(Date::class.java, Rfc3339DateJsonAdapter())
             .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
             .build()
@@ -192,7 +194,7 @@ class Cyber4J @JvmOverloads constructor(
      * @throws IllegalStateException if active account not set
      *
      */
-
+    @JvmOverloads
     fun createPost(
             title: String,
             body: String,
@@ -200,9 +202,9 @@ class Cyber4J @JvmOverloads constructor(
             metadata: DiscussionCreateMetadata,
             curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
-            vestPayment: Boolean,
-            tokenProp: Long,
-            maxPayout: String?
+            vestPayment: Boolean = true,
+            tokenProp: Short = 0,
+            maxPayout: String? = null
     ): Either<TransactionCommitted<CreatemssgPublishStruct>, GolosEosError> {
 
         val activeUser = resolveKeysFor(CyberContracts.PUBLICATION, CyberActions.CREATE_DISCUSSION)
@@ -239,6 +241,7 @@ class Cyber4J @JvmOverloads constructor(
      *
      */
 
+    @JvmOverloads
     fun createPost(
             fromAccount: CyberName,
             userActiveKey: String,
@@ -248,16 +251,16 @@ class Cyber4J @JvmOverloads constructor(
             metadata: DiscussionCreateMetadata,
             curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
-            vestPayment: Boolean,
-            tokenProp: Long ,
-            maxPayout: String?
+            vestPayment: Boolean = true,
+            tokenProp: Short = 0,
+            maxPayout: String? = null
     ): Either<TransactionCommitted<CreatemssgPublishStruct>, GolosEosError> {
 
         return createPostOrComment(
                 fromAccount, userActiveKey,
                 title, body, formatPostPermlink(title),
                 "", CyberName(), tags, curatorRewardPercentage, beneficiaries,
-                metadata, vestPayment, tokenProp,maxPayout
+                metadata, vestPayment, tokenProp, maxPayout
         )
     }
 
@@ -332,8 +335,8 @@ class Cyber4J @JvmOverloads constructor(
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             metadata: DiscussionCreateMetadata = DiscussionCreateMetadata(emptyList(), emptyList()),
             vestPayment: Boolean = true,
-            tokenProp: Long = 0L,
-            maxPayout: String?
+            tokenProp: Short = 0,
+            maxPayout: String? = null
     ): Either<TransactionCommitted<CreatemssgPublishStruct>, GolosEosError> {
 
         val callable = Callable<Either<TransactionCommitted<CreatemssgPublishStruct>, GolosEosError>> {
@@ -382,9 +385,9 @@ class Cyber4J @JvmOverloads constructor(
             metadata: DiscussionCreateMetadata,
             curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
-            vestPayment: Boolean,
-            tokenProp: Long,
-            maxPayout: String?
+            vestPayment: Boolean = true,
+            tokenProp: Short = 0,
+            maxPayout: String? = null
     ): Either<TransactionCommitted<CreatemssgPublishStruct>, GolosEosError> {
         val activeUser = resolveKeysFor(CyberContracts.PUBLICATION, CyberActions.CREATE_DISCUSSION)
         val activeAccountName = activeUser.first
@@ -574,7 +577,7 @@ class Cyber4J @JvmOverloads constructor(
      * @param tokenProp idk
      * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
-
+    @JvmOverloads
     fun createComment(
             fromAccount: CyberName,
             userActiveKey: String,
@@ -585,9 +588,9 @@ class Cyber4J @JvmOverloads constructor(
             metadata: DiscussionCreateMetadata,
             curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = listOf(),
-            vestPayment: Boolean,
-            tokenProp: Long,
-            maxPayout: String?
+            vestPayment: Boolean = true,
+            tokenProp: Short = 0,
+            maxPayout: String? = null
     ): Either<TransactionCommitted<CreatemssgPublishStruct>, GolosEosError> {
 
         checkArgument(parentAccount.name.isNotEmpty(), "parentAccount cannot be empty")
@@ -2197,18 +2200,18 @@ class Cyber4J @JvmOverloads constructor(
     fun withdraw(from: CyberName,
                  to: CyberName,
                  quantity: String,
-                 activeKey: String): Either<TransactionSuccessful<BaseTransferVestingStruct>, GolosEosError> {
+                 activeKey: String): Either<TransactionCommitted<BaseTransferVestingStruct>, GolosEosError> {
         val callable = Callable {
             pushTransaction<BaseTransferVestingStruct>(
-                    CyberContracts.VESTING, CyberActions.WITHDRAW,
-                    from.toTransactionAuthAbi(),
-                    createBinaryConverter().squishBaseTransferVestingStruct(
+                    WithdrawVestingAction(
                             BaseTransferVestingStruct(
-                                    from,
-                                    to,
-                                    quantity
+                                    from, to, CyberAsset(quantity)
                             )
-                    ).toHex(),
+                    ).toActionAbi(
+                            listOf(TransactionAuthorizationAbi(
+                                    from.name, "active"
+                            ))
+                    ),
                     activeKey
             )
         }
@@ -2216,16 +2219,19 @@ class Cyber4J @JvmOverloads constructor(
     }
 
     fun stopWithdraw(from: CyberName,
-                     activeKey: String): Either<TransactionSuccessful<StopWithdrawVestingStruct>, GolosEosError> {
+                     activeKey: String): Either<TransactionCommitted<StopWithdrawVestingStruct>, GolosEosError> {
         val callable = Callable {
             pushTransaction<StopWithdrawVestingStruct>(
-                    CyberContracts.VESTING, CyberActions.STOP_WITHDRAW,
-                    from.toTransactionAuthAbi(),
-                    createBinaryConverter().squishStopWithdrawVestingStruct(
+                    StopwithdrawVestingAction(
                             StopWithdrawVestingStruct(
-                                    from
+                                    from,
+                                    CyberSymbol(6, "GOLOS")
                             )
-                    ).toHex(),
+                    ).toActionAbi(
+                            listOf(TransactionAuthorizationAbi(
+                                    from.name, "active"
+                            ))
+                    ),
                     activeKey
             )
         }
@@ -2239,20 +2245,18 @@ class Cyber4J @JvmOverloads constructor(
             interest_rate: Short,
             payout_strategy: Byte,
             activeKey: String
-    ): Either<TransactionSuccessful<DelegateVestingStruct>, GolosEosError> {
+    ): Either<TransactionCommitted<DelegateVestingStruct>, GolosEosError> {
         val callable = Callable {
             pushTransaction<DelegateVestingStruct>(
-                    CyberContracts.VESTING, CyberActions.DELEGATE,
-                    from.toTransactionAuthAbi(),
-                    createBinaryConverter().squishDelegateVestingStruct(
+                    DelegateVestingAction(
                             DelegateVestingStruct(
-                                    from,
-                                    to,
-                                    quantity,
-                                    interest_rate,
-                                    payout_strategy
+                                    from, to, CyberAsset(quantity), interest_rate
                             )
-                    ).toHex(),
+                    ).toActionAbi(
+                            listOf(TransactionAuthorizationAbi(
+                                    from.name, "active"
+                            ))
+                    ),
                     activeKey
             )
         }
@@ -2263,20 +2267,16 @@ class Cyber4J @JvmOverloads constructor(
     fun unDelegate(from: CyberName,
                    to: CyberName,
                    quantity: String,
-                   activeKey: String) : Either<TransactionSuccessful<BaseTransferVestingStruct>, GolosEosError>
-    {
+                   activeKey: String): Either<TransactionCommitted<BaseTransferVestingStruct>, GolosEosError> {
         val callable = Callable {
             pushTransaction<BaseTransferVestingStruct>(
-                    CyberContracts.VESTING, CyberActions.STOP_DELEGATE,
-                    from.toTransactionAuthAbi(),
-                    createBinaryConverter().squishBaseTransferVestingStruct(
+                    UndelegateVestingAction(
                             BaseTransferVestingStruct(
-                                    from,
-                                    to,
-                                    quantity
+                                    from, to, CyberAsset(quantity)
                             )
-                    ).toHex(),
-                    activeKey
+                    ).toActionAbi(
+                            listOf(TransactionAuthorizationAbi(from.name, "active"))
+                    ), activeKey
             )
         }
         return callTilTimeoutExceptionVanishes(callable)
@@ -2300,8 +2300,6 @@ class Cyber4J @JvmOverloads constructor(
         }
     }
 }
-
-private fun CyberName.toTransactionAuthAbi(): MyTransactionAuthorizationAbi = MyTransactionAuthorizationAbi(this.name)
 
 
 /**[DefaultByteWriter] has a bug in utf-8 serialization, so we use custom one */
