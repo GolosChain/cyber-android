@@ -1,6 +1,6 @@
 ext {
     groupName = "io.golos.cyber4j"
-    versionName = '0.61'
+    versionName = '0.62'
     kotlinVersion = '1.3.21'
     coroutinesVersion = '1.2.1'
     kotlinPoetVersion = '1.3.0'

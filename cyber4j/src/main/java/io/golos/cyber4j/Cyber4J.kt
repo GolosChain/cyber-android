@@ -335,7 +335,7 @@ class Cyber4J @JvmOverloads constructor(
             tags: List<io.golos.cyber4j.model.Tag>,
             curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
-            metadata: DiscussionCreateMetadata = DiscussionCreateMetadata(emptyList(), emptyList()),
+            metadata: DiscussionCreateMetadata = DiscussionCreateMetadata(emptyList()),
             vestPayment: Boolean = true,
             tokenProp: Short = 0,
             maxPayout: String? = null
