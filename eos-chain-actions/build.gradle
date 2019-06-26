@@ -71,3 +71,5 @@ dependencies {
     testImplementation 'org.json:json:20140107'
 }
 
+apply from: '../publish.gradle'
+

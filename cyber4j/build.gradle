@@ -9,7 +9,7 @@ buildscript {
 
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'maven-publish'
+
 
 group groupName
 version versionName
@@ -33,37 +33,6 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.6"
 }
-
-jar.baseName = "${rootProject.name}"
-
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            artifact(project.tasks.jar) {
-                artifactId "${project.name}"
-                extension 'jar'
-            }
-
-
-            pom.withXml {
-                asNode().appendNode('name', "${project.name}")
-                asNode().appendNode('description', "${description}")
-                def dependenciesNode = asNode().appendNode('dependencies')
-
-                def adder = {
-                    def dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', it.group)
-                    dependencyNode.appendNode('artifactId', it.name)
-                    dependencyNode.appendNode('version', it.version)
-                }
-
-                configurations.implementation.allDependencies.each(adder)
-            }
-        }
-    }
-}
-
 
 dependencies {
     kapt project(path: ":processor", configuration: 'default')
@@ -92,3 +61,5 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
 }
+
+apply from: '../publish.gradle'

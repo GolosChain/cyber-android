@@ -61,3 +61,5 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.6"
 }
+
+apply from: '../publish.gradle'

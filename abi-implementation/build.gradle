@@ -37,4 +37,6 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin-codegen:$moshiCodegenVersion"
 }
 
+apply from: '../publish.gradle'
+
 
