@@ -1,5 +1,6 @@
 import com.memtrip.eos.chain.actions.transaction.abi.TransactionAuthorizationAbi
 import com.memtrip.eos.core.crypto.EosPrivateKey
+import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
 import io.golos.abi.implementation.publish.CreatemssgPublishAction
@@ -13,6 +14,7 @@ import io.golos.cyber4j.utils.*
 import io.golos.sharedmodel.CyberName
 import io.golos.sharedmodel.CyberNameAdapter
 import io.golos.sharedmodel.Either
+import io.golos.sharedmodel.GolosEosError
 import junit.framework.Assert.assertNotNull
 import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.async
@@ -125,16 +127,18 @@ class Utils {
 
     @Test
     fun testRawApi() {
-      val result =   CreatemssgPublishAction(CreatemssgPublishStruct(
+
+       val result:  Either<out TransactionCommitted<out CreatemssgPublishStruct>, GolosEosError>  = CreatemssgPublishAction (CreatemssgPublishStruct(
                 MssgidPublishStruct((CyberName(client.keyStorage.activeAccountPair.first.name)),
                         "sdgewtwesgsd232225"),
                 MssgidPublishStruct(CyberName(""), ""),
                 emptyList(), 0, true, "title", " nывпывп 25 ывп ывп",
                 "ru", emptyList(), "", null)
-        ).push(
+                ).push(
                 listOf(TransactionAuthorizationAbi("rhjivvslwjbi", "active")),
                 EosPrivateKey("5JqAVXvYBeGX88vymMJYD4d8w24vvsEbnoodQpFaQLnh8utGRT8")
         )
+
         print(result)
         assertTrue(result is Either.Success)
     }

@@ -153,12 +153,14 @@ fun generateClasses(contractName: CyberName,
                         .addAnnotation(AnnotationSpec.builder(JsonClass::class).addMember("generateAdapter = true").build())
                         .primaryConstructor(FunSpec.constructorBuilder()
                                 .also { builder: FunSpec.Builder ->
-                                    abiStruct.fields.forEach { stuctField ->
+                                    val fields = resolveStrucFilelds(abiStruct, eosAbi)
+
+                                    fields.forEach { stuctField ->
                                         builder.addParameter(stuctField.name,
                                                 stringToTypesMap[stuctField.type]
                                                         ?: throw java.lang.IllegalStateException("cannot find ClassName for type ${stuctField.type}"))
                                     }
-                                    if (abiStruct.fields.isEmpty())
+                                    if (fields.isEmpty())
                                         builder.addParameter(ParameterSpec.builder("stub",
                                                 String::class.asTypeName())
                                                 .defaultValue("\"stub\"")
@@ -166,7 +168,9 @@ fun generateClasses(contractName: CyberName,
                                 }
                                 .build())
                         .also { builder: TypeSpec.Builder ->
-                            abiStruct.fields.forEach { structField ->
+                            val fields = resolveStrucFilelds(abiStruct, eosAbi)
+
+                            fields.forEach { structField ->
                                 builder.addProperty(
                                         PropertySpec
                                                 .builder(structField.name,
@@ -174,14 +178,16 @@ fun generateClasses(contractName: CyberName,
                                                 .initializer(structField.name)
                                                 .build())
                             }
-                            if (abiStruct.fields.isEmpty())
+                            if (fields.isEmpty())
                                 builder.addProperty(PropertySpec.builder("stub",
                                         String::class.asTypeName())
                                         .initializer("stub")
                                         .build())
                         }
                         .also { builder: TypeSpec.Builder ->
-                            abiStruct.fields.forEach { structField ->
+                            val fields = resolveStrucFilelds(abiStruct, eosAbi)
+
+                            fields.forEach { structField ->
                                 val typeName = stringToTypesMap[structField.type]!!
                                 builder.addProperty(
                                         PropertySpec.builder("get${structField.name.fromSnakeCase().capitalize()}",

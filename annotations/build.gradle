@@ -1,7 +1,7 @@
 apply plugin: 'kotlin'
 
-group 'io.golos.cyber4j'
-version 1
+group groupName
+version versionName
 
 buildscript {
     repositories {

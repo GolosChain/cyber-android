@@ -67,6 +67,12 @@ class DefaultByteWriter(
         assetWriter.put(value.amount, this)
     }
 
+    override fun putNullableAsset(value: CyberAsset?) {
+        putNullable(value) { asset ->
+            putAsset(asset)
+        }
+    }
+
     override fun putSymbolCode(value: CyberSymbolCode) {
         putString(value.value)
     }

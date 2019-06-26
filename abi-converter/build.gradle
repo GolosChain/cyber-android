@@ -15,8 +15,6 @@ apply plugin: 'application'
 group groupName
 version versionName
 
-
-
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 }

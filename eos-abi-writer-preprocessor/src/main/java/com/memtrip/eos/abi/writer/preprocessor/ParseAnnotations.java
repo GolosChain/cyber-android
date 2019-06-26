@@ -36,6 +36,7 @@ import com.memtrip.eos.abi.writer.IntCompress;
 import com.memtrip.eos.abi.writer.LongCollectionCompress;
 import com.memtrip.eos.abi.writer.LongCompress;
 import com.memtrip.eos.abi.writer.NameCompress;
+import com.memtrip.eos.abi.writer.NullableAssetCompress;
 import com.memtrip.eos.abi.writer.NullableShortCompress;
 import com.memtrip.eos.abi.writer.NullableStringCompress;
 import com.memtrip.eos.abi.writer.PublicKeyCompress;
@@ -184,6 +185,8 @@ final class ParseAnnotations {
             return CompressType.CYBER_NAME_COLLECTION;
         } else if (hasAnnotation(element, CyberNameCompress.class)) {
             return CompressType.NAME;
+        } else if (hasAnnotation(element, NullableAssetCompress.class)) {
+            return CompressType.NULLABLE_ASSET;
         } else {
             throw new IllegalStateException("this method is not covering all the values " +
                     "allowed by elementHasFieldAnnotation. This method is broken!");
@@ -221,6 +224,7 @@ final class ParseAnnotations {
                 || hasAnnotation(element, NullableStringCompress.class)
                 || hasAnnotation(element, SymbolCompress.class)
                 || hasAnnotation(element, SymbolCodeCompress.class)
+                || hasAnnotation(element, NullableAssetCompress.class)
                 || hasAnnotation(element, LongCollectionCompress.class);
     }
 

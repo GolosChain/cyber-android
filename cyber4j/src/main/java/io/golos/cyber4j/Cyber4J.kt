@@ -195,8 +195,9 @@ class Cyber4J @JvmOverloads constructor(
             metadata: DiscussionCreateMetadata,
             curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
-            vestPayment: Boolean = true,
-            tokenProp: Long = 0L
+            vestPayment: Boolean,
+            tokenProp: Long,
+            maxPayout: String?
     ): Either<TransactionCommitted<CreatemssgPublishStruct>, GolosEosError> {
 
         val activeUser = resolveKeysFor(CyberContracts.PUBLICATION, CyberActions.CREATE_DISCUSSION)
@@ -212,7 +213,8 @@ class Cyber4J @JvmOverloads constructor(
                 curatorRewardPercentage,
                 beneficiaries,
                 vestPayment,
-                tokenProp
+                tokenProp,
+                maxPayout
         )
     }
 
@@ -241,14 +243,16 @@ class Cyber4J @JvmOverloads constructor(
             metadata: DiscussionCreateMetadata,
             curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
-            vestPayment: Boolean = true,
-            tokenProp: Long = 0L
+            vestPayment: Boolean,
+            tokenProp: Long ,
+            maxPayout: String?
     ): Either<TransactionCommitted<CreatemssgPublishStruct>, GolosEosError> {
 
         return createPostOrComment(
                 fromAccount, userActiveKey,
                 title, body, formatPostPermlink(title),
-                "", CyberName(), tags, curatorRewardPercentage, beneficiaries, metadata, vestPayment, tokenProp
+                "", CyberName(), tags, curatorRewardPercentage, beneficiaries,
+                metadata, vestPayment, tokenProp,maxPayout
         )
     }
 
@@ -323,7 +327,8 @@ class Cyber4J @JvmOverloads constructor(
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
             metadata: DiscussionCreateMetadata = DiscussionCreateMetadata(emptyList(), emptyList()),
             vestPayment: Boolean = true,
-            tokenProp: Long = 0L
+            tokenProp: Long = 0L,
+            maxPayout: String?
     ): Either<TransactionCommitted<CreatemssgPublishStruct>, GolosEosError> {
 
         val callable = Callable<Either<TransactionCommitted<CreatemssgPublishStruct>, GolosEosError>> {
@@ -340,8 +345,8 @@ class Cyber4J @JvmOverloads constructor(
                             "ru",
                             tags.map { it.tag },
                             moshi.adapter<DiscussionCreateMetadata>(DiscussionCreateMetadata::class.java).toJson(metadata),
-                            curatorRewardPercentage
-
+                            curatorRewardPercentage,
+                            maxPayout?.let { CyberAsset(it) }
                     )).toActionAbi(listOf(TransactionAuthorizationAbi(fromAccount.name, "active"))),
                     userActiveKey)
         }
@@ -372,8 +377,9 @@ class Cyber4J @JvmOverloads constructor(
             metadata: DiscussionCreateMetadata,
             curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = emptyList(),
-            vestPayment: Boolean = true,
-            tokenProp: Long = 0L
+            vestPayment: Boolean,
+            tokenProp: Long,
+            maxPayout: String?
     ): Either<TransactionCommitted<CreatemssgPublishStruct>, GolosEosError> {
         val activeUser = resolveKeysFor(CyberContracts.PUBLICATION, CyberActions.CREATE_DISCUSSION)
         val activeAccountName = activeUser.first
@@ -390,7 +396,8 @@ class Cyber4J @JvmOverloads constructor(
                 curatorRewardPercentage,
                 beneficiaries,
                 vestPayment,
-                tokenProp
+                tokenProp,
+                maxPayout
         )
     }
 
@@ -573,8 +580,9 @@ class Cyber4J @JvmOverloads constructor(
             metadata: DiscussionCreateMetadata,
             curatorRewardPercentage: Short?,
             beneficiaries: List<io.golos.cyber4j.model.Beneficiary> = listOf(),
-            vestPayment: Boolean = true,
-            tokenProp: Long = 0L
+            vestPayment: Boolean,
+            tokenProp: Long,
+            maxPayout: String?
     ): Either<TransactionCommitted<CreatemssgPublishStruct>, GolosEosError> {
 
         checkArgument(parentAccount.name.isNotEmpty(), "parentAccount cannot be empty")
@@ -598,7 +606,8 @@ class Cyber4J @JvmOverloads constructor(
                 beneficiaries,
                 metadata,
                 vestPayment,
-                tokenProp
+                tokenProp,
+                maxPayout
         )
     }
 

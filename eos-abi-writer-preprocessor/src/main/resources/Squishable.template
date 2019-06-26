@@ -41,6 +41,9 @@ public class ${abi.getClassName()}Squishable implements Squishable<${abi.getClas
             <#if field.isAsset()>
                 byteWriter.putAsset(${abi.getClassName()?lower_case}.${field.getName()}());
             </#if>
+            <#if field.isNullableAsset()>
+                 byteWriter.putNullableAsset(${abi.getClassName()?lower_case}.${field.getName()}());
+            </#if>
             <#if field.isChainId()>
                 byteWriter.putChainId(${abi.getClassName()?lower_case}.${field.getName()}());
             </#if>

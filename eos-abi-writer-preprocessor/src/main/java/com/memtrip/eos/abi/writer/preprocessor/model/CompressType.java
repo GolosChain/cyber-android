@@ -22,6 +22,7 @@ public enum  CompressType {
     BLOCK_PREFIX,
     PUBLIC_KEY,
     ASSET,
+    NULLABLE_ASSET,
     CHAIN_ID,
     HEX_COLLECTION,
     DATA,

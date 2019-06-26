@@ -2,13 +2,10 @@ package io.golos.cyber4j.services
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
-import io.golos.sharedmodel.Cyber4JConfig
 import io.golos.cyber4j.model.*
 import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
-import io.golos.sharedmodel.CyberName
-import io.golos.sharedmodel.CyberNameAdapter
-import io.golos.sharedmodel.Either
+import io.golos.sharedmodel.*
 import java.math.BigInteger
 import java.util.*
 
@@ -69,6 +66,8 @@ internal class CyberServicesApiService(
                         .add(CyberName::class.java, CyberNameAdapter())
                         .add(ServiceSettingsLanguage::class.java, ServiceSettingsLanguageAdapter())
                         .add(EventsAdapter())
+                        .add(CyberAsset::class.java, CyberAssetAdapter())
+                        .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
                         .build()
         )
 ) :

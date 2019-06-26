@@ -53,6 +53,10 @@ public class FieldModel {
         return compressType == CompressType.ASSET;
     }
 
+    public boolean isNullableAsset() {
+        return compressType == CompressType.NULLABLE_ASSET;
+    }
+
     public boolean isChainId() {
         return compressType == CompressType.CHAIN_ID;
     }
@@ -76,9 +80,11 @@ public class FieldModel {
     public boolean isShort() {
         return compressType == CompressType.SHORT;
     }
+
     public boolean isCheckSum() {
         return compressType == CompressType.CHECK_SUM_256;
     }
+
     public boolean isCyberNameCollection() {
         return compressType == CompressType.CYBER_NAME_COLLECTION;
     }

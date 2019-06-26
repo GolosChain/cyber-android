@@ -27,6 +27,8 @@ interface ByteWriter {
     fun putPublicKey(value: EosPublicKey)
     fun putAsset(value: String)
     fun putAsset(value: CyberAsset)
+
+    fun putNullableAsset(value: CyberAsset?)
     fun putChainId(value: String)
     fun putData(value: String)
     fun putCheckSum(value: CheckSum256)

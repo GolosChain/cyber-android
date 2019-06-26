@@ -58,6 +58,7 @@ val simpleTypeToAnnotationsMap = mapOf<TypeName, KClass<*>>(
         BigInteger::class.asTypeName() to BytesCompress::class,
         CyberName::class.asTypeName() to CyberNameCompress::class,
         CyberAsset::class.asTypeName() to AssetCompress::class,
+        CyberAsset::class.asTypeName().copy(true) to NullableAssetCompress::class,
         CyberSymbolCode::class.asTypeName() to SymbolCodeCompress::class,
         CyberSymbol::class.asTypeName() to SymbolCompress::class,
         CyberTimeStamp::class.asTypeName() to TimestampCompress::class,
@@ -91,3 +92,8 @@ fun intStringToClassName(integerString: String): ClassName {
 }
 
 fun Type.asClassName() = asTypeName() as ClassName
+
+fun resolveStrucFilelds(abiStruct: AbiStruct, eosAbi: EosAbi) = (if (abiStruct.base.isNotEmpty())
+    eosAbi.abi.structs.find { it.name == abiStruct.base }?.fields.orEmpty()
+else emptyList())
+        .plus(abiStruct.fields)

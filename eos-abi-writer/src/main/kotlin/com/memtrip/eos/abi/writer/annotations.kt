@@ -43,6 +43,9 @@ annotation class PublicKeyCompress
 annotation class AssetCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
+annotation class NullableAssetCompress
+
+@Target(AnnotationTarget.PROPERTY_GETTER)
 annotation class ChainIdCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
