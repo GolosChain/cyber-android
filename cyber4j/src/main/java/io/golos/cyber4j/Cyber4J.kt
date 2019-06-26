@@ -56,7 +56,8 @@ private enum class CyberActions : CyberContract.CyberAction {
     UN_PIN, BLOCK, UN_BLOCK,
     ISSUE, REBLOG, VOTE_FOR_WITNESS, UNVOTE_WITNESS,
     REGISTER_WITNESS, UNREGISTER_WITNESS, START_WITNESS, STOP_WITNESS,
-    SET_NEW_USER_NAME;
+    SET_NEW_USER_NAME, WITHDRAW, STOP_WITHDRAW, DELEGATE, STOP_DELEGATE;
+
 
     override fun toString(): String {
         return when (this) {
@@ -84,6 +85,10 @@ private enum class CyberActions : CyberContract.CyberAction {
             START_WITNESS -> "startwitness"
             STOP_WITNESS -> "stopwitness"
             SET_NEW_USER_NAME -> "newusername"
+            WITHDRAW -> "withdraw"
+            STOP_WITHDRAW -> "stopwithdraw"
+            DELEGATE -> "delegate"
+            STOP_DELEGATE -> "undelegate"
         }
     }
 }
@@ -2189,6 +2194,94 @@ class Cyber4J @JvmOverloads constructor(
         return callTilTimeoutExceptionVanishes(callable)
     }
 
+    fun withdraw(from: CyberName,
+                 to: CyberName,
+                 quantity: String,
+                 activeKey: String): Either<TransactionSuccessful<BaseTransferVestingStruct>, GolosEosError> {
+        val callable = Callable {
+            pushTransaction<BaseTransferVestingStruct>(
+                    CyberContracts.VESTING, CyberActions.WITHDRAW,
+                    from.toTransactionAuthAbi(),
+                    createBinaryConverter().squishBaseTransferVestingStruct(
+                            BaseTransferVestingStruct(
+                                    from,
+                                    to,
+                                    quantity
+                            )
+                    ).toHex(),
+                    activeKey
+            )
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
+    fun stopWithdraw(from: CyberName,
+                     activeKey: String): Either<TransactionSuccessful<StopWithdrawVestingStruct>, GolosEosError> {
+        val callable = Callable {
+            pushTransaction<StopWithdrawVestingStruct>(
+                    CyberContracts.VESTING, CyberActions.STOP_WITHDRAW,
+                    from.toTransactionAuthAbi(),
+                    createBinaryConverter().squishStopWithdrawVestingStruct(
+                            StopWithdrawVestingStruct(
+                                    from
+                            )
+                    ).toHex(),
+                    activeKey
+            )
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
+    fun delegate(
+            from: CyberName,
+            to: CyberName,
+            quantity: String,
+            interest_rate: Short,
+            payout_strategy: Byte,
+            activeKey: String
+    ): Either<TransactionSuccessful<DelegateVestingStruct>, GolosEosError> {
+        val callable = Callable {
+            pushTransaction<DelegateVestingStruct>(
+                    CyberContracts.VESTING, CyberActions.DELEGATE,
+                    from.toTransactionAuthAbi(),
+                    createBinaryConverter().squishDelegateVestingStruct(
+                            DelegateVestingStruct(
+                                    from,
+                                    to,
+                                    quantity,
+                                    interest_rate,
+                                    payout_strategy
+                            )
+                    ).toHex(),
+                    activeKey
+            )
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
+
+    fun unDelegate(from: CyberName,
+                   to: CyberName,
+                   quantity: String,
+                   activeKey: String) : Either<TransactionSuccessful<BaseTransferVestingStruct>, GolosEosError>
+    {
+        val callable = Callable {
+            pushTransaction<BaseTransferVestingStruct>(
+                    CyberContracts.VESTING, CyberActions.STOP_DELEGATE,
+                    from.toTransactionAuthAbi(),
+                    createBinaryConverter().squishBaseTransferVestingStruct(
+                            BaseTransferVestingStruct(
+                                    from,
+                                    to,
+                                    quantity
+                            )
+                    ).toHex(),
+                    activeKey
+            )
+        }
+        return callTilTimeoutExceptionVanishes(callable)
+    }
+
     @Suppress("UNUSED_PARAMETER")
     private fun resolveKeysFor(contract: CyberContracts, action: CyberActions): kotlin.Pair<CyberName, String> {
         val activeAccountName = keyStorage.getActiveAccount()
@@ -2207,6 +2300,9 @@ class Cyber4J @JvmOverloads constructor(
         }
     }
 }
+
+private fun CyberName.toTransactionAuthAbi(): MyTransactionAuthorizationAbi = MyTransactionAuthorizationAbi(this.name)
+
 
 /**[DefaultByteWriter] has a bug in utf-8 serialization, so we use custom one */
 private fun createBinaryConverter(): AbiBinaryGenCyber4J {

@@ -26,7 +26,7 @@ class ServicesFetchTest {
 
         assertTrue("posts feed is empty", posts.isNotEmpty())
 
-        val post = posts[10]
+        val post = posts[9]
 
         val postResponse = client.getPost(
                 post.contentId.userId.toCyberName(),
