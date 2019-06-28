@@ -31,18 +31,19 @@ run {
             "gls.vesting",
             "cyber.token",
             "cyber.domain",
-            "gls.ctrl"]
+            "gls.ctrl",
+            "cyber.msig"]
 }
 
 assemble.dependsOn run
 
 dependencies {
-    implementation project(path:":eos-abi-writer", configuration: 'default')
-    implementation project(path:":shared-model", configuration: 'default')
-    implementation project(path:":annotations", configuration: 'default')
-    implementation project(path:":eos-core", configuration: 'default')
-    implementation project(path:":eos-abi-writer", configuration: 'default')
-    implementation project(path:":eos-chain-actions", configuration: 'default')
+    implementation project(path: ":eos-abi-writer", configuration: 'default')
+    implementation project(path: ":shared-model", configuration: 'default')
+    implementation project(path: ":annotations", configuration: 'default')
+    implementation project(path: ":eos-core", configuration: 'default')
+    implementation project(path: ":eos-abi-writer", configuration: 'default')
+    implementation project(path: ":eos-chain-actions", configuration: 'default')
     implementation "com.squareup.okhttp3:logging-interceptor:$loggingIntrceptorVersion"
     implementation "com.google.auto.service:auto-service:$autoServiceVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
@@ -52,5 +53,3 @@ dependencies {
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
-
-apply from: '../publish.gradle'

@@ -3,9 +3,7 @@ import com.memtrip.eos.core.crypto.EosPrivateKey
 import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
-import io.golos.abi.implementation.publish.CreatemssgPublishAction
-import io.golos.abi.implementation.publish.CreatemssgPublishStruct
-import io.golos.abi.implementation.publish.MssgidPublishStruct
+import io.golos.abi.implementation.publish.*
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.Cyber4JCoroutinesAdapter
 import io.golos.cyber4j.model.ContentRow
@@ -28,8 +26,8 @@ class Utils {
 
     @Before
     fun before() {
-        client = getClient()
-        secondAccount = account(client.config.toConfigType(), true)
+      //  client = getClient()
+        //secondAccount = account(client.config.toConfigType(), true)
     }
 
     @Test
@@ -158,6 +156,32 @@ class Utils {
                 EosPrivateKey(secondAccount.second)
         )
 
+        print(result)
+
+        assertTrue(result is Either.Success)
+    }
+
+    @Test
+    fun testSetParams() {
+
+        val result = SetparamsPublishAction(
+                SetparamsPublishStruct(
+                        listOf(
+                                StCashoutWindowPublishStruct(
+                                        3600, 66
+                                )
+                        )
+                )
+        ).push(
+                listOf(
+                        TransactionAuthorizationAbi(
+                                "gls.publish", "active"
+                        )
+                ),
+                EosPrivateKey(
+                        "5JdhhMMJdb1KEyCatAynRLruxVvi7mWPywiSjpLYqKqgsT4qjsN"
+                ),
+        Cyber4JConfig.default.copy(blockChainHttpApiUrl = "http://116.202.4.39:8888/"))
         print(result)
         assertTrue(result is Either.Success)
     }

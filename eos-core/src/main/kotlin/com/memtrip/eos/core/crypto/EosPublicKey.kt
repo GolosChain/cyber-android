@@ -19,10 +19,10 @@ import com.memtrip.eos.core.base58.Base58Decode
 import com.memtrip.eos.core.base58.Base58Encode
 import com.memtrip.eos.core.hash.RIPEMD160Digest
 import com.memtrip.eos.core.utils.BytesWithChecksum
-
+import io.golos.sharedmodel.CheckSum256
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Utils
-import java.util.Arrays
+import java.util.*
 
 class EosPublicKey {
 

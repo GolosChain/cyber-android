@@ -39,8 +39,12 @@ val builtInTypes = hashMapOf(*ClassName("kotlin", "String").createVariations("st
             putAll(CyberAsset::class.asTypeName().createVariations("asset"))
             putAll(CyberSymbolCode::class.asTypeName().createVariations("symbol_code"))
             putAll(CyberSymbol::class.asTypeName().createVariations("symbol"))
-            putAll(CyberTimeStamp::class.asTypeName().createVariations("time_point_sec"))
+            putAll(ByteArray::class.asTypeName().createVariations("bytes"))
+            putAll(CyberTimeStampSeconds::class.asTypeName().createVariations("time_point_sec"))
             putAll(CheckSum256::class.asTypeName().createVariations("checksum256"))
+            putAll(CheckSum256::class.asTypeName().createVariations("checksum256$"))
+            putAll(CyberTimeStampMicroseconds::class.asTypeName().createVariations("time_point"))
+            putAll(Varuint::class.asTypeName().createVariations("varuint32"))
         } as Map<String, TypeName>
 
 
@@ -61,8 +65,10 @@ val simpleTypeToAnnotationsMap = mapOf<TypeName, KClass<*>>(
         CyberAsset::class.asTypeName().copy(true) to NullableAssetCompress::class,
         CyberSymbolCode::class.asTypeName() to SymbolCodeCompress::class,
         CyberSymbol::class.asTypeName() to SymbolCompress::class,
-        CyberTimeStamp::class.asTypeName() to TimestampCompress::class,
+        CyberTimeStampSeconds::class.asTypeName() to TimestampCompress::class,
+        CyberTimeStampMicroseconds::class.asTypeName() to LongCompress::class,
         CheckSum256::class.asTypeName() to CheckSumCompress::class,
+        Varuint::class.asTypeName() to VariableUIntCompress::class,
         ClassName("com.memtrip.eos.core.crypto", "EosPublicKey") to PublicKeyCompress::class)
 
 fun String.toClassName(prefix: String, postfix: String = "Struct") = "${this.fromSnakeCase().capitalize()}$prefix$postfix"

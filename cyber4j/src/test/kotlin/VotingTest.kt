@@ -18,7 +18,7 @@ class VotingTest {
     fun before() {
         client = getClient()
         postCreateResult = (client.createPost("sdgsdg", "gdssdg",
-                listOf(Tag("test")), DiscussionCreateMetadata(emptyList(), listOf()), 0)
+                listOf(Tag("test")), DiscussionCreateMetadata(emptyList()), 0)
                 as Either.Success).value.resolvedResponse!!
 
         secndTestAccount = account(client.config.toConfigType())

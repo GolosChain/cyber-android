@@ -55,6 +55,10 @@ fun generateActions(eosAbi: EosAbi,
                                 .addParameter("transactionAuth", List::class.asClassName().parameterizedBy(TransactionAuthorizationAbi::class.asClassName()))
                                 .addParameter("key", EosPrivateKey::class)
                                 .addParameter(
+                                        ParameterSpec.builder("withConfig", Cyber4JConfig::class)
+                                                .defaultValue(CodeBlock.of("Cyber4JConfig.default"))
+                                                .build())
+                                .addParameter(
                                         ParameterSpec.builder("contractName", String::class)
                                                 .defaultValue(CodeBlock.of("\"${eosAbi.account_name.name}\""))
                                                 .build())
@@ -62,10 +66,7 @@ fun generateActions(eosAbi: EosAbi,
                                         ParameterSpec.builder("actionName", String::class)
                                                 .defaultValue(CodeBlock.of("\"${abiAction.name}\""))
                                                 .build())
-                                .addParameter(
-                                        ParameterSpec.builder("withConfig", Cyber4JConfig::class)
-                                                .defaultValue(CodeBlock.of("Cyber4JConfig.default"))
-                                                .build())
+
                                 .addCode("""return TransactionPusher.pushTransaction(listOf(toActionAbi(transactionAuth,
                                     contractName, actionName)), key, struct::class.java, withConfig)""".trimIndent())
 

@@ -34,7 +34,7 @@ interface ByteWriter {
     fun putCheckSum(value: CheckSum256)
 
     fun putTimestampMs(value: Long)
-    fun putTimestampMs(value: CyberTimeStamp)
+    fun putTimestampMs(value: CyberTimeStampSeconds)
 
     fun putBoolean(value: Boolean)
 
@@ -43,7 +43,9 @@ interface ByteWriter {
 
     fun putInt(value: Int)
     fun putVariableUInt(value: Long)
+    fun putVariableUInt(value: Varuint)
     fun putLong(value: Long)
+    fun putLong(value: CyberTimeStampMicroseconds)
     fun putFloat(value: Float)
     fun putBytes(value: ByteArray)
 
@@ -60,6 +62,8 @@ interface ByteWriter {
 
     fun putSymbolCode(value: CyberSymbolCode)
     fun putSymbol(value: CyberSymbol)
+
+    fun putInterfaceCollection(collection: List<ISquishable>)
 
     fun toBytes(): ByteArray
     fun length(): Int

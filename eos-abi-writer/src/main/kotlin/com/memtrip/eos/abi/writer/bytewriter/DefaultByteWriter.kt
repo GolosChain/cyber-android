@@ -99,7 +99,7 @@ class DefaultByteWriter(
         putInt((value / 1000).toInt())
     }
 
-    override fun putTimestampMs(value: CyberTimeStamp) {
+    override fun putTimestampMs(value: CyberTimeStampSeconds) {
         putTimestampMs(value.value)
     }
 
@@ -131,8 +131,16 @@ class DefaultByteWriter(
         buffer.append(v.toByte())
     }
 
+    override fun putVariableUInt(value: Varuint) {
+        putVariableUInt(value.value)
+    }
+
     override fun putLong(value: Long) {
         buffer.append(value)
+    }
+
+    override fun putLong(value: CyberTimeStampMicroseconds) {
+        putLong(value.value)
     }
 
     override fun putFloat(value: Float) {
@@ -188,6 +196,14 @@ class DefaultByteWriter(
             for (accountName in accountNameList) {
                 putAccountName(accountName)
             }
+        }
+    }
+
+    override fun putInterfaceCollection(collection: List<ISquishable>) {
+        putVariableUInt(collection.size.toLong())
+        collection.forEach {
+            putVariableUInt(it.getStructIndexForCollectionSquish().toLong())
+            putBytes(it.squish())
         }
     }
 

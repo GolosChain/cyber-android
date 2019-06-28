@@ -1,13 +1,11 @@
 apply plugin: 'maven-publish'
 
-
-
 publishing {
     publications {
         maven(MavenPublication) {
 
             artifact("$buildDir/libs/${project.name}-${version}.jar")
-            
+
             pom.withXml {
                 asNode().appendNode('name', "${project.name}")
                 asNode().appendNode('description', "${description}")
@@ -23,4 +21,14 @@ publishing {
             }
         }
     }
+    repositories {
+        maven {
+            url "http://116.203.39.126:32768/repository/internal/"
+            credentials {
+                username archiva_login
+                password archiva_password
+            }
+        }
+    }
 }
+

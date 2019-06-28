@@ -7,10 +7,8 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
-import io.golos.sharedmodel.AbiStruct
-import io.golos.sharedmodel.CyberName
-import io.golos.sharedmodel.CyberNameAdapter
-import io.golos.sharedmodel.EosAbi
+import io.golos.annotations.ForTechUse
+import io.golos.sharedmodel.*
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -46,7 +44,8 @@ class Main {
                                 abi,
                                 abiPackage,
                                 "Cyber")
-                                + generateActions(abi, abiPackage))
+                                + generateActions(abi, abiPackage)
+                                )
                     }.flatten()
             generatedFileSpec.forEach {
                 it.writeTo(File(srcDir))
@@ -89,6 +88,13 @@ fun getAbi(contractName: CyberName, buildDir: File): EosAbi {
     return out
 }
 
+val squishableInterfaceName: ClassName = ISquishable::class.asClassName()
+
+val squishMethodName = "squish"
+
+val structNamePropertyName = "structName"
+
+val getStructIndexFuncName = "getStructIndexForCollectionSquish"
 
 fun generateClasses(contractName: CyberName,
                     eosAbi: EosAbi,
@@ -102,7 +108,7 @@ fun generateClasses(contractName: CyberName,
     val variantsMap = eosAbi
             .abi
             .variants.map {
-        val interfaceName = it.name.toClassName("Interface")
+        val interfaceName = it.name.toClassName("", "Interface")
 
         stringToTypesMap.putAll(ClassName(packageName, interfaceName).createVariations(it.name))
         interfaceName to it.types.map { it.toClassName(classPrefix) }
@@ -112,6 +118,7 @@ fun generateClasses(contractName: CyberName,
         FileSpec.builder(packageName, it)
                 .addType(TypeSpec
                         .interfaceBuilder(it)
+                        .addSuperinterface(squishableInterfaceName)
                         .addAnnotation(Abi::class.asTypeName())
                         .build())
                 .build()
@@ -134,6 +141,8 @@ fun generateClasses(contractName: CyberName,
     }
 
     return out + eosAbi.abi.structs.map { abiStruct ->
+        var isInterfaceImpl = false
+
         val className = abiStruct.generateStructName(classPrefix)
 
         val classFile = FileSpec.builder(packageName, className)
@@ -144,9 +153,12 @@ fun generateClasses(contractName: CyberName,
                 .addImport(packageName.dropLastWhile { it != '.' }, "AbiBinaryGen$writerInterfaceName")
                 .addType(TypeSpec.classBuilder(className)
                         .also { typeBuilder ->
-                            typeBuilder.addSuperinterfaces(variantsMap.filter { it.value.contains(className) }.map {
-                                ClassName(packageName, it.key)
-                            })
+                            if (variantsMap.values.flatten().contains(className)) {
+                                typeBuilder.addSuperinterfaces(variantsMap.filter { it.value.contains(className) }.map {
+                                    ClassName(packageName, it.key)
+                                })
+                                isInterfaceImpl = true
+                            }
                         }
                         .addModifiers(KModifier.DATA)
                         .addAnnotation(Abi::class.asTypeName())
@@ -178,6 +190,25 @@ fun generateClasses(contractName: CyberName,
                                                 .initializer(structField.name)
                                                 .build())
                             }
+
+                            builder.addProperty(PropertySpec.builder(structNamePropertyName, String::class)
+                                    .initializer("\"${abiStruct.name}\"")
+                                    .build())
+
+                            if (isInterfaceImpl) {
+                                val variants = eosAbi.abi.variants
+                                val index = variants.find { it.types.contains(abiStruct.name) }!!
+                                        .types.indexOf(abiStruct.name)
+                                if (index < 0) throw IllegalStateException("index cannot be -1")
+
+                                builder.addFunction(FunSpec.builder(getStructIndexFuncName)
+                                        .returns(Int::class)
+                                        .addAnnotation(ForTechUse::class)
+                                        .addModifiers(KModifier.OVERRIDE)
+                                        .addCode("return $index")
+                                        .build())
+                            }
+
                             if (fields.isEmpty())
                                 builder.addProperty(PropertySpec.builder("stub",
                                         String::class.asTypeName())
@@ -195,6 +226,7 @@ fun generateClasses(contractName: CyberName,
                                                     BigInteger::class.asTypeName() -> ByteArray::class.asTypeName()
                                                     else -> typeName
                                                 })
+                                                .addAnnotation(ForTechUse::class)
                                                 .getter(FunSpec.getterBuilder()
                                                         .addStatement(
                                                                 when (typeName) {
@@ -214,7 +246,9 @@ fun generateClasses(contractName: CyberName,
 
                                                                                 val collectionType = typeName.typeArguments.first()
 
-                                                                                when (collectionType) {
+                                                                                val simpleCollectionType = collectionType.toString().takeLastWhile { it != '.' }
+                                                                                if (variantsMap.keys.contains(simpleCollectionType)) InterfaceCollectionCompress::class
+                                                                                else when (collectionType) {
                                                                                     String::class.asTypeName() -> StringCollectionCompress::class
                                                                                     Long::class.asTypeName() -> LongCollectionCompress::class
                                                                                     CyberName::class.asTypeName() -> CyberNameCollectionCompress::class
@@ -239,6 +273,16 @@ fun generateClasses(contractName: CyberName,
                                         |               .toHex()
                                     """.trimMargin())
                                     .build())
+                            if (isInterfaceImpl) {
+                                builder.addFunction(FunSpec
+                                        .builder(squishMethodName)
+                                        .addModifiers(KModifier.OVERRIDE)
+                                        .addCode("""return AbiBinaryGen$writerInterfaceName(CompressionType.NONE)
+                                        |               .squish$className(this)
+                                        |               .toBytes()
+                                    """.trimMargin())
+                                        .build())
+                            }
 
                             builder.addFunction(FunSpec
                                     .builder("toActionAbi")

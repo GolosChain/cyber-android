@@ -71,3 +71,64 @@ class CyberSymbolAdapter : JsonAdapter<CyberSymbol>() {
         writer.value(value?.symbol)
     }
 }
+
+class CyberTimeStampAdapter : JsonAdapter<CyberTimeStampSeconds>() {
+
+    override fun fromJson(reader: JsonReader): CyberTimeStampSeconds? {
+        val nextToken = reader.peek()
+        if (nextToken == JsonReader.Token.NULL) {
+            reader.nextNull<CyberTimeStampSeconds>()
+            return null
+        }
+        reader.beginObject()
+        reader.nextName()
+        val out = CyberTimeStampSeconds(reader.nextLong())
+        reader.endObject()
+        return out
+    }
+
+    override fun toJson(writer: JsonWriter, value: CyberTimeStampSeconds?) {
+        writer.value(value?.value)
+    }
+}
+
+class CyberTimeStampMsAdapter : JsonAdapter<CyberTimeStampMicroseconds>() {
+
+    override fun fromJson(reader: JsonReader): CyberTimeStampMicroseconds? {
+        val nextToken = reader.peek()
+        if (nextToken == JsonReader.Token.NULL) {
+            reader.nextNull<CyberTimeStampMicroseconds>()
+            return null
+        }
+        reader.beginObject()
+        reader.nextName()
+        val out = CyberTimeStampMicroseconds(reader.nextLong())
+        reader.endObject()
+        return out
+    }
+
+    override fun toJson(writer: JsonWriter, value: CyberTimeStampMicroseconds?) {
+        writer.value(value?.value)
+    }
+}
+
+class VariableUintAdapter : JsonAdapter<Varuint>() {
+
+    override fun fromJson(reader: JsonReader): Varuint? {
+        val nextToken = reader.peek()
+        if (nextToken == JsonReader.Token.NULL) {
+            reader.nextNull<Varuint>()
+            return null
+        }
+        reader.beginObject()
+        reader.nextName()
+        val out = Varuint(reader.nextLong())
+        reader.endObject()
+        return out
+    }
+
+    override fun toJson(writer: JsonWriter, value: Varuint?) {
+        writer.value(value?.value)
+    }
+}
+

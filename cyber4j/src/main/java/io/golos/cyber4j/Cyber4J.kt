@@ -162,6 +162,9 @@ class Cyber4J @JvmOverloads constructor(
             .add(CyberAsset::class.java, CyberAssetAdapter())
             .add(CyberSymbol::class.java, CyberSymbolAdapter())
             .add(Date::class.java, Rfc3339DateJsonAdapter())
+            .add(CyberTimeStampSeconds::class.java, CyberTimeStampAdapter())
+            .add(Varuint::class.java, VariableUintAdapter())
+            .add(CyberTimeStampMsAdapter::class.java, CyberTimeStampMsAdapter())
             .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
             .build()
 
@@ -173,9 +176,9 @@ class Cyber4J @JvmOverloads constructor(
     init {
         if (chainApiProvider == null) {
             chainApi = io.golos.cyber4j.GolosEosConfiguratedApi(config, moshi).provide()
-            this.transactionPusher = io.golos.cyber4j.TransactionPusherImpl(chainApi, config, moshi)
+            this.transactionPusher = TransactionPusherImpl(chainApi, config, moshi)
         } else {
-            this.transactionPusher = io.golos.cyber4j.TransactionPusherImpl(chainApiProvider.provide(), config, moshi)
+            this.transactionPusher = TransactionPusherImpl(chainApiProvider.provide(), config, moshi)
             chainApi = chainApiProvider.provide()
         }
 

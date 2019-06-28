@@ -73,6 +73,10 @@ public class FieldModel {
         return compressType == CompressType.TIMESTAMP;
     }
 
+    public boolean isInterfaceCollection() {
+        return compressType == CompressType.INTERFACE_COLLECTION;
+    }
+
     public boolean isByte() {
         return compressType == CompressType.BYTE;
     }

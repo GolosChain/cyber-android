@@ -159,7 +159,7 @@ class ServicesFetchTest {
         val result = client.createPost("",
                 "post",
                 emptyList<Tag>(),
-                DiscussionCreateMetadata(emptyList(), emptyList()),
+                DiscussionCreateMetadata(emptyList()),
                 null)
         val blockNum = (result as Either.Success).value.processed.block_num!!
         val waitResult = client.waitForABlock(blockNum.toLong())
@@ -172,7 +172,7 @@ class ServicesFetchTest {
         val result = client.createPost("",
                 "post",
                 emptyList<Tag>(),
-                DiscussionCreateMetadata(emptyList(), emptyList()),
+                DiscussionCreateMetadata(emptyList()),
                 null)
         val blockId = (result as Either.Success).value.processed.id
         val waitResult = client.waitForTransaction(blockId)

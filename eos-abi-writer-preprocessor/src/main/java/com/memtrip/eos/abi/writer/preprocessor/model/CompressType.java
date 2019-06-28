@@ -23,6 +23,7 @@ public enum  CompressType {
     PUBLIC_KEY,
     ASSET,
     NULLABLE_ASSET,
+    INTERFACE_COLLECTION,
     CHAIN_ID,
     HEX_COLLECTION,
     DATA,

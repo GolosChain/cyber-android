@@ -116,3 +116,6 @@ annotation class AccountNameCollectionCompress
 
 @Target(AnnotationTarget.PROPERTY_GETTER)
 annotation class CyberNameCollectionCompress
+
+@Target(AnnotationTarget.PROPERTY_GETTER)
+annotation class InterfaceCollectionCompress

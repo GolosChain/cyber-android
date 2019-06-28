@@ -11,8 +11,8 @@ import com.memtrip.eos.http.rpc.model.info.Info
 import com.memtrip.eos.http.rpc.model.signing.PushTransaction
 import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.squareup.moshi.Types
+import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.golos.sharedmodel.*
 import okhttp3.*
@@ -28,6 +28,9 @@ object TransactionPusher {
             .add(Date::class.java, Rfc3339DateJsonAdapter())
             .add(CyberAsset::class.java, CyberAssetAdapter())
             .add(CyberSymbol::class.java, CyberSymbolAdapter())
+            .add(CyberTimeStampSeconds::class.java, CyberTimeStampAdapter())
+            .add(Varuint::class.java, VariableUintAdapter())
+            .add(CyberTimeStampMsAdapter::class.java, CyberTimeStampMsAdapter())
             .add(KotlinJsonAdapterFactory())
             .build()
 
@@ -103,22 +106,32 @@ object TransactionPusher {
 
             return try {
 
-                val type = Types.newParameterizedType(TransactionCommitted::class.java, traceType)
-                val value = moshi
-                        .adapter<TransactionCommitted<T>>(type)
-                        .fromJson(response)!!
+                try {
+                    val type = Types.newParameterizedType(TransactionCommitted::class.java, traceType)
+                    val value = moshi
+                            .adapter<TransactionCommitted<T>>(type)
+                            .fromJson(response)!!
 
-                Either.Success(value.copy(
-                        resolvedResponse = value.processed.action_traces.map {
-                            moshi.adapter<T>(traceType).fromJsonValue(it.act.data)
-                        }.firstOrNull()
-                ))
+                    Either.Success(value.copy(
+                            resolvedResponse = value.processed.action_traces.map {
+                                moshi.adapter<T>(traceType).fromJsonValue(it.act.data)
+                            }.firstOrNull()
+                    ))
+                } catch (e: RuntimeException) {
+                    val type = Types.newParameterizedType(TransactionCommitted::class.java, Any::class.java)
+                    val value = moshi
+                            .adapter<TransactionCommitted<T>>(type)
+                            .fromJson(response)!!
+
+                    Either.Success(value)
+                }
+
             } catch (e: Exception) {
                 e.printStackTrace()
-                Either.Failure(moshi.adapter<GolosEosError>(GolosEosError::class.java).fromJson(response)!!)
+                Either.Failure(moshi.adapter(GolosEosError::class.java).fromJson(response)!!)
             }
         } else {
-            Either.Failure(moshi.adapter<GolosEosError>(GolosEosError::class.java).fromJson(result.body()!!.string().orEmpty())!!)
+            Either.Failure(moshi.adapter(GolosEosError::class.java).fromJson(result.body()!!.string().orEmpty())!!)
         }
     }
 

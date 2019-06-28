@@ -21,7 +21,7 @@ class PostingTest {
         client.setActiveAccount(account(client.config.toConfigType(), true))
     }
 
-    val testMetadata = DiscussionCreateMetadata(listOf(EmbedmentsUrl("test_url")), listOf("тээст"))
+    val testMetadata = DiscussionCreateMetadata(listOf(EmbedmentsUrl("test_url")))
 
     @Test
     fun postingTest() {

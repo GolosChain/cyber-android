@@ -33,6 +33,7 @@ import com.memtrip.eos.abi.writer.DataCompress;
 import com.memtrip.eos.abi.writer.FloatCompress;
 import com.memtrip.eos.abi.writer.HexCollectionCompress;
 import com.memtrip.eos.abi.writer.IntCompress;
+import com.memtrip.eos.abi.writer.InterfaceCollectionCompress;
 import com.memtrip.eos.abi.writer.LongCollectionCompress;
 import com.memtrip.eos.abi.writer.LongCompress;
 import com.memtrip.eos.abi.writer.NameCompress;
@@ -187,7 +188,10 @@ final class ParseAnnotations {
             return CompressType.NAME;
         } else if (hasAnnotation(element, NullableAssetCompress.class)) {
             return CompressType.NULLABLE_ASSET;
-        } else {
+        }
+        else if (hasAnnotation(element, InterfaceCollectionCompress.class)) {
+            return CompressType.INTERFACE_COLLECTION;
+        }else {
             throw new IllegalStateException("this method is not covering all the values " +
                     "allowed by elementHasFieldAnnotation. This method is broken!");
         }
@@ -200,6 +204,7 @@ final class ParseAnnotations {
                 || hasAnnotation(element, BlockPrefixCompress.class)
                 || hasAnnotation(element, PublicKeyCompress.class)
                 || hasAnnotation(element, AssetCompress.class)
+                || hasAnnotation(element, InterfaceCollectionCompress.class)
                 || hasAnnotation(element, ChainIdCompress.class)
                 || hasAnnotation(element, HexCollectionCompress.class)
                 || hasAnnotation(element, DataCompress.class)
