@@ -3,14 +3,20 @@ import com.memtrip.eos.core.crypto.EosPrivateKey
 import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
-import io.golos.abi.implementation.publish.*
+import io.golos.abi.implementation.publish.CreatemssgPublishAction
+import io.golos.abi.implementation.publish.CreatemssgPublishStruct
+import io.golos.abi.implementation.publish.MssgidPublishStruct
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.Cyber4JCoroutinesAdapter
 import io.golos.cyber4j.model.ContentRow
 import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
-import io.golos.sharedmodel.*
-import junit.framework.Assert.*
+import io.golos.sharedmodel.CyberName
+import io.golos.sharedmodel.CyberNameAdapter
+import io.golos.sharedmodel.Either
+import io.golos.sharedmodel.GolosEosError
+import junit.framework.Assert.assertNotNull
+import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -26,7 +32,7 @@ class Utils {
 
     @Before
     fun before() {
-      //  client = getClient()
+        //  client = getClient()
         //secondAccount = account(client.config.toConfigType(), true)
     }
 
@@ -64,7 +70,7 @@ class Utils {
 
     @Test
     fun deserializeEvents() {
-        val eventsString = (Cyber4J::class.java).getResource("/test.json").readText(Charset.defaultCharset())
+        val eventsString = (DomainTest::class.java).getResource("/test.json").readText(Charset.defaultCharset())
 
         assertNotNull(eventsString)
 
@@ -88,7 +94,7 @@ class Utils {
 
     @Test
     fun imageUploadTest() {
-        val img = File((Cyber4J::class.java).getResource("/test2.jpg").file!!)
+        val img = File((DomainTest::class.java).getResource("/test2.jpg").file!!)
         assertNotNull(img)
         val uploadResponse = client.uploadImage(img)
         assertTrue(uploadResponse is Either.Success)
@@ -158,31 +164,6 @@ class Utils {
 
         print(result)
 
-        assertTrue(result is Either.Success)
-    }
-
-    @Test
-    fun testSetParams() {
-
-        val result = SetparamsPublishAction(
-                SetparamsPublishStruct(
-                        listOf(
-                                StCashoutWindowPublishStruct(
-                                        3600, 66
-                                )
-                        )
-                )
-        ).push(
-                listOf(
-                        TransactionAuthorizationAbi(
-                                "gls.publish", "active"
-                        )
-                ),
-                EosPrivateKey(
-                        "5JdhhMMJdb1KEyCatAynRLruxVvi7mWPywiSjpLYqKqgsT4qjsN"
-                ),
-        Cyber4JConfig.default.copy(blockChainHttpApiUrl = "http://116.202.4.39:8888/"))
-        print(result)
         assertTrue(result is Either.Success)
     }
 }

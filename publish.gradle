@@ -23,7 +23,7 @@ publishing {
     }
     repositories {
         maven {
-            url "http://116.203.39.126:32768/repository/internal/"
+            url "http://116.203.39.126:34333/repository/cyber4j/"
             credentials {
                 username archiva_login
                 password archiva_password

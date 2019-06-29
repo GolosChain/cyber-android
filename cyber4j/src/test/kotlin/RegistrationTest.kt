@@ -1,4 +1,3 @@
-import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.model.AuthType
 import io.golos.cyber4j.utils.AuthUtils
 import io.golos.sharedmodel.Either
@@ -11,10 +10,10 @@ import java.util.*
 class RegistrationTest {
     private val client = getClient()
     val unExistingPhone = generatePhone()
-    val pass = (Cyber4J::class.java).getResource("/phonekey.txt").readText()
+    val pass = (AccountCreationTest::class.java).getResource("/phonekey.txt").readText()
 
     @Before
-    fun before(){
+    fun before() {
         client.unAuth()
     }
 

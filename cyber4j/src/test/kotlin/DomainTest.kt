@@ -1,4 +1,3 @@
-import io.golos.cyber4j.Cyber4J
 import io.golos.sharedmodel.Either
 import junit.framework.Assert.assertTrue
 import org.junit.Test
@@ -10,7 +9,7 @@ class DomainTest {
 
     @Test
     fun setUserName() {
-        val glsCreatorKey = (Cyber4J::class.java).getResource("/eoscreateacckey.txt").readText(Charset.defaultCharset())
+        val glsCreatorKey = (DomainTest::class.java).getResource("/eoscreateacckey.txt").readText(Charset.defaultCharset())
 
         val newAcc = account(client.config.toConfigType())
         val result = client.newUserName("gls".toCyberName(),
