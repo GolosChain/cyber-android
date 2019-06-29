@@ -75,7 +75,6 @@ internal class CyberServicesWebSocketClient(
         val stringToSend = moshi.adapter(ServicesMessagesWrapper::class.java).toJson(rpcMessage)
 
         log("sending $stringToSend")
-        log("Thread ${Thread.currentThread()}")
         webSocket.send(stringToSend)
 
         val id = rpcMessage.id
@@ -88,7 +87,6 @@ internal class CyberServicesWebSocketClient(
                         "socket was unable to answer " +
                                 "for request $stringToSend"
                 )
-        println("response")
         responseMap[id] = null
         latches[id] = null
 
@@ -124,20 +122,15 @@ internal class CyberServicesWebSocketClient(
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
         log("onMessage $text")
-        log("Thread ${Thread.currentThread()}")
         try {
             val id = moshi.adapter(Identifieble::class.java).nullSafe().fromJson(text)?.id
             if (id != null) {
                 responseMap[id] = text
                 latches[id]?.countDown()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
+        } catch (e: Exception) {//incoming message
 
-    override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-        super.onClosed(webSocket, code, reason)
+        }
     }
 
 
