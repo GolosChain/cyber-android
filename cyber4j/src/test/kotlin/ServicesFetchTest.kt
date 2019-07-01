@@ -26,7 +26,7 @@ class ServicesFetchTest {
 
         assertTrue("posts feed is empty", posts.isNotEmpty())
 
-        val post = posts[9]
+        val post = posts[4]
 
         val postResponse = client.getPost(
                 post.contentId.userId.toCyberName(),
@@ -121,14 +121,14 @@ class ServicesFetchTest {
 
     @Test
     fun userMetadataFetchTest() {
-        val response = client.getUserMetadata("uswjtsevydjx".toCyberName())
+        val response = client.getUserMetadata("tst4ojrrqksl".toCyberName())
         assertTrue(response is Either.Success)
     }
 
     @Test
     fun userProfileTest() {
         val response = client.getUserAccount(
-                "uswjtsevydjx".toCyberName())
+                "tst4ojrrqksl".toCyberName())
         assertTrue(response is Either.Success)
     }
 
@@ -143,14 +143,14 @@ class ServicesFetchTest {
 
     @Test
     fun testSubscriptionsAndSubscribers() {
-        val subscriptionsToUsers = client.getSubscriptionsToUsers(CyberName("destroyer2k"), 10, null)
+        val subscriptionsToUsers = client.getSubscriptionsToUsers(CyberName("tst4ojrrqksl"), 10, null)
         assertTrue((subscriptionsToUsers as Either.Success).value.items.isNotEmpty())
-        val subscriptionsToCommunitites = client.getSubscriptionsToCommunities(CyberName("destroyer2k@golos"), 10, null)
+        val subscriptionsToCommunitites = client.getSubscriptionsToCommunities(CyberName("tst4ojrrqksl"), 10, null)
         assertTrue((subscriptionsToCommunitites as Either.Success).value.items.isNotEmpty())
 
-        val subscribedUsers = client.getUsersSubscribedToUser(CyberName("destroyer2k@golos"), 10, null)
+        val subscribedUsers = client.getUsersSubscribedToUser(CyberName("tst4ojrrqksl"), 10, null)
         assertTrue((subscribedUsers as Either.Success).value.items.isNotEmpty())
-        val subscribedCommunitites = client.getCommunitiesSubscribedToUser(CyberName("destroyer2k@golos"), 10, null)
+        val subscribedCommunitites = client.getCommunitiesSubscribedToUser(CyberName("tst4ojrrqksl"), 10, null)
         assertTrue((subscribedCommunitites as Either.Success).value.items.isNotEmpty())
     }
 

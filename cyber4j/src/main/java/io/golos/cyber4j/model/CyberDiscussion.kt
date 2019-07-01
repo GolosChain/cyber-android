@@ -18,8 +18,10 @@ data class CyberDiscussion(
         val parent: Parent?,
         val meta: DiscussionMetadata
 )
+
 @JsonClass(generateAdapter = true)
-data class DiscussionAuthor(val userId: CyberName, val username: String, val avatarUrl: String)
+data class DiscussionAuthor(val userId: CyberName, val username: String?, val avatarUrl: String?)
+
 @JsonClass(generateAdapter = true)
 data class DiscussionId(
         val userId: String,
@@ -27,13 +29,19 @@ data class DiscussionId(
 )
 
 @JsonClass(generateAdapter = true)
-data class DiscussionStats(val commentsCount: Long, val wilson: DiscussionWilson)
+data class DiscussionStats(val commentsCount: Long?,
+                           val rShares: BigInteger?,
+                           val hot: Long?,
+                           val trending: Long?,
+                           val viewCount: Long?)
+
 @JsonClass(generateAdapter = true)
 data class DiscussionWilson(val hot: Double, val trending: Double)
+
 @JsonClass(generateAdapter = true)
 data class DiscussionContent(val title: String?,
                              val body: ContentBody,
-                             val tags: List<String>,
+                             val tags: List<String>?,
                              val embeds: List<Embed>)
 
 @JsonClass(generateAdapter = true)
@@ -44,11 +52,13 @@ data class ContentBody(
         val mobile: List<ContentRow>?,
         val mobilePreview: List<ContentRow>?
 )
+
 @JsonClass(generateAdapter = true)
 data class Embed(val _id: String?,
                  val id: String?,
                  val type: String?,
                  val result: EmbedResult)
+
 @JsonClass(generateAdapter = true)
 data class EmbedResult(val type: String?,
                        val version: String?,
@@ -63,10 +73,24 @@ data class EmbedResult(val type: String?,
                        val thumbnail_height: Int?,
                        val height: Int?,
                        val html: String?)
+
 @JsonClass(generateAdapter = true)
 data class DiscussionMetadata(val time: Date)
+
 @JsonClass(generateAdapter = true)
-data class DiscussionPayout(val rShares: BigInteger)
+data class DiscussionPayout(val author: Payout, val curator: Payout,
+                            val benefactor: Payout, val done: Boolean, val meta: PayoutMeta)
+
+@JsonClass(generateAdapter = true)
+data class PayoutMeta(val rewardWeight: String, val sharesFn: String, val sumCuratorSw: String,
+                      val benefactorPercents: List<Any>, val tokenProp: String, val curatorsPercent: String)
+
+@JsonClass(generateAdapter = true)
+data class Payout(val token: PayoutAmount, val vesting: PayoutAmount)
+
+@JsonClass(generateAdapter = true)
+data class PayoutAmount(val name: String?, val value: String?)
+
 @JsonClass(generateAdapter = true)
 data class DiscussionVotes(
         val hasUpVote: Boolean,
@@ -94,5 +118,6 @@ data class ImageRow(val src: String,
 
 @JsonClass(generateAdapter = true)
 data class Parent(val post: ParentContentId?, val comment: ParentContentId?)
+
 @JsonClass(generateAdapter = true)
 data class ParentContentId(val contentId: DiscussionId)

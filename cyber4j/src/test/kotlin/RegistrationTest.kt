@@ -35,7 +35,7 @@ class RegistrationTest {
         println(firstStepSuccess)
 
 
-        val secondStep = client.verifyPhoneForUserRegistration(unExistingPhone, (firstStepSuccess as Either.Success).value.code)
+        val secondStep = client.verifyPhoneForUserRegistration(unExistingPhone, (firstStepSuccess as Either.Success).value.code!!)
 
         assertTrue(secondStep is Either.Success)
 

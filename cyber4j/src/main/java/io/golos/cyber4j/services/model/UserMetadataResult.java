@@ -281,7 +281,16 @@ public class UserMetadataResult {
 
     public static class UserStats {
         private long postsCount;
+        private long reputation;
         private long commentsCount;
+
+        public long getReputation() {
+            return reputation;
+        }
+
+        public void setReputation(long reputation) {
+            this.reputation = reputation;
+        }
 
         public long getCommentsCount() {
             return commentsCount;

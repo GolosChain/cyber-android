@@ -1625,9 +1625,7 @@ class Cyber4J @JvmOverloads constructor(
             limit: Int,
             sort: DiscussionTimeSort,
             sequenceKey: String? = null
-    ) =
-
-            apiService.getComments(
+    ) = apiService.getComments(
                     sort, sequenceKey, limit,
                     CommentsOrigin.COMMENTS_OF_POST, parsingType,
                     user.name, permlink)

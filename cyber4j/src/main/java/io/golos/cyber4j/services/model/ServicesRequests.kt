@@ -1,7 +1,10 @@
 package io.golos.cyber4j.services.model
 
+import com.squareup.moshi.JsonClass
+
 internal class ServicesRequestWrapper<T>(val method: String, val params: T)
 
+@JsonClass(generateAdapter = true)
 internal class DiscussionsRequests(val type: String,
                                    val sortBy: String,
                                    val sequenceKey: String?,
@@ -10,18 +13,23 @@ internal class DiscussionsRequests(val type: String,
                                    val communityId: String?,
                                    val contentType: String)
 
+@JsonClass(generateAdapter = true)
 internal class DiscussionRequests(val userId: String,
                                   val permlink: String,
                                   val contentType: String)
 
+@JsonClass(generateAdapter = true)
 internal class UserMetaDataRequest(val userId: String)
 
 internal class GetSecretRequest
 
+@JsonClass(generateAdapter = true)
 class AuthSecret(val secret: String)
 
+@JsonClass(generateAdapter = true)
 internal class ServicesAuthRequest(val user: String, val sign: String, val secret: String)
 
+@JsonClass(generateAdapter = true)
 internal class ResolveUserNameRequest(val username: String, val app: String)
 
 enum class PostsFeedType {

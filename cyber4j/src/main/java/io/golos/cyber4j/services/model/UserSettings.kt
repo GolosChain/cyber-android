@@ -1,11 +1,14 @@
 package io.golos.cyber4j.services.model
 
+import com.squareup.moshi.JsonClass
+@JsonClass(generateAdapter = true)
 data class WebShowSettings(
         val show: NotificationSettings?)
-
+@JsonClass(generateAdapter = true)
 data class MobileShowSettings(val show: NotificationSettings?,
                               val lang: ServiceSettingsLanguage?)
 
+@JsonClass(generateAdapter = true)
 data class NotificationSettings(val upvote: Boolean?,
                                 val downvote: Boolean?,
                                 val reply: Boolean?,
@@ -31,7 +34,7 @@ enum class ServiceSettingsLanguage {
     }
 }
 
-
+@JsonClass(generateAdapter = true)
 class UserSettings(
         //device id
         val profile: String,
@@ -39,6 +42,6 @@ class UserSettings(
         val notify: WebShowSettings?,
         val push: MobileShowSettings?
 )
-
+@JsonClass(generateAdapter = true)
 internal class ServicesSettingsRequest(
         val profile: String)

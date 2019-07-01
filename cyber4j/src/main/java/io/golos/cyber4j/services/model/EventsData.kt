@@ -1,5 +1,6 @@
 package io.golos.cyber4j.services.model
 
+import com.squareup.moshi.JsonClass
 import io.golos.cyber4j.model.DiscussionId
 import io.golos.sharedmodel.CyberName
 import java.util.*
@@ -145,6 +146,7 @@ class Post(val contentId: DiscussionId, val title: String?)
 
 class Comment(val contentId: DiscussionId, val body: String)
 
+@JsonClass(generateAdapter = true)
 class EventJson(
         val eventType: EventType,
         val _id: String,

@@ -1,15 +1,14 @@
 package io.golos.cyber4j.services.model
 
-class ApiResponseError(val id: Long,
-                       val error: Error) {
+import com.squareup.moshi.JsonClass
 
-    class Error(val code: Long, val message: String) {
-        override fun toString(): String {
-            return "Error(code=$code, message='$message')"
-        }
-    }
+@JsonClass(generateAdapter = true)
+data class ApiResponseError(val id: Long,
+                            val error: ErrorDetails)
 
+@JsonClass(generateAdapter = true)
+class ErrorDetails(val code: Long, val message: String) {
     override fun toString(): String {
-        return "ApiResponseError(id=$id, error=$error)"
+        return "ErrorDetails(code=$code, message='$message')"
     }
 }

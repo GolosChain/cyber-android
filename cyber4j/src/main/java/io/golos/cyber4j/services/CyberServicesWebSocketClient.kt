@@ -1,5 +1,6 @@
 package io.golos.cyber4j.services
 
+import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import io.golos.cyber4j.GolosEosConfiguratedApi
@@ -15,7 +16,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import java.net.SocketTimeoutException
 import java.util.*
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 interface ApiClient {
@@ -92,14 +92,13 @@ internal class CyberServicesWebSocketClient(
 
         val type = Types.newParameterizedType(ServicesResponseWrapper::class.java, classOfMessageToReceive)
 
-        val responseWrapper = moshi.adapter<ServicesResponseWrapper<R>>(type).fromJson(response)
-
-        if (responseWrapper?.result == null) {
-            val error = moshi.adapter(ApiResponseError::class.java).fromJson(response)
-            if (error != null) return Either.Failure(error)
-            else throw IllegalStateException("cannot parse $response")
+        return try {
+            val error = moshi.adapter(ApiResponseError::class.java).nonNull().fromJson(response)!!
+            Either.Failure(error)
+        } catch (e: JsonDataException) {
+            val responseWrapper = moshi.adapter<ServicesResponseWrapper<R>>(type).nonNull().fromJson(response)!!
+            Either.Success(responseWrapper.result)
         }
-        return Either.Success(responseWrapper.result)
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {

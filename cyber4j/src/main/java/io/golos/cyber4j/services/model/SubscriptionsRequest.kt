@@ -1,5 +1,6 @@
 package io.golos.cyber4j.services.model
 
+import com.squareup.moshi.JsonClass
 import io.golos.sharedmodel.CyberName
 
 
@@ -14,9 +15,8 @@ enum class SubscriptionType {
     }
 }
 
+@JsonClass(generateAdapter = true)
 internal class SubscriptionsRequest(val userId: CyberName,
                                     val limit: Int,
-                                    subscriptionType: SubscriptionType,
-                                    val sequenceKey: String?) {
-    val type: String = subscriptionType.toString()
-}
+                                    val type: String,
+                                    val sequenceKey: String?)

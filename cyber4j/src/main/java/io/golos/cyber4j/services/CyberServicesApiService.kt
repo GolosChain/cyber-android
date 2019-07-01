@@ -196,12 +196,12 @@ internal class CyberServicesApiService(
 
     override fun getSubscriptions(ofUser: CyberName, limit: Int, type: SubscriptionType, sequenceKey: String?): Either<SubscriptionsResponse, ApiResponseError> {
         return apiClient.send(ServicesGateMethods.GET_SUBSCRIPTIONS.toString(),
-                SubscriptionsRequest(ofUser, limit, type, sequenceKey), SubscriptionsResponse::class.java)
+                SubscriptionsRequest(ofUser, limit, type.toString(), sequenceKey), SubscriptionsResponse::class.java)
     }
 
     override fun getSubscribers(ofUser: CyberName, limit: Int, type: SubscriptionType, sequenceKey: String?): Either<SubscribersResponse, ApiResponseError> {
         return apiClient.send(ServicesGateMethods.GET_SUBSCRIBERS.toString(),
-                SubscribersRequest(ofUser, limit, type, sequenceKey), SubscribersResponse::class.java)
+                SubscribersRequest(ofUser, limit, type.toString(), sequenceKey), SubscribersResponse::class.java)
     }
 
     override fun getIframelyEmbed(forLink: String): Either<IFramelyEmbedResult, ApiResponseError> {
