@@ -1,3 +1,4 @@
+import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.services.model.EventType
 import io.golos.cyber4j.services.model.MobileShowSettings
 import io.golos.cyber4j.services.model.NotificationSettings
@@ -12,14 +13,10 @@ import org.junit.Test
 import java.util.*
 
 class NotifsTest {
-    val client = getClient()
-    val userId = CyberName("tst1fddizlpd")
-    val key = "5KPsQEAtq9xVgeUSqH5eQnMN8ih3yuiHL63md6GNFH4iqj2bDLP"
+    val client = Cyber4J()
 
-    @Before
-    fun before() {
-        client.unAuth()
-    }
+    val userId = (client.resolveCanonicalCyberName("sjsjshsjjssjsjs", "gls") as Either.Success).value.userId
+    val key = "5JyoxZSTfy3Jv7XqvSZmBiUxzehHM14oBbkeDgpdG5URQ72j3RB"
 
     @Test
     fun tesGetNotifs() {
@@ -49,7 +46,7 @@ class NotifsTest {
         val events = client.getEvents(userId.name,
                 null, 100, false, false, EventType.values().toList())
         assertTrue(events is Either.Success)
-        assertTrue((events as Either.Success).value.data.isNotEmpty())
+        assertTrue((events as Either.Success).value.data != null)
         assertTrue(events.value.fresh > -1)
         assertTrue(events.value.total > -1)
 
