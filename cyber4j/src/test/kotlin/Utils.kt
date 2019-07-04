@@ -7,7 +7,6 @@ import io.golos.abi.implementation.publish.CreatemssgPublishAction
 import io.golos.abi.implementation.publish.CreatemssgPublishStruct
 import io.golos.abi.implementation.publish.MssgidPublishStruct
 import io.golos.cyber4j.Cyber4J
-import io.golos.cyber4j.Cyber4JCoroutinesAdapter
 import io.golos.cyber4j.model.ContentRow
 import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
@@ -41,9 +40,12 @@ class Utils {
         val cyber4j = client
         val posts = (cyber4j.getUserPosts(
                 client.activeAccountPair.first,
+                null,
                 ContentParsingType.MOBILE,
                 100,
-                DiscussionTimeSort.SEQUENTIALLY
+                FeedSort.SEQUENTIALLY,
+                null,
+                "gls"
         ) as Either.Success)
         val firstPost = posts.value.items.first()
         val second = posts.value.items[1]
@@ -102,18 +104,6 @@ class Utils {
 
     }
 
-    @Test
-    fun coroutinesTest() {
-        runBlocking {
-            val adapter = Cyber4JCoroutinesAdapter(client)
-            (0..9).forEach {
-                async {
-                    adapter.getCommunityPosts("gls", ContentParsingType.RAW, 1, DiscussionTimeSort.INVERTED, "")
-                    println(it)
-                }
-            }
-        }
-    }
 
     @Test
     fun withdrawtest() {

@@ -15,8 +15,8 @@ import java.util.*
 class NotifsTest {
     val client = Cyber4J()
 
-    val userId = (client.resolveCanonicalCyberName("sjsjshsjjssjsjs", "gls") as Either.Success).value.userId
-    val key = "5JyoxZSTfy3Jv7XqvSZmBiUxzehHM14oBbkeDgpdG5URQ72j3RB"
+    val userId = (client.resolveCanonicalCyberName("ehhehehehe", "gls") as Either.Success).value.userId
+    val key = "5Jb9d3GrhZzadHaDNPpTGYdZx8jac7Hfxnx5jKUowPvCMqyzDNW"
 
     @Test
     fun tesGetNotifs() {
@@ -33,31 +33,33 @@ class NotifsTest {
         val subscriptionResult = client.subscribeOnMobilePushNotifications(deviceId, fcmKey)
         assertTrue(subscriptionResult is Either.Success)
 
-        val unSubscriptionResult = client.unSubscribeOnNotifications(deviceId, fcmKey)
+        val unSubscriptionResult
+                = client.unSubscribeOnNotifications(userId, deviceId)
         assertTrue(unSubscriptionResult is Either.Success)
 
         val unreadCount = client.getFreshNotificationCount(userId.name)
         assertTrue(unreadCount is Either.Success)
         assertTrue((unreadCount as Either.Success).value.fresh > -1)
 
-        val marksAsREad = client.markAllEventsAsNotFresh()
+        val marksAsREad = client.markAllEventsAsNotFresh("gls")
         assertTrue(marksAsREad is Either.Success)
 
         val events = client.getEvents(userId.name,
-                null, 100, false, false, EventType.values().toList())
+                null, 100, false, false, EventType.values().toList(), "gls")
         assertTrue(events is Either.Success)
         assertTrue((events as Either.Success).value.data != null)
         assertTrue(events.value.fresh > -1)
         assertTrue(events.value.total > -1)
 
-        val basicSettings = "{\"a\": 6}"
-        val mobileSettings = MobileShowSettings(NotificationSettings(true, true, true, true, true, true,
-                false, false, false, false, false, false, false), ServiceSettingsLanguage.RUSSIAN)
 
-        val setSettingsResult = client.setUserSettings(deviceId, basicSettings, null, mobileSettings)
+        val mobileSettings = MobileShowSettings(NotificationSettings(true, true, true, true, true, true,
+                false, true, false, false, false, false), ServiceSettingsLanguage.RUSSIAN)
+
+        val setSettingsResult = client.setUserSettings(deviceId,
+                null, null, mobileSettings, "gls")
         assertTrue(setSettingsResult is Either.Success)
 
-        val getSettingsResult = client.getUserSettings(deviceId)
+        val getSettingsResult = client.getUserSettings(deviceId, "gls")
         assertTrue(getSettingsResult is Either.Success)
 
         assertEquals(mobileSettings, (getSettingsResult as Either.Success).value.push)

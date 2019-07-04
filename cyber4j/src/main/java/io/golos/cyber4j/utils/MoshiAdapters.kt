@@ -103,15 +103,14 @@ class EventTypeAdapter : JsonAdapter<EventType>() {
     override fun fromJson(reader: JsonReader): EventType? {
         val value = reader.nextString()
         return when (value) {
-            "vote" -> EventType.VOTE
+            "upvote" -> EventType.VOTE
             "transfer" -> EventType.TRANSFER
             "reply" -> EventType.REPLY
-            "flag" -> EventType.FLAG
+            "downvote" -> EventType.FLAG
             "subscribe" -> EventType.SUBSCRIBE
             "unsubscribe" -> EventType.UN_SUBSCRIBE
             "mention" -> EventType.MENTION
             "repost" -> EventType.REPOST
-            "message" -> EventType.MESSAGE
             "reward" -> EventType.REWARD
             "curatorReward" -> EventType.CURATOR_REWARD
             "witnessVote" -> EventType.WITNESS_VOTE
@@ -230,13 +229,6 @@ class EventsAdapter {
                 eventsJson.actor!!, eventsJson._id, eventsJson.fresh, eventsJson.unread, eventsJson.timestamp
         )
 
-        EventType.MESSAGE -> MessageEvent(
-                eventsJson.actor!!,
-                eventsJson._id,
-                eventsJson.fresh,
-                eventsJson.unread,
-                eventsJson.timestamp
-        )
         EventType.WITNESS_VOTE -> WitnessVoteEvent(
                 eventsJson.actor!!,
                 eventsJson._id,
@@ -312,11 +304,6 @@ class EventsAdapter {
         is CuratorAwardEvent -> EventJson(
                 EventType.CURATOR_REWARD, event._id, event.fresh, event.unread, event.timestamp,
                 post = event.post, comment = event.comment, payout = event.payout
-        )
-
-        is MessageEvent -> EventJson(
-                EventType.MESSAGE, event._id, event.fresh, event.unread, event.timestamp,
-                actor = event.actor
         )
 
         is WitnessVoteEvent -> EventJson(

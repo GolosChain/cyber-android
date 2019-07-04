@@ -5,7 +5,7 @@ import io.golos.cyber4j.model.DiscussionId
 import io.golos.sharedmodel.CyberName
 import java.util.*
 
-
+@JsonClass(generateAdapter = true)
 class EventsData(val total: Int,
                  val totalByTypes: TotalByTypes,
                  val fresh: Int,
@@ -14,18 +14,19 @@ class EventsData(val total: Int,
                  val unreadByTypes: TotalByTypes,
                  val data: List<Event>)
 
+@JsonClass(generateAdapter = true)
 class TotalByTypes(val summary: Int,
-                   val transfer: Int,
-                   val reply: Int,
-                   val subscribe: Int,
-                   val unsubscribe: Int,
-                   val mention: Int,
-                   val repost: Int,
-                   val reward: Int,
-                   val curatorReward: Int,
-                   val message: Int,
-                   val witnessVote: Int,
-                   val witnessCancelVote: Int)
+                   val transfer: Int?,
+                   val reply: Int?,
+                   val subscribe: Int?,
+                   val unsubscribe: Int?,
+                   val mention: Int?,
+                   val repost: Int?,
+                   val reward: Int?,
+                   val curatorReward: Int?,
+                   val message: Int?,
+                   val witnessVote: Int?,
+                   val witnessCancelVote: Int?)
 
 sealed class Event(val eventType: EventType,
                    val _id: String,
@@ -117,11 +118,6 @@ class CuratorAwardEvent(val post: Post?,
                         unread: Boolean,
                         timestamp: Date) : Event(EventType.CURATOR_REWARD, _id, fresh, unread, timestamp)
 
-class MessageEvent(val actor: Actor,
-                   _id: String,
-                   fresh: Boolean,
-                   unread: Boolean,
-                   timestamp: Date) : Event(EventType.MESSAGE, _id, fresh, unread, timestamp)
 
 class WitnessVoteEvent(val actor: Actor,
                        _id: String,

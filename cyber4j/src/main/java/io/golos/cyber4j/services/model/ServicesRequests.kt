@@ -2,24 +2,31 @@ package io.golos.cyber4j.services.model
 
 import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 internal class ServicesRequestWrapper<T>(val method: String, val params: T)
 
 @JsonClass(generateAdapter = true)
 internal class DiscussionsRequests(val type: String,
-                                   val sortBy: String,
+                                   val sortBy: String?,
+                                   val timeframe: String?,
                                    val sequenceKey: String?,
                                    val limit: Int,
                                    val userId: String?,
                                    val communityId: String?,
-                                   val contentType: String)
+                                   val tags: List<String>?,
+                                   val contentType: String,
+                                   val username: String?,
+                                   val app: String)
 
 @JsonClass(generateAdapter = true)
-internal class DiscussionRequests(val userId: String,
+internal class DiscussionRequests(val userId: String?,
+                                  val username: String?,
                                   val permlink: String,
-                                  val contentType: String)
+                                  val contentType: String,
+                                  val app: String)
 
 @JsonClass(generateAdapter = true)
-internal class UserMetaDataRequest(val userId: String)
+internal class UserMetaDataRequest(val userId: String?, val username: String?, val app: String)
 
 internal class GetSecretRequest
 
@@ -59,13 +66,14 @@ enum class CommentsOrigin {
     }
 }
 
-enum class DiscussionTimeSort {
-    SEQUENTIALLY, INVERTED;
+enum class FeedSort {
+    SEQUENTIALLY, INVERTED, POPULAR;
 
     override fun toString(): String {
         return when (this) {
             SEQUENTIALLY -> "time"
             INVERTED -> "timeDesc"
+            POPULAR -> "popular "
         }
     }
 }

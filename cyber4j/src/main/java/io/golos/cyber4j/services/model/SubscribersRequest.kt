@@ -7,4 +7,5 @@ import io.golos.sharedmodel.CyberName
 internal class SubscribersRequest(val userId: CyberName,
                                   val limit: Int,
                                   val type: String,
-                                  val sequenceKey: String?)
+                                  val sequenceKey: String?,
+                                  val app: String)

@@ -2,7 +2,10 @@ package io.golos.cyber4j.services
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
-import io.golos.cyber4j.model.*
+import io.golos.cyber4j.model.ContentRow
+import io.golos.cyber4j.model.CyberDiscussion
+import io.golos.cyber4j.model.DiscussionsResult
+import io.golos.cyber4j.model.WriteUserToBlockchainRequest
 import io.golos.cyber4j.services.model.*
 import io.golos.cyber4j.utils.*
 import io.golos.sharedmodel.*
@@ -107,12 +110,16 @@ internal class CyberServicesApiService(
 
     override fun getDiscussions(
             feedType: PostsFeedType,
-            sort: DiscussionTimeSort,
+            sort: FeedSort,
+            timeFrame: FeedTimeFrame?,
             parsingType: ContentParsingType,
             sequenceKey: String?,
             limit: Int,
             userId: String?,
-            communityId: String?
+            communityId: String?,
+            tags: List<String>?,
+            username: String?,
+            app: String
     ): Either<DiscussionsResult, ApiResponseError> {
 
         return apiClient.send(
@@ -120,23 +127,29 @@ internal class CyberServicesApiService(
                 DiscussionsRequests(
                         feedType.toString(),
                         sort.toString(),
+                        timeFrame?.toString(),
                         sequenceKey,
                         limit,
                         userId,
                         communityId,
-                        parsingType.asContentType()
+                        tags,
+                        parsingType.asContentType(),
+                        username,
+                        app
                 ), DiscussionsResult::class.java
         )
     }
 
     override fun getPost(
-            userId: String,
+            userId: String?,
+            username: String?,
             permlink: String,
-            parsingType: ContentParsingType
+            parsingType: ContentParsingType,
+            appName: String
     ): Either<CyberDiscussion, ApiResponseError> {
         return apiClient.send(
                 ServicesGateMethods.GET_POST.toString(),
-                DiscussionRequests(userId, permlink, parsingType.asContentType()),
+                DiscussionRequests(userId, username, permlink, parsingType.asContentType(), appName),
                 CyberDiscussion::class.java
         )
     }
@@ -158,26 +171,33 @@ internal class CyberServicesApiService(
     }
 
     override fun getComment(
-            userId: String,
+            userId: String?,
             permlink: String,
-            parsingType: ContentParsingType
+            parsingType: ContentParsingType,
+            username: String?,
+            app: String
     ): Either<CyberDiscussion, ApiResponseError> {
 
         return apiClient.send(
                 ServicesGateMethods.GET_COMMENT.toString(), DiscussionRequests(
                 userId,
+                username,
                 permlink,
-                parsingType.asContentType()
+                parsingType.asContentType(),
+                app
         ), CyberDiscussion::class.java
         )
     }
 
     override fun getComments(
-            sort: DiscussionTimeSort, sequenceKey: String?,
-            limit: Int, origin: CommentsOrigin,
+            sort: FeedSort?,
+            sequenceKey: String?,
+            limit: Int?, origin: CommentsOrigin?,
             parsingType: ContentParsingType,
             userId: String?,
-            permlink: String?
+            permlink: String?,
+            username: String?,
+            appName: String
     ): Either<DiscussionsResult, ApiResponseError> {
 
 
@@ -185,23 +205,32 @@ internal class CyberServicesApiService(
                 ServicesGateMethods.GET_COMMENTS.toString(),
                 CommentsRequest(
                         sort.toString(),
-                        sequenceKey, limit,
+                        sequenceKey,
+                        limit,
                         parsingType.asContentType(),
                         origin.toString(),
                         userId,
-                        permlink
+                        permlink,
+                       username ,
+appName
                 ), DiscussionsResult::class.java
         )
     }
 
-    override fun getSubscriptions(ofUser: CyberName, limit: Int, type: SubscriptionType, sequenceKey: String?): Either<SubscriptionsResponse, ApiResponseError> {
+    override fun getSubscriptions(ofUser: CyberName,
+                                  limit: Int,
+                                  type: SubscriptionType,
+                                  sequenceKey: String?,
+                                  appName: String): Either<SubscriptionsResponse, ApiResponseError> {
         return apiClient.send(ServicesGateMethods.GET_SUBSCRIPTIONS.toString(),
-                SubscriptionsRequest(ofUser, limit, type.toString(), sequenceKey), SubscriptionsResponse::class.java)
+                SubscriptionsRequest(ofUser, limit, type.toString(), sequenceKey,appName ),
+                SubscriptionsResponse::class.java)
     }
 
-    override fun getSubscribers(ofUser: CyberName, limit: Int, type: SubscriptionType, sequenceKey: String?): Either<SubscribersResponse, ApiResponseError> {
+    override fun getSubscribers(ofUser: CyberName, limit: Int, type: SubscriptionType,
+                                sequenceKey: String?, appName: String): Either<SubscribersResponse, ApiResponseError> {
         return apiClient.send(ServicesGateMethods.GET_SUBSCRIBERS.toString(),
-                SubscribersRequest(ofUser, limit, type.toString(), sequenceKey), SubscribersResponse::class.java)
+                SubscribersRequest(ofUser, limit, type.toString(), sequenceKey, appName), SubscribersResponse::class.java)
     }
 
     override fun getIframelyEmbed(forLink: String): Either<IFramelyEmbedResult, ApiResponseError> {
@@ -218,11 +247,11 @@ internal class CyberServicesApiService(
         )
     }
 
-    override fun getUserMetadata(userId: String): Either<UserMetadataResult, ApiResponseError> {
+    override fun getUserMetadata(userId: String?, username: String?, app: String): Either<UserMetadataResult, ApiResponseError> {
 
         return apiClient.send(
                 ServicesGateMethods.GET_USER_METADATA.toString(),
-                UserMetaDataRequest(userId), UserMetadataResult::class.java
+                UserMetaDataRequest(userId, username, app), UserMetadataResult::class.java
         )
     }
 
@@ -282,18 +311,22 @@ internal class CyberServicesApiService(
         )
     }
 
-    override fun subscribeOnMobilePushNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError> {
+    override fun subscribeOnMobilePushNotifications(deviceId: String,
+                                                    appName: String,
+                                                    fcmToken: String): Either<ResultOk, ApiResponseError> {
 
-        val request = PushSubscibeRequest(fcmToken, deviceId)
+        val request = PushSubscibeRequest(fcmToken, deviceId, appName)
         return apiClient.send(
                 ServicesGateMethods.PUSH_SUBSCRIBE.toString(),
                 request, ResultOk::class.java
         )
     }
 
-    override fun unSubscribeOnNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError> {
+    override fun unSubscribeOnNotifications(userId: String,
+                                            deviceId: String,
+                                            appName: String): Either<ResultOk, ApiResponseError> {
 
-        val request = PushSubscibeRequest(fcmToken, deviceId)
+        val request = PushUnSubscibeRequest(userId, deviceId, appName)
         return apiClient.send(
                 ServicesGateMethods.PUSH_UNSUBSCRIBE.toString(),
                 request, ResultOk::class.java
@@ -301,11 +334,12 @@ internal class CyberServicesApiService(
     }
 
     override fun setNotificationSettings(deviceId: String,
+                                         app: String,
                                          newBasicSettings: Any?,
                                          newWebNotifySettings: WebShowSettings?,
                                          newMobilePushSettings: MobileShowSettings?): Either<ResultOk, ApiResponseError> {
 
-        val request = UserSettings(deviceId, newBasicSettings, newWebNotifySettings, newMobilePushSettings)
+        val request = UserSettings(deviceId, app, newBasicSettings, newWebNotifySettings, newMobilePushSettings)
 
         return apiClient.send(
                 ServicesGateMethods.SET_SETTINGS.toString(),
@@ -313,9 +347,9 @@ internal class CyberServicesApiService(
         )
     }
 
-    override fun getNotificationSettings(deviceId: String): Either<UserSettings, ApiResponseError> {
+    override fun getNotificationSettings(deviceId: String, app: String): Either<UserSettings, ApiResponseError> {
 
-        val request = ServicesSettingsRequest(deviceId)
+        val request = ServicesSettingsRequest(deviceId, app)
 
         return apiClient.send(
                 ServicesGateMethods.GET_SETTINGS.toString(),
@@ -324,13 +358,14 @@ internal class CyberServicesApiService(
     }
 
     override fun getEvents(userProfile: String,
+                           appName: String,
                            afterId: String?,
                            limit: Int?,
                            markAsViewed: Boolean?,
                            freshOnly: Boolean?,
                            types: List<EventType>): Either<EventsData, ApiResponseError> {
 
-        val request = EventsRequest(userProfile, afterId, limit, types, markAsViewed, freshOnly)
+        val request = EventsRequest(userProfile, appName, afterId, limit, types, markAsViewed, freshOnly)
 
         return apiClient.send(
                 ServicesGateMethods.GET_NOTIFS_HISTORY.toString(),
@@ -338,20 +373,22 @@ internal class CyberServicesApiService(
         )
     }
 
-    override fun markEventsAsRead(ids: List<String>): Either<ResultOk, ApiResponseError> {
+    override fun markEventsAsRead(ids: List<String>, appName: String): Either<ResultOk, ApiResponseError> {
 
-        val request = MarkAsReadRequest(ids)
+        val request = MarkAsReadRequest(ids, appName)
         return apiClient.send(ServicesGateMethods.MARK_VIEWED.toString(), request, ResultOk::class.java)
     }
 
-    override fun markAllEventsAsRead(): Either<ResultOk, ApiResponseError> {
+    override fun markAllEventsAsRead(appName: String): Either<ResultOk, ApiResponseError> {
 
-        return apiClient.send(ServicesGateMethods.MARK_VIEWED_ALL.toString(), MarkAllReadRequest(), ResultOk::class.java)
+        return apiClient.send(ServicesGateMethods.MARK_VIEWED_ALL.toString(),
+                MarkAllReadRequest(appName),
+                ResultOk::class.java)
     }
 
-    override fun getUnreadCount(profileId: String): Either<FreshResult, ApiResponseError> {
+    override fun getUnreadCount(profileId: String, appName: String): Either<FreshResult, ApiResponseError> {
 
-        val request = GetUnreadCountRequest(profileId)
+        val request = GetUnreadCountRequest(profileId, appName)
 
         return apiClient.send(ServicesGateMethods.GET_UNREAD_COUNT.toString(), request, FreshResult::class.java)
     }

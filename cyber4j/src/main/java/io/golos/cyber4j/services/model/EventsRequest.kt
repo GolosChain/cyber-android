@@ -5,6 +5,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 internal class EventsRequest(
         val profile: String,
+        val app: String,
         val afterId: String?,
         //from 1 to 100
         val limit: Int?,
@@ -15,20 +16,19 @@ internal class EventsRequest(
 
 enum class EventType {
     VOTE, FLAG, TRANSFER, REPLY, SUBSCRIBE, UN_SUBSCRIBE,
-    MENTION, REPOST, REWARD, CURATOR_REWARD, MESSAGE, WITNESS_VOTE,
+    MENTION, REPOST, REWARD, CURATOR_REWARD, WITNESS_VOTE,
     WITNESS_CANCEL_VOTE;
 
     override fun toString(): String {
         return when (this) {
-            VOTE -> "vote"
+            VOTE -> "upvote"
             TRANSFER -> "transfer"
             REPLY -> "reply"
-            FLAG -> "flag"
+            FLAG -> "downvote"
             SUBSCRIBE -> "subscribe"
             UN_SUBSCRIBE -> "unsubscribe"
             MENTION -> "mention"
             REPOST -> "repost"
-            MESSAGE -> "message"
             REWARD -> "reward"
             CURATOR_REWARD -> "curatorReward"
             WITNESS_VOTE -> "witnessVote"

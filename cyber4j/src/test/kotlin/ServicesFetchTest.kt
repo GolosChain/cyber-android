@@ -1,7 +1,8 @@
 import io.golos.cyber4j.model.DiscussionCreateMetadata
 import io.golos.cyber4j.model.Tag
 import io.golos.cyber4j.services.model.ContentParsingType
-import io.golos.cyber4j.services.model.DiscussionTimeSort
+import io.golos.cyber4j.services.model.FeedSort
+import io.golos.cyber4j.services.model.FeedTimeFrame
 import io.golos.sharedmodel.Either
 import io.golos.sharedmodel.CyberName
 import org.junit.Assert.assertTrue
@@ -15,10 +16,10 @@ class ServicesFetchTest {
         val postsResponse = client.getCommunityPosts(
                 "gls",
                 ContentParsingType.MOBILE,
+                FeedTimeFrame.MONTH,
                 11,
-                DiscussionTimeSort.INVERTED,
-                null
-        )
+                FeedSort.INVERTED,
+                null)
 
         assertTrue(postsResponse is Either.Success)
 
@@ -30,27 +31,28 @@ class ServicesFetchTest {
 
         val postResponse = client.getPost(
                 post.contentId.userId.toCyberName(),
+                null,
                 post.contentId.permlink,
-                ContentParsingType.MOBILE
-        )
+                ContentParsingType.MOBILE)
 
         assertTrue(postResponse is Either.Success)
 
         val comments = client.getCommentsOfPost(
-                post.author!!.userId.name.toCyberName(), post.contentId.permlink,
+                post.author!!.userId.name.toCyberName(),
+                null,
+                post.contentId.permlink,
                 ContentParsingType.RAW,
                 100,
-                DiscussionTimeSort.INVERTED,
-                null
-        )
+                FeedSort.INVERTED)
 
         assertTrue(comments is Either.Success)
 
         val commentsOfUser = client.getCommentsOfUser(
                 post.author!!.userId.name.toCyberName(),
+                null,
                 ContentParsingType.MOBILE,
                 10,
-                DiscussionTimeSort.INVERTED,
+                FeedSort.INVERTED,
                 null
         )
 
@@ -58,9 +60,10 @@ class ServicesFetchTest {
 
         val subscriptionsOfUser = client.getUserSubscriptions(
                 post.author!!.userId.name.toCyberName(),
+                null,
                 ContentParsingType.MOBILE,
                 100,
-                DiscussionTimeSort.INVERTED,
+                FeedSort.INVERTED,
                 null
         )
 
@@ -68,9 +71,10 @@ class ServicesFetchTest {
 
         val postsOfUser = client.getUserPosts(
                 post.author!!.userId.name.toCyberName(),
+                null,
                 ContentParsingType.MOBILE,
                 100,
-                DiscussionTimeSort.INVERTED,
+                FeedSort.INVERTED,
                 null
         )
 
@@ -83,8 +87,9 @@ class ServicesFetchTest {
         val postsResponse = client.getCommunityPosts(
                 "gls",
                 ContentParsingType.MOBILE,
+                FeedTimeFrame.MONTH,
                 20,
-                DiscussionTimeSort.INVERTED,
+                FeedSort.INVERTED,
                 null
         )
 
@@ -96,9 +101,10 @@ class ServicesFetchTest {
 
         val comments = client.getCommentsOfPost(
                 postWithComments.contentId.userId.toCyberName(),
+                null,
                 postWithComments.contentId.permlink,
                 ContentParsingType.MOBILE,
-                1, DiscussionTimeSort.SEQUENTIALLY, null
+                1, FeedSort.SEQUENTIALLY, null
         )
 
         assertTrue(comments is Either.Success)
@@ -107,28 +113,31 @@ class ServicesFetchTest {
 
         val fetchedComment = client.getComment(
                 comment.contentId.userId.toCyberName(),
+                null,
                 comment.contentId.permlink,
                 ContentParsingType.MOBILE
         )
 
         assertTrue(fetchedComment is Either.Success)
 
-        val comments1 = client.getUserReplies(postWithComments.contentId.userId.toCyberName(),
-                ContentParsingType.WEB, 10, DiscussionTimeSort.INVERTED, null)
+        val comments1 = client
+                .getUserReplies(postWithComments.contentId.userId.toCyberName(), null,
+                ContentParsingType.WEB, 10, FeedSort.INVERTED, null)
         assertTrue(comments1 is Either.Success)
 
     }
 
     @Test
     fun userMetadataFetchTest() {
-        val response = client.getUserMetadata("tst4ojrrqksl".toCyberName())
+        val response = client
+                .getUserMetadata(null, "ehhehehehe")
         assertTrue(response is Either.Success)
     }
 
     @Test
     fun userProfileTest() {
         val response = client.getUserAccount(
-                "tst4ojrrqksl".toCyberName())
+                (client.resolveCanonicalCyberName("ehhehehehe", "gls") as Either.Success).value.userId)
         assertTrue(response is Either.Success)
     }
 
@@ -143,15 +152,26 @@ class ServicesFetchTest {
 
     @Test
     fun testSubscriptionsAndSubscribers() {
-        val subscriptionsToUsers = client.getSubscriptionsToUsers(CyberName("tst4ojrrqksl"), 10, null)
-        assertTrue((subscriptionsToUsers as Either.Success).value.items.isNotEmpty())
-        val subscriptionsToCommunitites = client.getSubscriptionsToCommunities(CyberName("tst4ojrrqksl"), 10, null)
-        assertTrue((subscriptionsToCommunitites as Either.Success).value.items.isNotEmpty())
+        val userId = (client.resolveCanonicalCyberName("ehhehehehe", "gls") as Either.Success).value.userId
 
-        val subscribedUsers = client.getUsersSubscribedToUser(CyberName("tst4ojrrqksl"), 10, null)
-        assertTrue((subscribedUsers as Either.Success).value.items.isNotEmpty())
-        val subscribedCommunitites = client.getCommunitiesSubscribedToUser(CyberName("tst4ojrrqksl"), 10, null)
-        assertTrue((subscribedCommunitites as Either.Success).value.items.isNotEmpty())
+        val subscriptionsToUsers =
+                client.getSubscriptionsToUsers(userId, 10, null)
+        assertTrue(subscriptionsToUsers is Either.Success)
+
+        val subscriptionsToCommunitites =
+                client.getSubscriptionsToCommunities(userId, 10, null)
+
+        assertTrue(subscriptionsToCommunitites is Either.Success)
+
+        val subscribedUsers
+                = client.getUsersSubscribedToUser(userId, 10, null)
+
+        assertTrue(subscribedUsers is Either.Success)
+
+        val subscribedCommunitites =
+                client.getCommunitiesSubscribedToUser(userId, 10, null)
+
+        assertTrue(subscribedCommunitites is Either.Success)
     }
 
     @Test

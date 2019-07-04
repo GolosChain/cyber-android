@@ -4,11 +4,13 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-internal class CommentsRequest(val sortBy: String,
+internal class CommentsRequest(val sortBy: String?,
                                val sequenceKey: String?,
-                               val limit: Int,
+                               val limit: Int?,
                                @Json(name = "contentType")
-                               val contentType: String,
-                               val type: String,
+                               val contentType: String?,
+                               val type: String?,
                                val userId: String?,
-                               val permlink: String?)
+                               val permlink: String?,
+                               val username: String?,
+                               val app: String)

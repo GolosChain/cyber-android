@@ -145,7 +145,7 @@ private enum class CyberContracts : CyberContract {
     }
 }
 
-@GenerateCoroutinesAdapter
+
 class Cyber4J @JvmOverloads constructor(
         config: Cyber4JConfig = Cyber4JConfig(),
         chainApiProvider: io.golos.cyber4j.ChainApiProvider? = null,
@@ -1486,7 +1486,8 @@ class Cyber4J @JvmOverloads constructor(
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit limit of returned discussions
-     * @param sort [DiscussionTimeSort.INVERTED] if you need new posts first, [DiscussionTimeSort.SEQUENTIALLY] if you need old first
+     * @param sort [FeedSort.INVERTED] if you need new posts first,
+     * [FeedSort.SEQUENTIALLY] if you need old first
      * @param sequenceKey paging key for querying next page of discussions. is from [DiscussionsResult.getSequenceKey].
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
@@ -1497,10 +1498,14 @@ class Cyber4J @JvmOverloads constructor(
     fun getCommunityPosts(
             communityId: String,
             type: ContentParsingType,
+            timeFrame: FeedTimeFrame?,
             limit: Int,
-            sort: DiscussionTimeSort,
-            sequenceKey: String? = null
-    ) = apiService.getDiscussions(PostsFeedType.COMMUNITY, sort, type, sequenceKey, limit, null, communityId)
+            sort: FeedSort,
+            tags: List<String>?,
+            sequenceKey: String? = null,
+            appName: String = "gls"
+    ) = apiService.getDiscussions(PostsFeedType.COMMUNITY, sort, timeFrame, type, sequenceKey,
+            limit, null, communityId, tags, null, appName)
 
 
     /** method for fetching user subscribed communities posts
@@ -1510,7 +1515,7 @@ class Cyber4J @JvmOverloads constructor(
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit limit of returned discussions
-     * @param sort [DiscussionTimeSort.INVERTED] if you need new posts first, [DiscussionTimeSort.SEQUENTIALLY] if you need old first
+     * @param sort [FeedSort.INVERTED] if you need new posts first, [FeedSort.SEQUENTIALLY] if you need old first
      * @param sequenceKey paging key for querying next page of discussions. is from [DiscussionsResult.getSequenceKey]
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
@@ -1519,15 +1524,17 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun getUserSubscriptions(
-            user: CyberName,
+            user: CyberName?,
+            userName: String?,
             type: ContentParsingType,
             limit: Int,
-            sort: DiscussionTimeSort,
-            sequenceKey: String?
+            sort: FeedSort,
+            sequenceKey: String? = null,
+            appName: String = "gls"
     ) = apiService.getDiscussions(
             PostsFeedType.SUBSCRIPTIONS,
-            sort, type, sequenceKey, limit, user.name, null
-    )
+            sort, null, type, sequenceKey, limit, user?.name,
+            null, null, userName, appName)
 
     /** method for fetching posts of certain user
      * return objects may differ, depending on auth state of current user.
@@ -1537,7 +1544,7 @@ class Cyber4J @JvmOverloads constructor(
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit limit of returned discussions
-     * @param sort [DiscussionTimeSort.INVERTED] if you need new posts first, [DiscussionTimeSort.SEQUENTIALLY] if you need old first
+     * @param sort [FeedSort.INVERTED] if you need new posts first, [FeedSort.SEQUENTIALLY] if you need old first
      * @param sequenceKey paging key for querying next page of discussions. is from [DiscussionsResult.getSequenceKey]
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
@@ -1546,21 +1553,25 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun getUserPosts(
-            user: CyberName,
+            user: CyberName?,
+            userName: String?,
             type: ContentParsingType,
             limit: Int,
-            sort: DiscussionTimeSort,
-            sequenceKey: String? = null
-    ) =
-            apiService.getDiscussions(
-                    PostsFeedType.USER_POSTS,
-                    sort,
-                    type,
-                    sequenceKey,
-                    limit,
-                    user.name,
-                    null
-            )
+            sort: FeedSort,
+            sequenceKey: String? = null,
+            appName: String = "gls"
+    ) = apiService.getDiscussions(
+            PostsFeedType.USER_POSTS,
+            sort,
+            null,
+            type,
+            sequenceKey,
+            limit,
+            user?.name,
+            null,
+            null,
+            userName,
+            appName)
 
 
     /** method for fetching particular post
@@ -1578,10 +1589,12 @@ class Cyber4J @JvmOverloads constructor(
 
 
     fun getPost(
-            user: CyberName,
+            user: CyberName?,
+            userName: String?,
             permlink: String,
-            parsingType: ContentParsingType
-    ) = apiService.getPost(user.name, permlink, parsingType)
+            parsingType: ContentParsingType,
+            appName: String = "gls"
+    ) = apiService.getPost(user?.name, userName, permlink, parsingType, appName)
 
 
     /** method for fetching particular comment
@@ -1597,10 +1610,12 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun getComment(
-            user: CyberName,
+            user: CyberName?,
+            userName: String?,
             permlink: String,
-            parsingType: ContentParsingType
-    ) = apiService.getComment(user.name, permlink, parsingType)
+            parsingType: ContentParsingType,
+            appName: String = "gls"
+    ) = apiService.getComment(user?.name, permlink, parsingType, userName, appName)
 
     /** method for fetching comments particular post
      * return objects may differ, depending on auth state of current user.
@@ -1610,7 +1625,7 @@ class Cyber4J @JvmOverloads constructor(
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit number of comments to fetch. Comments are fetched sequentially, without concerning on comment level
-     * @param sort [DiscussionTimeSort.INVERTED] if you need new comments first, [DiscussionTimeSort.SEQUENTIALLY] if you need old first
+     * @param sort [FeedSort.INVERTED] if you need new comments first, [FeedSort.SEQUENTIALLY] if you need old first
      * @param sequenceKey paging key for querying next page of comments. is from [DiscussionsResult.getSequenceKey]
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
@@ -1619,16 +1634,18 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun getCommentsOfPost(
-            user: CyberName,
+            user: CyberName?,
+            userName: String?,
             permlink: String,
             parsingType: ContentParsingType,
             limit: Int,
-            sort: DiscussionTimeSort,
-            sequenceKey: String? = null
+            sort: FeedSort,
+            sequenceKey: String? = null,
+            appName: String = "gls"
     ) = apiService.getComments(
-                    sort, sequenceKey, limit,
-                    CommentsOrigin.COMMENTS_OF_POST, parsingType,
-                    user.name, permlink)
+            sort, sequenceKey, limit,
+            CommentsOrigin.COMMENTS_OF_POST, parsingType,
+            user?.name, permlink, userName, appName)
 
     /** method for fetching replies to particular user
      * return objects may differ, depending on auth state of current user.
@@ -1637,7 +1654,7 @@ class Cyber4J @JvmOverloads constructor(
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit number of comments to fetch. Comments are fetched sequentially, without concerning on comment level
-     * @param sort [DiscussionTimeSort.INVERTED] if you need new comments first, [DiscussionTimeSort.SEQUENTIALLY] if you need old first
+     * @param sort [FeedSort.INVERTED] if you need new comments first, [FeedSort.SEQUENTIALLY] if you need old first
      * @param sequenceKey paging key for querying next page of comments. is from [DiscussionsResult.getSequenceKey]
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
@@ -1645,16 +1662,17 @@ class Cyber4J @JvmOverloads constructor(
      * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
     fun getUserReplies(
-            user: CyberName,
+            user: CyberName?,
+            userName: String?,
             parsingType: ContentParsingType,
             limit: Int,
-            sort: DiscussionTimeSort,
-            sequenceKey: String? = null
-    ) =
-            apiService.getComments(
-                    sort, sequenceKey, limit,
-                    CommentsOrigin.REPLIES, parsingType,
-                    user.name, null)
+            sort: FeedSort,
+            sequenceKey: String? = null,
+            appName: String = "gls"
+    ) = apiService.getComments(
+            sort, sequenceKey, limit,
+            CommentsOrigin.REPLIES, parsingType,
+            user?.name, null, userName, appName)
 
     /** method for fetching comments particular user
      * return objects may differ, depending on auth state of current user.
@@ -1663,7 +1681,7 @@ class Cyber4J @JvmOverloads constructor(
      * for [ContentParsingType.MOBILE] there would rows of text and images, for [ContentParsingType.WEB] there would be 'body' with web parsing rules to apply,
      * for [ContentParsingType.RAW] there would be 'raw' field, with contents as is
      * @param limit number of comments to fetch.
-     * @param sort [DiscussionTimeSort.INVERTED] if you need new comments first, [DiscussionTimeSort.SEQUENTIALLY] if you need old first
+     * @param sort [FeedSort.INVERTED] if you need new comments first, [FeedSort.SEQUENTIALLY] if you need old first
      * @param sequenceKey paging key for querying next page of comments. is from [DiscussionsResult.getSequenceKey]
      * null, if you want posts from beginning
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
@@ -1672,28 +1690,42 @@ class Cyber4J @JvmOverloads constructor(
      */
 
     fun getCommentsOfUser(
-            user: CyberName,
+            user: CyberName?,
+            userName: String?,
             parsingType: ContentParsingType,
             limit: Int,
-            sort: DiscussionTimeSort,
-            sequenceKey: String? = null
+            sort: FeedSort,
+            sequenceKey: String? = null,
+            appName: String = "gls"
     ): Either<DiscussionsResult, ApiResponseError> =
             apiService.getComments(
                     sort, sequenceKey, limit,
                     CommentsOrigin.COMMENTS_OF_USER, parsingType,
-                    user.name, null)
+                    user?.name, null, userName, appName)
 
     /**Do not use, would be changed soon*/
-    fun getSubscriptionsToUsers(ofUser: CyberName, limit: Int, sequenceKey: String?) = apiService.getSubscriptions(ofUser, limit, SubscriptionType.USER, sequenceKey)
+    fun getSubscriptionsToUsers(ofUser: CyberName,
+                                limit: Int,
+                                sequenceKey: String? = null,
+                                appName: String = "gls") = apiService.getSubscriptions(ofUser, limit, SubscriptionType.USER, sequenceKey, appName)
 
     /**Do not use, would be changed soon*/
-    fun getSubscriptionsToCommunities(ofUser: CyberName, limit: Int, sequenceKey: String?) = apiService.getSubscriptions(ofUser, limit, SubscriptionType.COMMUNITY, sequenceKey)
+    fun getSubscriptionsToCommunities(ofUser: CyberName,
+                                      limit: Int,
+                                      sequenceKey: String? = null,
+                                      appName: String = "gls") = apiService.getSubscriptions(ofUser, limit, SubscriptionType.COMMUNITY, sequenceKey, appName)
 
     /**Do not use, would be changed soon*/
-    fun getUsersSubscribedToUser(user: CyberName, limit: Int, sequenceKey: String?) = apiService.getSubscribers(user, limit, SubscriptionType.USER, sequenceKey)
+    fun getUsersSubscribedToUser(user: CyberName,
+                                 limit: Int,
+                                 sequenceKey: String? = null,
+                                 appName: String = "gls") = apiService.getSubscribers(user, limit, SubscriptionType.USER, sequenceKey, appName)
 
     /**Do not use, would be changed soon*/
-    fun getCommunitiesSubscribedToUser(ofUser: CyberName, limit: Int, sequenceKey: String?) = apiService.getSubscribers(ofUser, limit, SubscriptionType.COMMUNITY, sequenceKey)
+    fun getCommunitiesSubscribedToUser(ofUser: CyberName,
+                                       limit: Int,
+                                       sequenceKey: String? = null,
+                                       appName: String = "gls") = apiService.getSubscribers(ofUser, limit, SubscriptionType.COMMUNITY, sequenceKey, appName)
 
 
     /** method for fetching  metedata of some user
@@ -1701,8 +1733,8 @@ class Cyber4J @JvmOverloads constructor(
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      */
-    fun getUserMetadata(user: CyberName): Either<UserMetadataResult, ApiResponseError> =
-            apiService.getUserMetadata(user.name)
+    fun getUserMetadata(user: CyberName?, userName: String?, appName: String = "gls"): Either<UserMetadataResult, ApiResponseError> =
+            apiService.getUserMetadata(user?.name, userName, appName)
 
 
     /** method will block thread until [blockNum] would consumed by prism services
@@ -1743,7 +1775,9 @@ class Cyber4J @JvmOverloads constructor(
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
-    fun subscribeOnMobilePushNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError> = apiService.subscribeOnMobilePushNotifications(deviceId, fcmToken)
+    fun subscribeOnMobilePushNotifications(deviceId: String,
+                                           fcmToken: String,
+                                           appName: String = "gls"): Either<ResultOk, ApiResponseError> = apiService.subscribeOnMobilePushNotifications(deviceId, appName, fcmToken)
 
     /** method unSubscribes mobile device from push notifications in FCM.
      *  method requires authorization
@@ -1752,7 +1786,10 @@ class Cyber4J @JvmOverloads constructor(
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
-    fun unSubscribeOnNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError> = apiService.unSubscribeOnNotifications(deviceId, fcmToken)
+    fun unSubscribeOnNotifications(userId:CyberName,
+                                   deviceId: String,
+                                   appName: String = "gls"): Either<ResultOk, ApiResponseError>
+            = apiService.unSubscribeOnNotifications(userId.name,deviceId, appName)
 
     /**method for setting various settings for user. If any of setting param is null, this settings will not change.
      * All setting are individual for every [deviceId]
@@ -1764,9 +1801,11 @@ class Cyber4J @JvmOverloads constructor(
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
-    fun setUserSettings(deviceId: String, newBasicSettings: Any?,
+    fun setUserSettings(deviceId: String,
+                        newBasicSettings: Any?,
                         newWebNotifySettings: WebShowSettings?,
-                        newMobilePushSettings: MobileShowSettings?): Either<ResultOk, ApiResponseError> = apiService.setNotificationSettings(deviceId, newBasicSettings, newWebNotifySettings, newMobilePushSettings)
+                        newMobilePushSettings: MobileShowSettings?,
+                        appName: String = "gls"): Either<ResultOk, ApiResponseError> = apiService.setNotificationSettings(deviceId, appName, newBasicSettings, newWebNotifySettings, newMobilePushSettings)
 
     /**method for retreiving user setting. Personal for evert [deviceId]
      * method requires authorization
@@ -1774,7 +1813,7 @@ class Cyber4J @JvmOverloads constructor(
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
-    fun getUserSettings(deviceId: String): Either<UserSettings, ApiResponseError> = apiService.getNotificationSettings(deviceId)
+    fun getUserSettings(deviceId: String, appName: String = "gls"): Either<UserSettings, ApiResponseError> = apiService.getNotificationSettings(deviceId, appName)
 
     /**method for retreiving history of notifications.
      * method requires authorization
@@ -1787,8 +1826,14 @@ class Cyber4J @JvmOverloads constructor(
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
-    fun getEvents(userProfile: String, afterId: String?, limit: Int?, markAsViewed: Boolean?,
-                  freshOnly: Boolean?, types: List<EventType>): Either<EventsData, ApiResponseError> = apiService.getEvents(userProfile, afterId, limit, markAsViewed, freshOnly, types)
+    fun getEvents(userProfile: String,
+                  afterId: String?,
+                  limit: Int?,
+                  markAsViewed: Boolean?,
+                  freshOnly: Boolean?,
+                  types: List<EventType>,
+                  appName: String = "gls"): Either<EventsData, ApiResponseError> =
+            apiService.getEvents(userProfile, appName, afterId, limit, markAsViewed, freshOnly, types)
 
     /**mark certain events as unfresh, eg returning 'fresh' property as false
      * method requires authorization
@@ -1796,21 +1841,22 @@ class Cyber4J @JvmOverloads constructor(
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
-    fun markEventsAsNotFresh(ids: List<String>): Either<ResultOk, ApiResponseError> = apiService.markEventsAsRead(ids)
+    fun markEventsAsNotFresh(ids: List<String>, appName: String = "gls"): Either<ResultOk, ApiResponseError> = apiService.markEventsAsRead(ids, appName)
 
     /**mark certain all events history of authorized user as not fresh
      * method requires authorization
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
-    fun markAllEventsAsNotFresh(): Either<ResultOk, ApiResponseError> = apiService.markAllEventsAsRead()
+    fun markAllEventsAsNotFresh(appName: String = "gls"): Either<ResultOk, ApiResponseError> = apiService.markAllEventsAsRead(appName)
 
     /**method for retreving count of fresh events of authorized user.
      * method requires authorization
      * @throws SocketTimeoutException if socket was unable to answer in [Cyber4JConfig.readTimeoutInSeconds] seconds
      * @return [Either.Success] if transaction succeeded, otherwise [Either.Failure]
      * */
-    fun getFreshNotificationCount(profileId: String): Either<FreshResult, ApiResponseError> = apiService.getUnreadCount(profileId)
+    fun getFreshNotificationCount(profileId: String, appName: String = "gls"): Either<FreshResult, ApiResponseError>
+            = apiService.getUnreadCount(profileId, appName)
 
     /**method returns current state of user registration process, user gets identified by [user] or
      * by [phone]

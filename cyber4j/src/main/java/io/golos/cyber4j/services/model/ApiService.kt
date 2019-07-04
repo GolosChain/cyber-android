@@ -13,31 +13,41 @@ import io.golos.sharedmodel.CyberName
 interface ApiService {
 
     fun getDiscussions(feedType: PostsFeedType,
-                       sort: DiscussionTimeSort,
+                       sort: FeedSort,
+                       timeFrame: FeedTimeFrame?,
                        parsingType: ContentParsingType,
                        sequenceKey: String?,
                        limit: Int,
                        userId: String?,
-                       communityId: String?): Either<DiscussionsResult, ApiResponseError>
+                       communityId: String?,
+                       tags: List<String>?,
+                       username: String?,
+                       app: String): Either<DiscussionsResult, ApiResponseError>
 
-    fun getPost(userId: String,
+    fun getPost(userId: String?,
+                username: String?,
                 permlink: String,
-                parsingType: ContentParsingType): Either<CyberDiscussion, ApiResponseError>
+                parsingType: ContentParsingType,
+                appName: String): Either<CyberDiscussion, ApiResponseError>
 
-    fun getComment(userId: String,
+    fun getComment(userId: String?,
                    permlink: String,
-                   parsingType: ContentParsingType): Either<CyberDiscussion, ApiResponseError>
+                   parsingType: ContentParsingType,
+                   username: String?,
+                   app: String): Either<CyberDiscussion, ApiResponseError>
 
-    fun getComments(sort: DiscussionTimeSort,
+    fun getComments(sort: FeedSort?,
                     sequenceKey: String?,
-                    limit: Int,
-                    origin: CommentsOrigin,
+                    limit: Int?,
+                    origin: CommentsOrigin?,
                     parsingType: ContentParsingType,
                     userId: String?,
-                    permlink: String?): Either<DiscussionsResult, ApiResponseError>
+                    permlink: String?,
+                    username: String?,
+                    appName: String): Either<DiscussionsResult, ApiResponseError>
 
 
-    fun getUserMetadata(userId: String): Either<UserMetadataResult, ApiResponseError>
+    fun getUserMetadata(userId: String?, username: String?, app: String): Either<UserMetadataResult, ApiResponseError>
 
     fun getIframelyEmbed(forLink: String): Either<IFramelyEmbedResult, ApiResponseError>
 
@@ -59,26 +69,26 @@ interface ApiService {
 
     fun waitForTransaction(transactionId: String): Either<ResultOk, ApiResponseError>
 
-    fun subscribeOnMobilePushNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError>
+    fun subscribeOnMobilePushNotifications(deviceId: String, appName: String, fcmToken: String): Either<ResultOk, ApiResponseError>
 
-    fun unSubscribeOnNotifications(deviceId: String, fcmToken: String): Either<ResultOk, ApiResponseError>
+    fun unSubscribeOnNotifications(userId: String, deviceId: String, appName: String): Either<ResultOk, ApiResponseError>
 
-    fun setNotificationSettings(deviceId: String, newBasicSettings: Any?,
-                                newWebNotifySettings: WebShowSettings?, newMobilePushSettings: MobileShowSettings?): Either<ResultOk, ApiResponseError>
+    fun setNotificationSettings(deviceId: String, app: String,
+                                newBasicSettings: Any?, newWebNotifySettings: WebShowSettings?, newMobilePushSettings: MobileShowSettings?): Either<ResultOk, ApiResponseError>
 
-    fun getNotificationSettings(deviceId: String): Either<UserSettings, ApiResponseError>
+    fun getNotificationSettings(deviceId: String, app: String): Either<UserSettings, ApiResponseError>
 
-    fun getEvents(userProfile: String, afterId: String?, limit: Int?, markAsViewed: Boolean?, freshOnly: Boolean?, types: List<EventType>): Either<EventsData, ApiResponseError>
+    fun getEvents(userProfile: String, appName: String, afterId: String?, limit: Int?, markAsViewed: Boolean?, freshOnly: Boolean?, types: List<EventType>): Either<EventsData, ApiResponseError>
 
-    fun markEventsAsRead(ids: List<String>): Either<ResultOk, ApiResponseError>
+    fun markEventsAsRead(ids: List<String>, appName: String): Either<ResultOk, ApiResponseError>
 
-    fun markAllEventsAsRead(): Either<ResultOk, ApiResponseError>
+    fun markAllEventsAsRead(appName: String): Either<ResultOk, ApiResponseError>
 
-    fun getUnreadCount(profileId: String): Either<FreshResult, ApiResponseError>
+    fun getUnreadCount(profileId: String, appName: String): Either<FreshResult, ApiResponseError>
 
-    fun getSubscriptions(ofUser: CyberName, limit: Int, type: SubscriptionType, sequenceKey: String?): Either<SubscriptionsResponse, ApiResponseError>
+    fun getSubscriptions(ofUser: CyberName, limit: Int, type: SubscriptionType, sequenceKey: String?, appName: String): Either<SubscriptionsResponse, ApiResponseError>
 
-    fun getSubscribers(ofUser: CyberName, limit: Int, type: SubscriptionType, sequenceKey: String?): Either<SubscribersResponse, ApiResponseError>
+    fun getSubscribers(ofUser: CyberName, limit: Int, type: SubscriptionType, sequenceKey: String?, appName: String): Either<SubscribersResponse, ApiResponseError>
 
     fun getAuthSecret(): Either<AuthSecret, ApiResponseError>
 

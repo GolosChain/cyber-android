@@ -17,7 +17,6 @@ data class NotificationSettings(val upvote: Boolean?,
                                 val unsubscribe: Boolean?,
                                 val mention: Boolean?,
                                 val repost: Boolean?,
-                                val message: Boolean?,
                                 val witnessVote: Boolean?,
                                 val witnessCancelVote: Boolean?,
                                 val reward: Boolean?,
@@ -38,10 +37,12 @@ enum class ServiceSettingsLanguage {
 class UserSettings(
         //device id
         val profile: String?,
+        val app:String,
         val basic: Any?,
         val notify: WebShowSettings?,
         val push: MobileShowSettings?
 )
 @JsonClass(generateAdapter = true)
 internal class ServicesSettingsRequest(
-        val profile: String)
+        val profile: String,
+        val app:String)
