@@ -31,8 +31,8 @@ data class DiscussionId(
 @JsonClass(generateAdapter = true)
 data class DiscussionStats(val commentsCount: Long?,
                            val rShares: BigInteger?,
-                           val hot: Long?,
-                           val trending: Long?,
+                           val hot: Double?,
+                           val trending: Double?,
                            val viewCount: Long?)
 
 @JsonClass(generateAdapter = true)
