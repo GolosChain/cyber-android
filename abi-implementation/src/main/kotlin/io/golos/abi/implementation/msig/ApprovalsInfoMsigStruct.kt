@@ -1,0 +1,57 @@
+// Class is generated, changes would be overridden on compile
+package io.golos.abi.implementation.msig
+
+import com.memtrip.eos.abi.writer.Abi
+import com.memtrip.eos.abi.writer.ByteCompress
+import com.memtrip.eos.abi.writer.CollectionCompress
+import com.memtrip.eos.abi.writer.CyberNameCompress
+import com.memtrip.eos.abi.writer.compression.CompressionType
+import com.memtrip.eos.chain.actions.transaction.abi.ActionAbi
+import com.memtrip.eos.chain.actions.transaction.abi.TransactionAuthorizationAbi
+import com.squareup.moshi.JsonClass
+import io.golos.abi.implementation.AbiBinaryGenCyber
+import io.golos.annotations.ForTechUse
+import io.golos.sharedmodel.CyberName
+import kotlin.Byte
+import kotlin.String
+import kotlin.collections.List
+
+@Abi
+@JsonClass(generateAdapter = true)
+data class ApprovalsInfoMsigStruct(
+  val version: Byte,
+  val proposal_name: CyberName,
+  val requested_approvals: List<ApprovalMsigStruct>,
+  val provided_approvals: List<ApprovalMsigStruct>
+) {
+  val structName: String = "approvals_info"
+
+  @ForTechUse
+  val getVersion: Byte
+    @ByteCompress
+    get() = version
+
+  @ForTechUse
+  val getProposalName: CyberName
+    @CyberNameCompress
+    get() = proposal_name
+
+  @ForTechUse
+  val getRequestedApprovals: List<ApprovalMsigStruct>
+    @CollectionCompress
+    get() = requested_approvals
+
+  @ForTechUse
+  val getProvidedApprovals: List<ApprovalMsigStruct>
+    @CollectionCompress
+    get() = provided_approvals
+
+  fun toHex() = AbiBinaryGenCyber(CompressionType.NONE)
+                 .squishApprovalsInfoMsigStruct(this)
+                 .toHex()
+  fun toActionAbi(
+    contractName: String,
+    actionName: String,
+    transactionAuth: List<TransactionAuthorizationAbi>
+  ) = ActionAbi(contractName, actionName,
+         transactionAuth, toHex())}
