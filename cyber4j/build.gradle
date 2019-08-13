@@ -97,7 +97,7 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
 
-   // implementation 'com.github.GolosChain:cyber-android:v0.7'
+    //implementation 'com.github.GolosChain:cyber-android:6688f0ea06d477ef6bb47992a3db978e56655a3b'
 }
 
 apply from: '../publish.gradle'
