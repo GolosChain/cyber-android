@@ -5,9 +5,7 @@
 .idea/
 .DS_Store
 /build
-
 /out
 /captures
 .externalNativeBuild
-/gradlew
 /gradlew.bat
