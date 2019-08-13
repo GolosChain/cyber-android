@@ -96,8 +96,6 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
 
     testImplementation 'junit:junit:4.12'
-
-    //implementation 'com.github.GolosChain:cyber-android:dd8ac6f23712b4869c9175aff55e6745a358c7aa'
 }
 
 apply from: '../publish.gradle'
