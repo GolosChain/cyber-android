@@ -3,7 +3,6 @@ package io.golos.abi.implementation.emit
 
 import com.memtrip.eos.abi.writer.Abi
 import com.memtrip.eos.abi.writer.BoolCompress
-import com.memtrip.eos.abi.writer.BytesCompress
 import com.memtrip.eos.abi.writer.LongCompress
 import com.memtrip.eos.abi.writer.compression.CompressionType
 import com.memtrip.eos.chain.actions.transaction.abi.ActionAbi
@@ -11,9 +10,7 @@ import com.memtrip.eos.chain.actions.transaction.abi.TransactionAuthorizationAbi
 import com.squareup.moshi.JsonClass
 import io.golos.abi.implementation.AbiBinaryGenCyber
 import io.golos.annotations.ForTechUse
-import java.math.BigInteger
 import kotlin.Boolean
-import kotlin.ByteArray
 import kotlin.Long
 import kotlin.String
 import kotlin.collections.List
@@ -23,7 +20,6 @@ import kotlin.collections.List
 data class StateEmitStruct(
   val id: Long,
   val prev_emit: Long,
-  val tx_id: BigInteger,
   val start_time: Long,
   val active: Boolean
 ) {
@@ -38,12 +34,6 @@ data class StateEmitStruct(
   val getPrevEmit: Long
     @LongCompress
     get() = prev_emit
-
-  @ForTechUse
-  val getTxId: ByteArray
-    @BytesCompress
-    get() = ByteArray(16) { 0 }.also { System.arraycopy(tx_id.toByteArray(), 0, it, 0,
-        tx_id.toByteArray().size) }.reversedArray()
 
   @ForTechUse
   val getStartTime: Long

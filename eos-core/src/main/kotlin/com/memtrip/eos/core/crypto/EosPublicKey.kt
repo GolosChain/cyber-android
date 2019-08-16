@@ -72,7 +72,7 @@ class EosPublicKey {
     }
 
     companion object {
-        private const val PREFIX = "EOS"
+        private const val PREFIX = "GLS"
 
         private fun bytesFromBase58(base58: String): BytesWithChecksum {
             val parts = base58.split("_")
