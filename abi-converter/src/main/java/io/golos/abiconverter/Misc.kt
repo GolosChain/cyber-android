@@ -73,7 +73,7 @@ fun getAbi(contractName: CyberName, buildDir: File): EosAbi {
     val resp = okHttpClient.newCall(Request.Builder()
             .post(RequestBody.create(MediaType.get("application/json"),
                     moshi.toJson(mapOf("account_name" to contractName.name))))
-            .url("http://46.4.96.246:8888/v1/chain/get_abi")
+            .url("https://node-cyberway.golos.io/v1/chain/get_abi")
             .build())
             .execute()
 
