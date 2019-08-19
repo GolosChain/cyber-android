@@ -1,13 +1,14 @@
 package io.golos.cyber4j
 
-import com.memtrip.eos.chain.actions.transaction.abi.ActionAbi
-import com.memtrip.eos.core.crypto.EosPrivateKey
-import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
+import io.golos.cyber4j.chain.actions.transaction.TransactionPusher
+import io.golos.cyber4j.chain.actions.transaction.abi.ActionAbi
+import io.golos.cyber4j.core.crypto.EosPrivateKey
+import io.golos.cyber4j.http.rpc.model.transaction.response.TransactionCommitted
 import io.golos.cyber4j.model.BandWidthRequest
 import io.golos.cyber4j.model.BandWidthSource
-import io.golos.sharedmodel.Cyber4JConfig
-import io.golos.sharedmodel.Either
-import io.golos.sharedmodel.GolosEosError
+import io.golos.cyber4j.sharedmodel.Cyber4JConfig
+import io.golos.cyber4j.sharedmodel.Either
+import io.golos.cyber4j.sharedmodel.GolosEosError
 
 internal class TransactionPusherImpl(private val cyber4JConfig: Cyber4JConfig) {
 
@@ -17,7 +18,7 @@ internal class TransactionPusherImpl(private val cyber4JConfig: Cyber4JConfig) {
                                   traceType: Class<T>,
                                   bandWidthSource: BandWidthRequest? = null): Either<TransactionCommitted<T>, GolosEosError> {
 
-        return com.memtrip.eos.chain.actions.transaction.TransactionPusher.pushTransaction(action, key,
+        return TransactionPusher.pushTransaction(action, key,
                 traceType, cyber4JConfig.blockChainHttpApiUrl,
                 bandWidthSource?.source == BandWidthSource.USING_KEY,
                 bandWidthSource?.key,

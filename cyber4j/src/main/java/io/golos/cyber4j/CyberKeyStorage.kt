@@ -1,9 +1,9 @@
 package io.golos.cyber4j
 
-import com.memtrip.eos.core.crypto.EosPrivateKey
+import io.golos.cyber4j.core.crypto.EosPrivateKey
 import io.golos.cyber4j.model.AuthType
 import io.golos.cyber4j.utils.Pair
-import io.golos.sharedmodel.CyberName
+import io.golos.cyber4j.sharedmodel.CyberName
 import java.util.*
 import kotlin.collections.HashMap
 

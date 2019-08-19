@@ -1,21 +1,20 @@
-import com.memtrip.eos.core.crypto.EosPrivateKey
-import com.memtrip.eos.core.crypto.signature.PrivateKeySigning
 import io.golos.cyber4j.BuildConfig
-import io.golos.cyber4j.Cyber4J
-import io.golos.cyber4j.model.*
+import io.golos.cyber4j.core.crypto.EosPrivateKey
+import io.golos.cyber4j.core.crypto.signature.PrivateKeySigning
 import io.golos.cyber4j.model.BandWidthRequest.Companion.bandWidthFromGolosRequest
-import io.golos.sharedmodel.Either
-import io.golos.sharedmodel.CyberName
+import io.golos.cyber4j.model.Beneficiary
+import io.golos.cyber4j.model.DiscussionCreateMetadata
+import io.golos.cyber4j.model.EmbedmentsUrl
+import io.golos.cyber4j.model.Tag
+import io.golos.cyber4j.sharedmodel.CyberName
+import io.golos.cyber4j.sharedmodel.Either
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.util.*
 import io.golos.cyber4j.model.BandWidthRequest.Companion.bandWidthRequest
-import io.golos.sharedmodel.Cyber4JConfig
-import okhttp3.logging.HttpLoggingInterceptor
-import org.junit.After
-import java.util.logging.Logger
 
 class PostingTest {
     private val client = getClient()
@@ -24,8 +23,8 @@ class PostingTest {
 
     @Before
     fun before() {
-        secondAccount = account(client.config.toConfigType(), true)
-        client.setActiveAccount(account(client.config.toConfigType(), true))
+        secondAccount = account(client.config.toConfigType(), false)
+        client.setActiveAccount(account(client.config.toConfigType(), false))
         val secret = client.getAuthSecret()
         client.authWithSecret(client.activeAccountPair.first.name,
                 (secret as Either.Success).value.secret,
@@ -34,8 +33,9 @@ class PostingTest {
                         EosPrivateKey(client.activeAccountPair.second)
                 ))
     }
+
     @After
-    fun after(){
+    fun after() {
         client.unAuth()
     }
 
@@ -56,7 +56,7 @@ class PostingTest {
                 postResult.message_id.author, postResult.message_id.permlink,
                 listOf(), testMetadata, createRandomCurationReward(),
                 listOf(Beneficiary(secondAccount.first, 2_500)),
-                bandWidthRequest =  EosPrivateKey(BuildConfig.GOLOSIO_KEY).bandWidthRequest())
+                bandWidthRequest = EosPrivateKey(BuildConfig.GOLOSIO_KEY).bandWidthRequest())
 
         assertTrue("comment creation fail on test net", commentCreationResult is Either.Success)
 
@@ -70,9 +70,9 @@ class PostingTest {
 
         val secondCommentCreationResult =
                 client.createComment(secondAccount.first, secondAccount.second,
-                "тестовый коммент",
-                secondPostResult.message_id.author, secondPostResult.message_id.permlink,
-                emptyList<Tag>(), testMetadata, createRandomCurationReward(), bandWidthRequest = EosPrivateKey(BuildConfig.GOLOSIO_KEY).bandWidthRequest())
+                        "тестовый коммент",
+                        secondPostResult.message_id.author, secondPostResult.message_id.permlink,
+                        emptyList<Tag>(), testMetadata, createRandomCurationReward(), bandWidthRequest = EosPrivateKey(BuildConfig.GOLOSIO_KEY).bandWidthRequest())
 
         assertTrue("comment creation fail on test net", secondCommentCreationResult is Either.Success)
     }

@@ -1,8 +1,8 @@
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.KeyStorage
 import io.golos.cyber4j.model.AuthType
-import io.golos.sharedmodel.CyberName
-import io.golos.sharedmodel.Either
+import io.golos.cyber4j.sharedmodel.CyberName
+import io.golos.cyber4j.sharedmodel.Either
 
 internal fun String.toCyberName() = CyberName(this)
 

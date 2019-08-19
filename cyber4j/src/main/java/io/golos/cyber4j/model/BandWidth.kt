@@ -1,6 +1,6 @@
 package io.golos.cyber4j.model
 
-import com.memtrip.eos.core.crypto.EosPrivateKey
+import io.golos.cyber4j.core.crypto.EosPrivateKey
 
 enum class BandWidthSource {
     GOLOSIO_SERVICES, USING_KEY

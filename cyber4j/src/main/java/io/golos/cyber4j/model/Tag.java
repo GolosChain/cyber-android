@@ -1,7 +1,7 @@
 package io.golos.cyber4j.model;
 
-import com.memtrip.eos.abi.writer.Abi;
-import com.memtrip.eos.abi.writer.StringCompress;
+import io.golos.cyber4j.abi.writer.Abi;
+import io.golos.cyber4j.abi.writer.StringCompress;
 
 @Abi
 public class Tag {

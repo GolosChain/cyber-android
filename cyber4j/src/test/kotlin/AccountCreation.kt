@@ -1,9 +1,9 @@
 import io.golos.cyber4j.BuildConfig
 import io.golos.cyber4j.model.AuthType
 import io.golos.cyber4j.utils.AuthUtils
-import io.golos.sharedmodel.Cyber4JConfig
-import io.golos.sharedmodel.CyberName
-import io.golos.sharedmodel.Either
+import io.golos.cyber4j.sharedmodel.Cyber4JConfig
+import io.golos.cyber4j.sharedmodel.CyberName
+import io.golos.cyber4j.sharedmodel.Either
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.*

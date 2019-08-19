@@ -1,12 +1,11 @@
 package io.golos.cyber4j.services
 
-import com.memtrip.eos.abi.writer.compression.CompressionType
-import com.memtrip.eos.chain.actions.transaction.AbiBinaryGenTransactionWriter
-import com.memtrip.eos.chain.actions.transaction.abi.TransactionAbi
-import com.memtrip.eos.http.rpc.SocketClient
-import com.memtrip.eos.http.rpc.SocketClientImpl
-import com.memtrip.eos.http.rpc.model.ApiResponseError
-import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
+import io.golos.cyber4j.abi.writer.compression.CompressionType
+import io.golos.cyber4j.chain.actions.transaction.AbiBinaryGenTransactionWriter
+import io.golos.cyber4j.chain.actions.transaction.abi.TransactionAbi
+import io.golos.cyber4j.http.rpc.SocketClientImpl
+import io.golos.cyber4j.http.rpc.model.ApiResponseError
+import io.golos.cyber4j.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -17,8 +16,9 @@ import io.golos.cyber4j.model.CyberDiscussion
 import io.golos.cyber4j.model.DiscussionsResult
 import io.golos.cyber4j.model.WriteUserToBlockchainRequest
 import io.golos.cyber4j.services.model.*
+import io.golos.cyber4j.sharedmodel.*
 import io.golos.cyber4j.utils.*
-import io.golos.sharedmodel.*
+import io.golos.cyber4j.sharedmodel.*
 import java.math.BigInteger
 import java.util.*
 
@@ -80,7 +80,7 @@ internal class CyberServicesApiService(
                 .add(CyberAsset::class.java, CyberAssetAdapter())
                 .add(KotlinJsonAdapterFactory())
                 .build(),
-        private val apiClient: SocketClient = SocketClientImpl(
+        private val apiClient: io.golos.cyber4j.http.rpc.SocketClient = SocketClientImpl(
                 config.servicesUrl,
                 moshi,
                 config.readTimeoutInSeconds,

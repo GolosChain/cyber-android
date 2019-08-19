@@ -4,13 +4,13 @@ package ${package_name};
 import ${abi.getClassPackage()}.${abi.getClassName()};
 </#list>
 
-import com.memtrip.eos.abi.writer.ByteWriter;
-import com.memtrip.eos.abi.writer.bytewriter.DefaultByteWriter;
-import com.memtrip.eos.abi.writer.compression.CompressionFactory;
-import com.memtrip.eos.abi.writer.compression.CompressionType;
+import io.golos.cyber4j.abi.writer.ByteWriter;
+import io.golos.cyber4j.abi.writer.bytewriter.DefaultByteWriter;
+import io.golos.cyber4j.abi.writer.compression.CompressionFactory;
+import io.golos.cyber4j.abi.writer.compression.CompressionType;
 
-import com.memtrip.eos.core.hex.DefaultHexWriter;
-import com.memtrip.eos.core.hex.HexWriter;
+import io.golos.cyber4j.core.hex.DefaultHexWriter;
+import io.golos.cyber4j.core.hex.HexWriter;
 
 import java.util.List;
 

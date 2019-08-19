@@ -1,27 +1,27 @@
 package io.golos.cyber4j
 
-import com.memtrip.eos.http.rpc.Api
-import com.memtrip.eos.http.rpc.SharedConnectionPool
-import com.memtrip.eos.http.rpc.model.account.request.AccountName
-import com.memtrip.eos.http.rpc.model.account.response.Account
-import com.memtrip.eos.http.rpc.model.block.request.BlockNumOrId
-import com.memtrip.eos.http.rpc.model.block.response.Block
-import com.memtrip.eos.http.rpc.model.block.response.BlockHeaderState
-import com.memtrip.eos.http.rpc.model.contract.request.*
-import com.memtrip.eos.http.rpc.model.contract.response.*
-import com.memtrip.eos.http.rpc.model.info.Info
-import com.memtrip.eos.http.rpc.model.producer.request.GetProducers
-import com.memtrip.eos.http.rpc.model.producer.response.ProducerList
-import com.memtrip.eos.http.rpc.model.signing.GetRequiredKeysBody
-import com.memtrip.eos.http.rpc.model.signing.PushTransaction
-import com.memtrip.eos.http.rpc.model.signing.RequiredKeys
+import io.golos.cyber4j.http.rpc.Api
+import io.golos.cyber4j.http.rpc.SharedConnectionPool
+import io.golos.cyber4j.http.rpc.model.account.request.AccountName
+import io.golos.cyber4j.http.rpc.model.account.response.Account
+import io.golos.cyber4j.http.rpc.model.block.request.BlockNumOrId
+import io.golos.cyber4j.http.rpc.model.block.response.Block
+import io.golos.cyber4j.http.rpc.model.block.response.BlockHeaderState
+import io.golos.cyber4j.http.rpc.model.contract.request.*
+import io.golos.cyber4j.http.rpc.model.contract.response.*
+import io.golos.cyber4j.http.rpc.model.info.Info
+import io.golos.cyber4j.http.rpc.model.producer.request.GetProducers
+import io.golos.cyber4j.http.rpc.model.producer.response.ProducerList
+import io.golos.cyber4j.http.rpc.model.signing.GetRequiredKeysBody
+import io.golos.cyber4j.http.rpc.model.signing.PushTransaction
+import io.golos.cyber4j.http.rpc.model.signing.RequiredKeys
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import io.golos.cyber4j.model.CyberWayChainApi
 import io.golos.cyber4j.model.ResolvedName
 import io.golos.cyber4j.services.model.ImageUploadResponse
-import io.golos.sharedmodel.LogLevel
-import io.golos.sharedmodel.Cyber4JConfig
+import io.golos.cyber4j.sharedmodel.LogLevel
+import io.golos.cyber4j.sharedmodel.Cyber4JConfig
 import io.reactivex.Single
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
@@ -58,11 +58,11 @@ internal class GolosEosConfiguratedApi(private val config: Cyber4JConfig,
                 .readTimeout(config.readTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
                 .writeTimeout(config.writeTimeoutInSeconds.toLong(), TimeUnit.SECONDS)
                 .dispatcher(Dispatcher(Executors.newSingleThreadExecutor { Thread.currentThread() }))
-                .connectionPool(SharedConnectionPool.pool)
+                .connectionPool(io.golos.cyber4j.http.rpc.SharedConnectionPool.pool)
                 .build()
 
         api = object : CyberWayChainApi {
-            val api = Api(config.blockChainHttpApiUrl, okHttpClient).chain
+            val api = io.golos.cyber4j.http.rpc.Api(config.blockChainHttpApiUrl, okHttpClient).chain
             override fun getInfo(): Single<Response<Info>> {
                 return api.getInfo()
             }

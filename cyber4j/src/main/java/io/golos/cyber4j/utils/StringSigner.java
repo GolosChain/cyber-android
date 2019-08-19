@@ -1,11 +1,12 @@
 package io.golos.cyber4j.utils;
 
-import com.memtrip.eos.core.crypto.EosPrivateKey;
-import com.memtrip.eos.core.crypto.signature.PrivateKeySigning;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
+
+import io.golos.cyber4j.core.crypto.EosPrivateKey;
+import io.golos.cyber4j.core.crypto.signature.PrivateKeySigning;
 
 public class StringSigner {
     public static String signString(@NotNull String stringToSign,

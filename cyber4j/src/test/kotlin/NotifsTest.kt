@@ -4,8 +4,8 @@ import io.golos.cyber4j.services.model.MobileShowSettings
 import io.golos.cyber4j.services.model.NotificationSettings
 import io.golos.cyber4j.services.model.ServiceSettingsLanguage
 import io.golos.cyber4j.utils.StringSigner
-import io.golos.sharedmodel.Cyber4JConfig
-import io.golos.sharedmodel.Either
+import io.golos.cyber4j.sharedmodel.Cyber4JConfig
+import io.golos.cyber4j.sharedmodel.Either
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import org.junit.Test

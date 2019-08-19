@@ -1,10 +1,10 @@
 import io.golos.cyber4j.BuildConfig
 import io.golos.cyber4j.Cyber4J
-import io.golos.sharedmodel.Cyber4JConfig
+import io.golos.cyber4j.sharedmodel.Cyber4JConfig
 import io.golos.cyber4j.model.AuthType
-import io.golos.sharedmodel.Either
+import io.golos.cyber4j.sharedmodel.Either
 import io.golos.cyber4j.utils.StringSigner
-import io.golos.sharedmodel.CyberName
+import io.golos.cyber4j.sharedmodel.CyberName
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
@@ -16,7 +16,7 @@ private val unstableConfig = Cyber4JConfig(blockChainHttpApiUrl = BuildConfig.CY
         servicesUrl = BuildConfig.GATE_136)
 
 private val devConfig = Cyber4JConfig(blockChainHttpApiUrl = BuildConfig.CYBER_DEV_246,
-        servicesUrl =  BuildConfig.GATE_136)
+        servicesUrl = BuildConfig.GATE_136)
 
 private val stableConfig = Cyber4JConfig(blockChainHttpApiUrl = BuildConfig.CYBER_STABLE_39,
         servicesUrl = BuildConfig.GATE_241)

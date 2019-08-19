@@ -2,42 +2,48 @@
 
 package io.golos.cyber4j
 
-import com.memtrip.eos.abi.writer.compression.CompressionType
-import com.memtrip.eos.chain.actions.transaction.AbiBinaryGenTransactionWriter
-import com.memtrip.eos.chain.actions.transaction.TransactionPusher
-import com.memtrip.eos.chain.actions.transaction.abi.ActionAbi
-import com.memtrip.eos.chain.actions.transaction.abi.TransactionAbi
-import com.memtrip.eos.chain.actions.transaction.abi.TransactionAuthorizationAbi
-import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.AccountKeyAbi
-import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.AccountRequiredAuthAbi
-import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewAccountArgs
-import com.memtrip.eos.chain.actions.transaction.account.actions.newaccount.NewAccountBody
-import com.memtrip.eos.chain.actions.transaction.misc.ProvideBandwichAbi
-import com.memtrip.eos.core.crypto.EosPrivateKey
-import com.memtrip.eos.core.hex.DefaultHexWriter
-import com.memtrip.eos.http.rpc.model.ApiResponseError
-import com.memtrip.eos.http.rpc.model.account.request.AccountName
-import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
+import io.golos.cyber4j.abi.writer.compression.CompressionType
+import io.golos.cyber4j.chain.actions.transaction.TransactionPusher
+import io.golos.cyber4j.chain.actions.transaction.abi.ActionAbi
+import io.golos.cyber4j.chain.actions.transaction.abi.TransactionAbi
+import io.golos.cyber4j.chain.actions.transaction.abi.TransactionAuthorizationAbi
+import io.golos.cyber4j.chain.actions.transaction.account.actions.newaccount.AccountKeyAbi
+import io.golos.cyber4j.chain.actions.transaction.account.actions.newaccount.AccountRequiredAuthAbi
+import io.golos.cyber4j.chain.actions.transaction.account.actions.newaccount.NewAccountArgs
+import io.golos.cyber4j.chain.actions.transaction.account.actions.newaccount.NewAccountBody
+import io.golos.cyber4j.chain.actions.transaction.misc.ProvideBandwichAbi
+import io.golos.cyber4j.core.crypto.EosPrivateKey
+import io.golos.cyber4j.core.hex.DefaultHexWriter
+import io.golos.cyber4j.http.rpc.model.ApiResponseError
+import io.golos.cyber4j.http.rpc.model.account.request.AccountName
+import io.golos.cyber4j.http.rpc.model.transaction.response.TransactionCommitted
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
-import io.golos.abi.implementation.ctrl.*
-import io.golos.abi.implementation.domain.NewusernameDomainAction
-import io.golos.abi.implementation.domain.NewusernameDomainStruct
-import io.golos.abi.implementation.publish.*
-import io.golos.abi.implementation.social.*
-import io.golos.abi.implementation.token.TransferTokenAction
-import io.golos.abi.implementation.token.TransferTokenStruct
-import io.golos.abi.implementation.vesting.*
-import io.golos.annotations.ExcludeFromGeneration
-import io.golos.annotations.ShutDownMethod
+import io.golos.cyber4j.abi.implementation.ctrl.*
+import io.golos.cyber4j.abi.implementation.domain.NewusernameDomainAction
+import io.golos.cyber4j.abi.implementation.domain.NewusernameDomainStruct
+import io.golos.cyber4j.abi.implementation.publish.*
+import io.golos.cyber4j.abi.implementation.social.*
+import io.golos.cyber4j.abi.implementation.token.TransferTokenAction
+import io.golos.cyber4j.abi.implementation.token.TransferTokenStruct
+import io.golos.cyber4j.abi.implementation.vesting.*
+import io.golos.cyber4j.abi.implementation.ctrl.*
+import io.golos.cyber4j.abi.implementation.publish.*
+import io.golos.cyber4j.abi.implementation.social.*
+import io.golos.cyber4j.abi.implementation.vesting.*
+import io.golos.cyber4j.annotations.ExcludeFromGeneration
+import io.golos.cyber4j.annotations.ShutDownMethod
+import io.golos.cyber4j.abi.writer.bytewriter.DefaultByteWriter
+import io.golos.cyber4j.chain.actions.transaction.AbiBinaryGenTransactionWriter
 import io.golos.cyber4j.model.*
 import io.golos.cyber4j.services.CyberServicesApiService
 import io.golos.cyber4j.services.model.*
+import io.golos.cyber4j.sharedmodel.*
 import io.golos.cyber4j.utils.AuthUtils
 import io.golos.cyber4j.utils.StringSigner
 import io.golos.cyber4j.utils.checkArgument
 import io.golos.cyber4j.utils.toCyberName
-import io.golos.sharedmodel.*
+import io.golos.cyber4j.sharedmodel.*
 import net.gcardone.junidecode.Junidecode
 import java.io.File
 import java.net.SocketTimeoutException
@@ -1317,12 +1323,12 @@ open class Cyber4J @JvmOverloads constructor(
                     newAccountName,
                     AccountRequiredAuthAbi(
                             1,
-                            listOf(AccountKeyAbi(keys[AuthType.OWNER]!!.replaceFirst("GLS", "EOS"), 1)),
+                            listOf(AccountKeyAbi(keys[AuthType.OWNER]!!, 1)),
                             emptyList(), emptyList()
                     ),
                     AccountRequiredAuthAbi(
                             1,
-                            listOf(AccountKeyAbi(keys[AuthType.ACTIVE]!!.replaceFirst("GLS", "EOS"), 1)),
+                            listOf(AccountKeyAbi(keys[AuthType.ACTIVE]!!, 1)),
                             emptyList(),
                             emptyList()
                     )
@@ -2465,9 +2471,7 @@ open class Cyber4J @JvmOverloads constructor(
     }
 }
 
-private fun createBinaryConverter(): AbiBinaryGenCyber4J {
-    return AbiBinaryGenCyber4J(CyberwayByteWriter(), DefaultHexWriter(), CompressionType.NONE)
-}
+private fun createBinaryConverter(): AbiBinaryGenCyber4J = AbiBinaryGenCyber4J(CompressionType.NONE)
 
 private fun createProvideBw(forUser: CyberName): ActionAbi = ActionAbi("cyber",
         "providebw",

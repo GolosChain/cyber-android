@@ -1,10 +1,10 @@
 package io.golos.cyber4j.model
 
-import com.memtrip.eos.abi.writer.Abi
-import com.memtrip.eos.abi.writer.ByteCompress
-import com.memtrip.eos.abi.writer.BytesCompress
-import com.memtrip.eos.abi.writer.NameCompress
-import io.golos.sharedmodel.CyberName
+import io.golos.cyber4j.abi.writer.Abi
+import io.golos.cyber4j.abi.writer.ByteCompress
+import io.golos.cyber4j.abi.writer.BytesCompress
+import io.golos.cyber4j.abi.writer.NameCompress
+import io.golos.cyber4j.sharedmodel.CyberName
 
 @Abi
 internal class VestingStartRequestAbi(private val owner: CyberName,

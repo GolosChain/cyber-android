@@ -1,15 +1,15 @@
 package io.golos.cyber4j.services.model
 
 
-import com.memtrip.eos.chain.actions.transaction.abi.TransactionAbi
-import com.memtrip.eos.http.rpc.model.ApiResponseError
-import com.memtrip.eos.http.rpc.model.transaction.response.TransactionCommitted
+import io.golos.cyber4j.chain.actions.transaction.abi.TransactionAbi
+import io.golos.cyber4j.http.rpc.model.ApiResponseError
+import io.golos.cyber4j.http.rpc.model.transaction.response.TransactionCommitted
 import io.golos.cyber4j.model.CyberDiscussion
 import io.golos.cyber4j.model.DiscussionsResult
-import io.golos.sharedmodel.AuthSecret
-import io.golos.sharedmodel.CyberName
-import io.golos.sharedmodel.Either
-import io.golos.sharedmodel.GolosEosError
+import io.golos.cyber4j.sharedmodel.AuthSecret
+import io.golos.cyber4j.sharedmodel.CyberName
+import io.golos.cyber4j.sharedmodel.Either
+import io.golos.cyber4j.sharedmodel.GolosEosError
 
 /** listener interface for auth state in cyber microservices.
  *

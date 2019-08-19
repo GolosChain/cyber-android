@@ -3,8 +3,7 @@ import io.golos.cyber4j.model.Tag
 import io.golos.cyber4j.services.model.ContentParsingType
 import io.golos.cyber4j.services.model.FeedSort
 import io.golos.cyber4j.services.model.FeedTimeFrame
-import io.golos.sharedmodel.Either
-import io.golos.sharedmodel.CyberName
+import io.golos.cyber4j.sharedmodel.Either
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -137,7 +136,7 @@ class ServicesFetchTest {
     @Test
     fun userProfileTest() {
         val response = client.getUserAccount(
-                (client.resolveCanonicalCyberName("ehhehehehe", "gls") as Either.Success).value.userId)
+                (client.resolveCanonicalCyberName("joseph.kalu", "gls") as Either.Success).value.userId)
         assertTrue(response is Either.Success)
     }
 

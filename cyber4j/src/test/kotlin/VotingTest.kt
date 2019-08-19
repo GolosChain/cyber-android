@@ -1,9 +1,9 @@
-import io.golos.abi.implementation.publish.CreatemssgPublishStruct
+import io.golos.cyber4j.abi.implementation.publish.CreatemssgPublishStruct
 import io.golos.cyber4j.Cyber4J
 import io.golos.cyber4j.model.DiscussionCreateMetadata
 import io.golos.cyber4j.model.Tag
-import io.golos.sharedmodel.CyberName
-import io.golos.sharedmodel.Either
+import io.golos.cyber4j.sharedmodel.CyberName
+import io.golos.cyber4j.sharedmodel.Either
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test

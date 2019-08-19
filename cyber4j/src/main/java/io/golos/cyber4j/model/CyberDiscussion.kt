@@ -2,7 +2,7 @@ package io.golos.cyber4j.model
 
 import com.squareup.moshi.JsonClass
 import io.golos.cyber4j.services.model.CyberCommunity
-import io.golos.sharedmodel.CyberName
+import io.golos.cyber4j.sharedmodel.CyberName
 import java.math.BigInteger
 import java.util.*
 

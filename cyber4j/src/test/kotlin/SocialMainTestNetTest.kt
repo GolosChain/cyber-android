@@ -1,10 +1,10 @@
-import com.memtrip.eos.core.crypto.EosPrivateKey
 import io.golos.cyber4j.BuildConfig
 import io.golos.cyber4j.Cyber4J
+import io.golos.cyber4j.core.crypto.EosPrivateKey
 import io.golos.cyber4j.model.BandWidthRequest
 import io.golos.cyber4j.model.BandWidthSource
-import io.golos.sharedmodel.Either
-import io.golos.sharedmodel.CyberName
+import io.golos.cyber4j.sharedmodel.Either
+import io.golos.cyber4j.sharedmodel.CyberName
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -19,7 +19,7 @@ class SocialMainTestNetTest {
     @Before
     fun before() {
         client = getClient()
-        secondAcc = account(client.config.toConfigType())
+       // secondAcc = account(client.config.toConfigType())
     }
 
     @Test
@@ -101,5 +101,10 @@ class SocialMainTestNetTest {
         val unBlockResultSecond = client.unBlock(secondAcc.second, secondAcc.first,
                 client.keyStorage.getActiveAccount())
         assertTrue("pin fail", unBlockResultSecond is Either.Success)
+    }
+
+    @Test
+    fun testGetName(){
+        println(client.resolveCanonicalCyberName("joseph.kalu", "gls"))
     }
 }

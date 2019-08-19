@@ -1,8 +1,8 @@
 package ${package_name};
 
-import com.memtrip.eos.core.crypto.EosPublicKey;
-import com.memtrip.eos.abi.writer.ByteWriter;
-import com.memtrip.eos.abi.writer.Squishable;
+import io.golos.cyber4j.core.crypto.EosPublicKey;
+import io.golos.cyber4j.abi.writer.ByteWriter;
+import io.golos.cyber4j.abi.writer.Squishable;
 
 import ${abi.getClassPackage()}.${abi.getClassName()};
 

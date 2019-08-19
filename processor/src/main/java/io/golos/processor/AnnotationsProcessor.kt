@@ -3,9 +3,9 @@ package io.golos.processor
 import com.google.auto.service.AutoService
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import io.golos.annotations.ExcludeFromGeneration
-import io.golos.annotations.GenerateCoroutinesAdapter
-import io.golos.annotations.ShutDownMethod
+import io.golos.cyber4j.annotations.ExcludeFromGeneration
+import io.golos.cyber4j.annotations.GenerateCoroutinesAdapter
+import io.golos.cyber4j.annotations.ShutDownMethod
 import org.jetbrains.annotations.Nullable
 import java.io.File
 import java.util.concurrent.ExecutorService

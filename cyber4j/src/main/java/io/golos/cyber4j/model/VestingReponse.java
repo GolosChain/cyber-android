@@ -1,6 +1,6 @@
 package io.golos.cyber4j.model;
 
-import io.golos.sharedmodel.CyberName;
+import io.golos.cyber4j.sharedmodel.CyberName;
 
 public class VestingReponse {
     private CyberName owner;

@@ -1,5 +1,5 @@
 import io.golos.cyber4j.Cyber4J
-import io.golos.sharedmodel.Either
+import io.golos.cyber4j.sharedmodel.Either
 import io.golos.cyber4j.utils.StringSigner
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue

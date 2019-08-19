@@ -1,4 +1,4 @@
-import io.golos.sharedmodel.Either
+import io.golos.cyber4j.sharedmodel.Either
 import junit.framework.Assert.assertTrue
 import org.junit.Test
 

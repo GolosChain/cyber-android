@@ -19,9 +19,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 }
 
-
 application {
-    mainClassName = "io.golos.abiconverter.Main"
+    mainClassName = "io.golos.cyber4j.abi.converter.Main"
 }
 run {
     args = ["${project.sourceSets.main.kotlin.srcDirs.first()}".replace("abi-converter", "abi-implementation"),
