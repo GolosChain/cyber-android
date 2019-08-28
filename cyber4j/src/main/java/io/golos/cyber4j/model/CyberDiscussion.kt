@@ -57,7 +57,7 @@ data class ContentBody(
 data class Embed(val _id: String?,
                  val id: String?,
                  val type: String?,
-                 val result: EmbedResult)
+                 val result: EmbedResult?)
 
 @JsonClass(generateAdapter = true)
 data class EmbedResult(val type: String?,
